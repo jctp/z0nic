@@ -27,25 +27,16 @@ class Memory:
         # Bank 0
         if address < 0x4000:
             offset = self.bank0 * 0x4000 + address
-            logger.debug(
-                f"Bank 0: Adr: {address:04X} Val: {self.cartridge.rom[offset]:02X}"
-            )
             return self.cartridge.rom[offset]
 
         # Bank 1
         elif address < 0x8000:
             offset = self.bank1 * 0x4000 + (address - 0x4000)
-            logger.debug(
-                f"Bank 1: Adr: {address:04X} Val: {self.cartridge.rom[offset]:02X}"
-            )
             return self.cartridge.rom[offset]
 
         # Bank 2
         elif address < 0xC000:
             offset = self.bank2 * 0x4000 + (address - 0x8000)
-            logger.debug(
-                f"Bank 2: Adr: {address:04X} Val: {self.cartridge.rom[offset]:02X}"
-            )
             return self.cartridge.rom[offset]
 
     def write8(self, address, value):
