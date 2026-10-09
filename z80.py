@@ -27,7 +27,7 @@ class Z80:
         self.pc += 1
         self.execute(opcode)
 
-    def log_opcode(self, opcode, asm, implemented=True):
+    def log_opcode(self, opcode, asm, implemented = True):
         logger.debug("-" * 40)
         logger.debug(f"{self.pc:04X}: {opcode:02X}: {asm}")
 
@@ -36,6 +36,7 @@ class Z80:
 
     def execute(self, opcode):
         match opcode:
+
             # ----------------------------------------
             # NO OPERATION
             # ----------------------------------------
@@ -131,7 +132,7 @@ class Z80:
                 self.log_opcode(opcode, "CALL nn nn", implemented=False)
                 pass
 
-            # RET
+           # RET
             # TODO: Define
             # TODO: Implement
             case 0xC9:
@@ -199,9 +200,9 @@ class Z80:
                 pc_after_jump = self.pc
 
                 self.log_opcode(opcode, "JR e", implemented=True)
-                logger.debug(
-                    f"Jumped from {pc_before_jump:04X} to {pc_after_jump:04x} with offset {offset:04x}"
-                )
+                logger.debug(f"Jumped from {pc_before_jump:04X} to {pc_after_jump:04x} with offset {offset:04x}")
+
+
 
             # ----------------------------------------
             # UNKNOWN OPCODE
