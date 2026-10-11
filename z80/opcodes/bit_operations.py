@@ -11,6 +11,7 @@
 # SRA
 # SRL
 
+
 def execute(self):
     opcode = self.memory.read8(self.pc)
     self.pc += 1
@@ -24,7 +25,7 @@ def execute(self):
 
         # SET
 
-        # Not implemented 
+        # Not implemented
         case _:
             self.opcode_not_implemented(f"CB {opcode:02X}", "Unknown mnemonic")
 

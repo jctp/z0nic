@@ -8,44 +8,44 @@
 # E5      PUSH HL
 # F5      PUSH AF
 
+
 def execute(self, opcode):
 
     match opcode:
-
         # PUSH HL
         # TODO: Define
         # TODO: Implement
         case 0xE5:
-            opcode_cycles = 1 # TODO: Check correct
+            opcode_t_states = 1  # TODO: Check correct
 
             # Opcode function goes here
 
             self.log_opcode(
-                opcode = opcode,
-                asm = "PUSH HL",
-                prefix = "None",
-                opcode_cycles = opcode_cycles,
-                message = f"",
+                opcode=opcode,
+                asm="PUSH HL",
+                prefix="",
+                opcode_t_states=opcode_t_states,
+                message=f"",
                 implemented=False,
             )
-            return opcode_cycles
+            return opcode_t_states
 
         # POP HL
         # TODO: Define
         # TODO: Implement
         case 0xE1:
-            opcode_cycles = 1 # TODO: Check correct
+            opcode_t_states = 1  # TODO: Check correct
 
             # Opcode function goes here
 
             self.log_opcode(
-                opcode = opcode,
-                asm = "POP HL",
-                prefix = "None",
-                opcode_cycles = opcode_cycles,
-                message = f"",
+                opcode=opcode,
+                asm="POP HL",
+                prefix="",
+                opcode_t_states=opcode_t_states,
+                message=f"",
                 implemented=False,
             )
-            return opcode_cycles
+            return opcode_t_states
 
     return None

@@ -6,26 +6,26 @@
 # EE      XOR n
 # F6      OR n
 
+
 def execute(self, opcode):
 
     match opcode:
-
         # XOR A
         # TODO: Define
         # TODO: Implement
         case 0xAF:
-            opcode_cycles = 1 # TODO: Check correct
+            opcode_t_states = 1  # TODO: Check correct
 
             # Opcode function goes here
 
             self.log_opcode(
-                opcode = opcode,
-                asm = "XOR A",
-                prefix = "None",
-                opcode_cycles = opcode_cycles,
-                message = f"",
+                opcode=opcode,
+                asm="XOR A",
+                prefix="",
+                opcode_t_states=opcode_t_states,
+                message=f"",
                 implemented=False,
             )
-            return opcode_cycles
+            return opcode_t_states
 
     return None

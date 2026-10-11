@@ -9,83 +9,80 @@
 # D6       SUB n
 # DE       SBC A,n
 
+
 def execute(self, opcode):
 
     match opcode:
-
         # ADD A,B
         # TODO: Define
         # TODO: Implement
         case 0x80:
-            opcode_cycles = 1 # TODO: Check correct
+            opcode_t_states = 1  # TODO: Check correct
 
             # Opcode function goes here
 
             self.log_opcode(
-                opcode = opcode,
-                asm = "ADD A,B",
-                prefix = "None",
-                opcode_cycles = opcode_cycles,
-                message = f"",
+                opcode=opcode,
+                asm="ADD A,B",
+                prefix="",
+                opcode_t_states=opcode_t_states,
+                message=f"",
                 implemented=False,
             )
-            return opcode_cycles
+            return opcode_t_states
 
         # SUB B
         # TODO: Define
         # TODO: Implement
         case 0x90:
-            opcode_cycles = 1 # TODO: Check correct
+            opcode_t_states = 1  # TODO: Check correct
 
             # Opcode function goes here
 
             self.log_opcode(
-                opcode = opcode,
-                asm = "SUB B",
-                prefix = "None",
-                opcode_cycles = opcode_cycles,
-                message = f"",
+                opcode=opcode,
+                asm="SUB B",
+                prefix="",
+                opcode_t_states=opcode_t_states,
+                message=f"",
                 implemented=False,
             )
-            return opcode_cycles
-
+            return opcode_t_states
 
         # INC B
         # TODO: Define
         # TODO: Implement
         case 0x04:
-            opcode_cycles = 1 # TODO: Check correct
+            opcode_t_states = 1  # TODO: Check correct
 
             # Opcode function goes here
 
             self.log_opcode(
-                opcode = opcode,
-                asm = "INC B",
-                prefix = "None",
-                opcode_cycles = opcode_cycles,
-                message = f"",
+                opcode=opcode,
+                asm="INC B",
+                prefix="",
+                opcode_t_states=opcode_t_states,
+                message=f"",
                 implemented=False,
             )
-            return opcode_cycles
+            return opcode_t_states
 
         # DEC B
         # TODO: Define
         # TODO: Implement
         case 0x05:
-            opcode_cycles = 1 # TODO: Check correct
+            opcode_t_states = 1  # TODO: Check correct
 
             # Opcode function goes here
 
             self.log_opcode(
-                opcode = opcode,
-                asm = "DEC B",
-                prefix = "None",
-                opcode_cycles = opcode_cycles,
-                message = f"",
+                opcode=opcode,
+                asm="DEC B",
+                prefix="",
+                opcode_t_states=opcode_t_states,
+                message=f"",
                 implemented=False,
             )
-            return opcode_cycles
+            return opcode_t_states
 
     return None
-
-
