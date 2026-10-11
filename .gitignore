@@ -223,3 +223,6 @@ __marimo__/
 *.bin
 .vscode/
 debug/*
+z80/__pycache__
+.DS_Store
+**/.DS_Store

@@ -1,7 +1,7 @@
 import time
 from memory import Memory
 from cartridge import Cartridge
-from z80 import Z80
+from z80.z80 import Z80
 
 cart = Cartridge()
 cart.load("sonic1sms.bin")

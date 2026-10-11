@@ -1,0 +1,14 @@
+# FD CB d xx
+# IY + displacement bit operations
+def execute(self):
+
+    displacement = self.memory.read8(self.pc)
+    self.pc += 1
+
+    opcode = self.memory.read8(self.pc)
+    self.pc += 1
+
+    match opcode:
+            
+        case _:
+            self.opcode_not_implemented(f"FD CB {displacement:02X} {opcode:02X}", "Unknown mnemonic")
