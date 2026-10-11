@@ -11,3 +11,5 @@ def execute_0xDDCB(self):
 
         case _:
             self.opcode_not_implemented(f"DD CB {displacement:02X} {opcode:02X}", "Unknown mnemonic")
+
+    return None

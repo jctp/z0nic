@@ -1,7 +1,7 @@
 from logger import logger
 import time
 
-from z80.opcodes import base
+from z80.opcodes import dispatcher
 
 class Z80:
     def __init__(self, memory, clock_hz, exception_on_non_implemented):
@@ -36,7 +36,7 @@ class Z80:
         opcode = self.memory.read8(self.pc)
         self.pc += 1
 
-        opcode_cycles = base.execute(self, opcode)
+        opcode_cycles = dispatcher.execute(self, opcode)
 
         # Ensure that opcode_cycles is always valid and avoids divide by zero
         if opcode_cycles in (None, 0):

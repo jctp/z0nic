@@ -14,3 +14,4 @@ def execute(self):
         case _:
             self.opcode_not_implemented(f"FD {opcode:02X}", "Unknown mnemonic")
 
+    return None
