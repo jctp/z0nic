@@ -222,3 +222,4 @@ __marimo__/
 # Testing ROM and VS Code
 *.bin
 .vscode/
+debug/*
