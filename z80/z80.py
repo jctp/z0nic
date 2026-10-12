@@ -54,6 +54,60 @@ class Z80:
 
         time.sleep((1 / self.clock_hz) * opcode_t_states)
 
+    def get_register(self, register):
+        # Duplicated opcodes like ADD A,r use this to locate the
+        # register embodied in the right three bits of the opcode
+        match register:
+            case 0:
+                return self.b
+            case 1:
+                return self.c
+            case 2:
+                return self.d
+            case 3:
+                return self.e
+            case 4:
+                return self.h
+            case 5:
+                return self.l
+            case 6:
+                hl = (self.h << 8) | self.l
+                return self.memory.read8(hl)
+            case 7:
+                return self.a
+
+    def set_register(self, register, value):
+        value &= 0xFF
+        match register:
+            case 0:
+                self.b = value
+            case 1:
+                self.c = value
+            case 2:
+                self.d = value
+            case 3:
+                self.e = value
+            case 4:
+                self.h = value
+            case 5:
+                self.l = value
+            case 7:
+                self.a = value
+
+    def set_register_pair(self, pair, value):
+        match pair:
+            case 0:  # BC
+                self.b = (value >> 8) & 0xFF
+                self.c = value & 0xFF
+            case 1:  # DE
+                self.d = (value >> 8) & 0xFF
+                self.e = value & 0xFF
+            case 2:  # HL
+                self.h = (value >> 8) & 0xFF
+                self.l = value & 0xFF
+            case 3:  # SP
+                self.sp = value & 0xFFFF
+
     def opcode_not_implemented(self, opcode=0, asm="Unknown"):
         if self.exception_on_non_implemented == True:
             # Most of the time the opcode is handed over raw, but prefixed opcodes use strings for error messages
@@ -78,7 +132,12 @@ class Z80:
         self, opcode, asm, prefix, opcode_t_states, message, implemented=True
     ):
         logger.debug(
-            f"{self.pc:04X}: Prefix: {prefix}: {opcode:02X}: {asm} ({opcode_t_states} t-states) {message}"
+            f"{self.pc:04X}: "
+            f"{prefix:<6}"
+            f"{opcode:02X} "
+            f"[{asm:<12}] "
+            f"({opcode_t_states:>3}) "
+            f"- {message}"
         )
 
         if implemented == False:

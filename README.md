@@ -14,7 +14,7 @@ Toy Sega Master System emulator in Python, built to understand the Z80. Currentl
     - Absolutely not.
 
 - Is it AI-generated?
-    - No, this is a learning project so vibe-coding the whole thing would be pointless. I've used a hands-off LLM to guide me on the Z80 in a teaching capacity, but it hasn't written the code.
+    - No, this is a learning project so vibe-coding the whole thing would be pointless. I've used a hands-off LLM (i.e. not running in the IDE) to guide me on the Z80 in a teaching capacity, help me with the Zilog manual, help keep track of opcodes, and type some repetitive parts.
 
 - How is it licenced?
     - It's MIT.
