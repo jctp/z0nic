@@ -11,41 +11,49 @@
 
 def execute(self, opcode):
 
-    match opcode:
-        # PUSH HL
-        # TODO: Define
-        # TODO: Implement
-        case 0xE5:
-            opcode_t_states = 1  # TODO: Check correct
+    # PUSH qq
+    if opcode in (0xC5, 0xD5, 0xE5, 0xF5):
 
-            # Opcode function goes here
+        # -----
+        # Opcode logic:
+        pair = (opcode >> 4) & 0x03
+        value = self.get_register_pair(pair)
+        self.push16(value)
+        opcode_t_states = 11
+        # -----
 
-            self.log_opcode(
-                opcode=opcode,
-                asm="PUSH HL",
-                prefix="",
-                opcode_t_states=opcode_t_states,
-                message=f"",
-                implemented=False,
-            )
-            return opcode_t_states
+        self.log_opcode(
+            opcode=opcode,
+            asm="PUSH qq",
+            prefix="",
+            opcode_t_states=opcode_t_states,
+            message=f"Pushed {value:04X}",
+            implemented=True,
+        )
 
-        # POP HL
-        # TODO: Define
-        # TODO: Implement
-        case 0xE1:
-            opcode_t_states = 1  # TODO: Check correct
+        return opcode_t_states
 
-            # Opcode function goes here
+    # POP qq    
+    if opcode in (0xC1, 0xD1, 0xE1, 0xF1):
 
-            self.log_opcode(
-                opcode=opcode,
-                asm="POP HL",
-                prefix="",
-                opcode_t_states=opcode_t_states,
-                message=f"",
-                implemented=False,
-            )
-            return opcode_t_states
+        # -----
+        # Opcode logic:
+        pair = (opcode >> 4) & 0x03
+        value = self.pop16()
+        self.set_register_pair(pair, value)
+        opcode_t_states = 10
+        # -----
+        
+        self.log_opcode(
+            opcode=opcode,
+            asm="POP qq",
+            prefix="",
+            opcode_t_states=opcode_t_states,
+            message=f"Popped {value:04X}",
+            implemented=True,
+        )
 
+        return opcode_t_states
+
+    
     return None

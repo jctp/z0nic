@@ -12,40 +12,66 @@
 def execute(self, opcode):
 
     match opcode:
-        # CALL nn nn
-        # TODO: Define
-        # TODO: Implement
-        case 0xCD:
-            opcode_t_states = 1  # TODO: Check correct
 
-            # Opcode function goes here
+        # CALL nn
+        # Push current PC onto stack and jump to nn
+        case 0xCD:
+            opcode_t_states = 17
+
+            # -----
+            # Opcode logic:
+            low = self.memory.read8(self.pc)
+            self.pc += 1
+            high = self.memory.read8(self.pc)
+            self.pc += 1
+            destination = (high << 8) | low
+            return_address = self.pc
+            self.sp -= 1
+            self.memory.write8(
+                self.sp,
+                (return_address >> 8) & 0xFF
+            )
+            self.sp -= 1
+            self.memory.write8(
+                self.sp,
+                return_address & 0xFF
+            )
+            self.pc = destination
+            # -----
 
             self.log_opcode(
                 opcode=opcode,
-                asm="CALL nn nn",
+                asm="CALL nn",
                 prefix="",
                 opcode_t_states=opcode_t_states,
-                message=f"",
-                implemented=False,
+                message=f"Called {destination:04X}, return address {return_address:04X}",
+                implemented=True,
             )
+
             return opcode_t_states
-
+        
         # RET
-        # TODO: Define
-        # TODO: Implement
-        case 0xC9:
-            opcode_t_states = 1  # TODO: Check correct
+        # Return to caller
 
-            # Opcode function goes here
+        case 0xC9:
+
+            opcode_t_states = 10
+
+            # -----
+            # Opcode logic:
+            return_address = self.pop16()
+            self.pc = return_address
+            # -----
 
             self.log_opcode(
                 opcode=opcode,
                 asm="RET",
                 prefix="",
                 opcode_t_states=opcode_t_states,
-                message=f"",
-                implemented=False,
+                message=f"Returned to {return_address:04X}",
+                implemented=True,
             )
+
             return opcode_t_states
 
     return None

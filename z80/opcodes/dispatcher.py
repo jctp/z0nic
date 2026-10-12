@@ -75,6 +75,27 @@ def execute(self, opcode):
         return arithmetic.execute(self, opcode)
 
     # ----------------------------------------
+    # BIT OPERATIONS
+    # ----------------------------------------
+
+    if opcode in (
+
+        # Rotate accumulator
+        0x07,  # RLCA
+        0x0F,  # RRCA
+        0x17,  # RLA
+        0x1F,  # RRA
+
+        # Flag/bit manipulation
+        0x27,  # DAA
+        0x2F,  # CPL
+        0x37,  # SCF
+        0x3F,  # CCF
+
+    ):
+        return bit_operations.execute(self, opcode)
+    
+    # ----------------------------------------
     # COMPARE
     # ----------------------------------------
 

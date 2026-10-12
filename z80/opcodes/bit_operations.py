@@ -1,32 +1,89 @@
-# BIT
-# SET
-# RES
+# 07  RLCA
+# 0F  RRCA
+# 17  RLA
+# 1F  RRA
 
-# RLC
-# RRC
-# RL
-# RR
+# 27  DAA
+# 2F  CPL
 
-# SLA
-# SRA
-# SRL
+# 37  SCF
+# 3F  CCF
 
+# 76  HALT
 
-def execute(self):
-    opcode = self.memory.read8(self.pc)
-    self.pc += 1
+# 00  NOP
 
+def execute(self, opcode):
+
+    # ----------------------------------------
+    # ROTATES AND SHIFTS
+    # ----------------------------------------
     match opcode:
-        # ROTATES AND SHIFTS
 
-        # BIT
+        # RRA
+        # Rotate Right Accumulator through Carry
+        case 0x1F:
 
-        # RES
+            opcode_t_states = 4
 
-        # SET
+            # -----
+            # Opcode logic:
+            old_carry = 1 if self.flag_c else 0
+            new_carry = self.a & 0x01
+            self.a = ((self.a >> 1) | (old_carry << 7)) & 0xFF
+            self.flag_c = bool(new_carry)
+            # -----
 
-        # Not implemented
+            self.log_opcode(
+                opcode=opcode,
+                asm="RRA",
+                prefix="",
+                opcode_t_states=opcode_t_states,
+                message=f"A rotated right through carry to {self.a:02X}",
+                implemented=True,
+            )
+
+            return opcode_t_states
+        
+    # ----------------------------------------
+    # BIT
+    # ----------------------------------------
+    match opcode:
         case _:
-            self.opcode_not_implemented(f"CB {opcode:02X}", "Unknown mnemonic")
+            pass
 
+    # ----------------------------------------
+    # REGISTER EXCHANGE
+    # ----------------------------------------
+    match opcode:
+
+        case 0x08:
+
+            opcode_t_states = 4
+
+            self.a, self.a_alt = self.a_alt, self.a
+            self.f, self.f_alt = self.f_alt, self.f
+
+            self.log_opcode(
+                opcode=opcode,
+                asm="EX AF,AF'",
+                prefix="",
+                opcode_t_states=opcode_t_states,
+                message="Exchanged AF with AF'",
+                implemented=True,
+            )
+
+            return opcode_t_states
+
+        case _:
+            pass
+
+    # ----------------------------------------
+    # SET
+    # ----------------------------------------
+    match opcode:
+        case _:
+            pass
+        
+    # Not implemented
     return None

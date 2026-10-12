@@ -17,12 +17,28 @@ class Z80:
         # Main registers
         self.a = 0  # Accumulator
         self.f = 0  # Flag
+
         self.b = 0  # Accumulator
         self.c = 0  # Flag
+
         self.d = 0  # Accumulator
         self.e = 0  # Flag
+
         self.h = 0  # Accumulator
         self.l = 0  # Flag
+
+        # Alternate registers
+        self.a_alt = 0
+        self.f_alt = 0
+
+        self.b_alt = 0
+        self.c_alt = 0
+
+        self.d_alt = 0
+        self.e_alt = 0
+
+        self.h_alt = 0
+        self.l_alt = 0
 
         # Flag register bits
         self.flag_s = False  # Sign
@@ -94,19 +110,54 @@ class Z80:
             case 7:
                 self.a = value
 
-    def set_register_pair(self, pair, value):
+    def get_register_pair(self, pair):
         match pair:
-            case 0:  # BC
-                self.b = (value >> 8) & 0xFF
-                self.c = value & 0xFF
-            case 1:  # DE
-                self.d = (value >> 8) & 0xFF
-                self.e = value & 0xFF
-            case 2:  # HL
-                self.h = (value >> 8) & 0xFF
-                self.l = value & 0xFF
-            case 3:  # SP
-                self.sp = value & 0xFFFF
+            case 0:     # BC
+                return (self.b << 8) | self.c
+            case 1:     # DE
+                return (self.d << 8) | self.e
+            case 2:     # HL
+                return (self.h << 8) | self.l
+            case 3:     # AF
+                return (self.a << 8) | self.f
+
+    def set_register_pair(self, pair, value):
+
+        high = (value >> 8) & 0xFF
+        low  = value & 0xFF
+
+        match pair:
+            case 0:     # BC
+                self.b = high
+                self.c = low
+            case 1:     # DE
+                self.d = high
+                self.e = low
+            case 2:     # HL
+                self.h = high
+                self.l = low
+            case 3:     # AF
+                self.a = high
+                self.f = low
+
+    def push16(self, value):
+        self.sp -= 1
+        self.memory.write8(
+            self.sp,
+            (value >> 8) & 0xFF
+        )
+        self.sp -= 1
+        self.memory.write8(
+            self.sp,
+            value & 0xFF
+        )
+
+    def pop16(self):
+        low = self.memory.read8(self.sp)
+        self.sp += 1
+        high = self.memory.read8(self.sp)
+        self.sp += 1
+        return (high << 8) | low
 
     def opcode_not_implemented(self, opcode=0, asm="Unknown"):
         if self.exception_on_non_implemented == True:
