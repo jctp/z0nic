@@ -72,7 +72,65 @@ def execute(self, opcode):
         )
 
         return opcode_t_states
+
+    # LD rr,A
+    if opcode in (0x02, 0x12):
+        opcode_t_states = 7
+
+        # -----
+        # Opcode logic:
+        pair = (opcode >> 4) & 0x01
+        if pair == 0:
+            address = (self.b << 8) | self.c
+        else:
+            address = (self.d << 8) | self.e
+        self.memory.write8(
+            address,
+            self.a
+        )
+        # -----
+
+        self.log_opcode(
+            opcode=opcode,
+            asm="LD rr,A",
+            prefix="",
+            opcode_t_states=opcode_t_states,
+            message=f"Loaded {pair:04X} into {address:04X}",
+            implemented=True,
+        )
+
+        # LD A,(rr)
+        if opcode in (0x0A, 0x1A):
+
+            opcode_t_states = 7
+
+            # -----
+            # Opcode logic:
+            pair = (opcode >> 4) & 0x01
+
+            if pair == 0:
+                address = (self.b << 8) | self.c
+                pair_name = "BC"
+            else:
+                address = (self.d << 8) | self.e
+                pair_name = "DE"
+
+            self.a = self.memory.read8(address)
+            # -----
+
+            self.log_opcode(
+                opcode=opcode,
+                asm="LD A,(rr)",
+                prefix="",
+                opcode_t_states=opcode_t_states,
+                message=f"Loaded {self.a:02X} from ({pair_name}) at {address:04X} into A",
+                implemented=True,
+            )
+
+            return opcode_t_states
         
+        return opcode_t_states  
+
     match opcode:
         
         case 0x32:

@@ -82,6 +82,8 @@ def execute(self, opcode):
     # Subtract r from A and store in A
     if 0x90 <= opcode <= 0x97:
 
+        self_a_before = self.a
+        
         # -----
         # Opcode logic:
         source = opcode & 0x07
