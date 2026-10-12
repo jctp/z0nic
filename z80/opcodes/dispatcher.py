@@ -92,6 +92,12 @@ def execute(self, opcode):
         0x37,  # SCF
         0x3F,  # CCF
 
+        # Register exchange
+        0x08,  # EX AF,AF'
+        0xD9,  # EXX
+        0xE3,  # EX (SP),HL
+        0xEB   # EX DE,HL
+
     ):
         return bit_operations.execute(self, opcode)
     

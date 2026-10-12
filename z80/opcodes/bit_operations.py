@@ -1,3 +1,5 @@
+from logger import logger
+
 # 07  RLCA
 # 0F  RRCA
 # 17  RLA
@@ -55,21 +57,116 @@ def execute(self, opcode):
     # ----------------------------------------
     # REGISTER EXCHANGE
     # ----------------------------------------
+
+    if opcode in (
+        0x08,  # EX AF,AF'
+        0xD9,  # EXX
+    ):
+
+        opcode_t_states = 4
+
+        logger.debug(
+            f"A={self.a:02X} "
+            f"Z={int(self.flag_z)} "
+            f"C={int(self.flag_c)} "
+            f"S={int(self.flag_s)} "
+            f"PV={int(self.flag_pv)} "
+            f"N={int(self.flag_n)}"
+        )
+
+        # -----
+        # Opcode logic:
+        if opcode == 0x08:
+            self.exchange_af()
+            asm = "EX AF,AF'"
+            message = "Exchanged AF with AF'"
+        else:
+            self.exchange_bcdEhl()
+            asm = "EXX"
+            message = "Exchanged BC, DE and HL with alternate registers"
+        # -----
+
+        logger.debug(
+            f"A={self.a:02X} "
+            f"Z={int(self.flag_z)} "
+            f"C={int(self.flag_c)} "
+            f"S={int(self.flag_s)} "
+            f"PV={int(self.flag_pv)} "
+            f"N={int(self.flag_n)}"
+        )
+
+        self.log_opcode(
+            opcode=opcode,
+            asm=asm,
+            prefix="",
+            opcode_t_states=opcode_t_states,
+            message=message,
+            implemented=True,
+        )
+
+        return opcode_t_states
+
     match opcode:
 
-        case 0x08:
+        # EX (SP),HL
+        # Exchange the value in HL with the 16b value at the top of the stack
+        case 0xE3:
 
-            opcode_t_states = 4
+            opcode_t_states = 19
 
-            self.a, self.a_alt = self.a_alt, self.a
-            self.f, self.f_alt = self.f_alt, self.f
+            # -----
+            # Opcode logic:
+            stack_low = self.memory.read8(self.sp)
+            stack_high = self.memory.read8(self.sp + 1)
+            stack_value = (stack_high << 8) | stack_low
+            hl = (self.h << 8) | self.l
+            self.memory.write8(
+                self.sp,
+                hl & 0xFF
+            )
+            self.memory.write8(
+                self.sp + 1,
+                (hl >> 8) & 0xFF
+            )
+            self.h = (stack_value >> 8) & 0xFF
+            self.l = stack_value & 0xFF
+            # -----
 
             self.log_opcode(
                 opcode=opcode,
-                asm="EX AF,AF'",
+                asm="EX (SP),HL",
                 prefix="",
                 opcode_t_states=opcode_t_states,
-                message="Exchanged AF with AF'",
+                message=f"Exchanged HL ({hl:04X}) with stack value ({stack_value:04X})",
+                implemented=True,
+            )
+
+            return opcode_t_states
+
+        # EX DE,HL
+        # Exchange DE and HL
+        case 0xEB:
+
+            opcode_t_states = 4
+
+            # -----
+            # Opcode logic:
+            de = self.get_de()
+            hl = self.get_hl()
+
+            self.set_de(hl)
+            self.set_hl(de)
+            # -----
+
+            self.log_opcode(
+                opcode=opcode,
+                asm="EX DE,HL",
+                prefix="",
+                opcode_t_states=opcode_t_states,
+                message=(
+                    f"DE now {self.get_de():04X}, "
+                    f"HL now {self.get_hl():04X}"
+                ),
                 implemented=True,
             )
 

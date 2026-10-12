@@ -14,7 +14,6 @@
 # RETN
 # RETI
 
-
 def execute(self):
     opcode = self.memory.read8(self.pc)
     self.pc += 1
@@ -91,6 +90,86 @@ def execute(self):
                 ),
                 implemented=True,
             )
+            return opcode_t_states
+
+        # OTIR
+        # Output, Increment, Repeat
+        case 0xB3:
+
+            opcode_t_states = 16
+
+            # -----
+            # Opcode logic:
+            source_address = self.get_hl()
+
+            value = self.memory.read8(source_address)
+
+            self.io.write(
+                self.c,
+                value
+            )
+
+            self.set_hl(
+                (source_address + 1) & 0xFFFF
+            )
+
+            self.b = (self.b - 1) & 0xFF
+
+            if self.b != 0:
+                self.pc -= 2
+                opcode_t_states = 21
+            # -----
+
+            self.log_opcode(
+                opcode=opcode,
+                asm="OTIR",
+                prefix="ED",
+                opcode_t_states=opcode_t_states,
+                message=(
+                    f"Output {value:02X} "
+                    f"from {source_address:04X} "
+                    f"to port {self.c:02X}, "
+                    f"B now {self.b:02X}"
+                ),
+                implemented=True,
+            )
+
+            return opcode_t_states
+
+        # LD (nn),DE
+        # Store DE at the specified memory address
+        case 0x53:
+
+            opcode_t_states = 20
+
+            # -----
+            # Opcode logic:
+            address = self.memory.read16(self.pc)
+            self.pc += 2
+
+            self.memory.write8(
+                address,
+                self.e
+            )
+
+            self.memory.write8(
+                (address + 1) & 0xFFFF,
+                self.d
+            )
+            # -----
+
+            self.log_opcode(
+                opcode=opcode,
+                asm="LD (nn),DE",
+                prefix="ED",
+                opcode_t_states=opcode_t_states,
+                message=(
+                    f"Stored DE ({self.get_de():04X}) "
+                    f"to memory location {address:04X}"
+                ),
+                implemented=True,
+            )
+
             return opcode_t_states
         
         # Not implemented

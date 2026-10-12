@@ -11,20 +11,30 @@ def execute(self, opcode):
 
     match opcode:
         # XOR A
-        # TODO: Define
-        # TODO: Implement
+        # Exclusive OR A with itself
+        # ...which will always be zero, so this essentially clears A
         case 0xAF:
-            opcode_t_states = 1  # TODO: Check correct
+            opcode_t_states = 4
 
-            # Opcode function goes here
+            # -----
+            # Opcode logic:
+            self.a ^= self.a
+
+            self.flag_s = False
+            self.flag_z = True
+            self.flag_h = False
+            self.flag_pv = True
+            self.flag_n = False
+            self.flag_c = False
+            # -----
 
             self.log_opcode(
                 opcode=opcode,
                 asm="XOR A",
                 prefix="",
                 opcode_t_states=opcode_t_states,
-                message=f"",
-                implemented=False,
+                message=f"A cleared to 00",
+                implemented=True,
             )
             return opcode_t_states
 

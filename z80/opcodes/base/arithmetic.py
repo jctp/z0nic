@@ -34,6 +34,17 @@ def execute(self, opcode):
         self.flag_z = ((result & 0xFF) == 0)
         self.flag_c = (result > 0xFF)
         self.flag_n = False
+        self.flag_s = bool(self.a & 0x80)
+        self.flag_pv = (
+            (~(self_a_before ^ value) &
+            (self_a_before ^ result) &
+            0x80) != 0
+        )
+        self.flag_h = (
+            ((self_a_before & 0x0F) +
+            (value & 0x0F))
+            > 0x0F
+        )
         # -----
 
         opcode_t_states = 7 if source == 6 else 4
@@ -43,13 +54,14 @@ def execute(self, opcode):
             asm="ADD A,r",
             prefix="",
             opcode_t_states=opcode_t_states,
-            message=f"Added {value:02X} to {self_a_before:02X} in A, result {result:02X}",
+            message=f"Added {value:02X} to {self_a_before:02X} in A, result {self.a:02X}",
             implemented=True,
         )
         return opcode_t_states
 
     # 88-8F   ADC A,r
     # Contents of register r and carry are added to A and stored in A
+
     if 0x88 <= opcode <= 0x8F:
 
         self_a_before = self.a
@@ -59,11 +71,28 @@ def execute(self, opcode):
         carry = 1 if self.flag_c else 0
         source = opcode & 0x07
         value = self.get_register(source)
-        result = self.a + value + carry
+
+        result = self_a_before + value + carry
+
         self.a = result & 0xFF
-        self.flag_z = ((result & 0xFF) == 0)
-        self.flag_c = (result > 0xFF)
+
+        self.flag_s = bool(self.a & 0x80)
+        self.flag_z = (self.a == 0)
+
+        self.flag_h = (
+            ((self_a_before & 0x0F) +
+            (value & 0x0F) +
+            carry) > 0x0F
+        )
+
+        self.flag_pv = (
+            (~(self_a_before ^ value) &
+            (self_a_before ^ result) &
+            0x80) != 0
+        )
+
         self.flag_n = False
+        self.flag_c = (result > 0xFF)
         # -----
 
         opcode_t_states = 7 if source == 6 else 4
@@ -73,9 +102,60 @@ def execute(self, opcode):
             asm="ADC A,r",
             prefix="",
             opcode_t_states=opcode_t_states,
-            message=f"Added {value:02X} and carry bit ({carry}) to {self_a_before:02X} in A, result {result:02X}",
+            message=f"Added {value:02X} and carry bit ({carry}) to {self_a_before:02X} in A, result {self.a:02X}",
             implemented=True,
         )
+
+        return opcode_t_states
+
+
+    # 98-9F    SBC A,r
+    # TODO: Define
+
+    if 0x98 <= opcode <= 0x9F:
+
+        # -----
+        # Opcode logic:
+        self_a_before = self.a
+        source = opcode & 0x07
+        value = self.get_register(source)
+
+        carry = 1 if self.flag_c else 0
+
+        result = self_a_before - value - carry
+
+        self.a = result & 0xFF
+
+        self.flag_s = bool(self.a & 0x80)
+        self.flag_z = (self.a == 0)
+
+        self.flag_h = (
+            (self_a_before & 0x0F)
+            <
+            ((value & 0x0F) + carry)
+        )
+
+        self.flag_pv = (
+            ((self_a_before ^ value) &
+            (self_a_before ^ result) &
+            0x80) != 0
+        )
+
+        self.flag_n = True
+        self.flag_c = (result < 0)
+        # -----
+
+        opcode_t_states = 7 if source == 6 else 4
+
+        self.log_opcode(
+            opcode=opcode,
+            asm="SBC A,r",
+            prefix="",
+            opcode_t_states=opcode_t_states,
+            message=f"Subtracted {value:02X} and carry bit ({carry}) from {self_a_before:02X} in A, result {self.a:02X}",
+            implemented=True,
+        )
+
         return opcode_t_states
 
     # 90-97    SUB r
@@ -83,15 +163,32 @@ def execute(self, opcode):
     if 0x90 <= opcode <= 0x97:
 
         self_a_before = self.a
-        
+
         # -----
         # Opcode logic:
         source = opcode & 0x07
         value = self.get_register(source)
-        result = self.a - value
+
+        result = self_a_before - value
+
         self.a = result & 0xFF
-        self.flag_z = ((result & 0xFF) == 0)
-        self.flag_c = (self.a < value)
+
+        self.flag_s = bool(self.a & 0x80)
+        self.flag_z = (self.a == 0)
+
+        self.flag_h = (
+            (self_a_before & 0x0F)
+            <
+            (value & 0x0F)
+        )
+
+        self.flag_pv = (
+            ((self_a_before ^ value) &
+            (self_a_before ^ result) &
+            0x80) != 0
+        )
+
+        self.flag_c = (result < 0)
         self.flag_n = True
         # -----
 
@@ -102,9 +199,10 @@ def execute(self, opcode):
             asm="SUB r",
             prefix="",
             opcode_t_states=opcode_t_states,
-            message=f"Subtracted {value:02X} from {self_a_before:02X} in A, result {result:02x}",
+            message=f"Subtracted {value:02X} from {self_a_before:02X} in A, result {self.a:02X}",
             implemented=True,
         )
+
         return opcode_t_states
 
 
@@ -121,8 +219,14 @@ def execute(self, opcode):
         result = self.a - value - carry
         self.a = result & 0xFF
         self.flag_z = ((result & 0xFF) == 0)
-        self.flag_c = (self_a_before < (value + carry)) # Borrow required?
-        self.flag_n = True 
+        self.flag_c = (result > 0xFF)
+        self.flag_n = True
+        self.flag_s = bool(self.a & 0x80)
+        self.flag_pv = (
+            (~(self_a_before ^ value) &
+            (self_a_before ^ result) &
+            0x80) != 0
+        )
         # -----
 
         opcode_t_states = 7 if source == 6 else 4
@@ -132,7 +236,7 @@ def execute(self, opcode):
             asm="SBC A,r",
             prefix="",
             opcode_t_states=opcode_t_states,
-            message=f"Subtracted {value:02X} and carry bit ({carry}) from {self_a_before:02X} in A, result {result:02x}",
+            message=f"Subtracted {value:02X} and carry bit ({carry}) from {self_a_before:02X} in A, result {self.a:02x}",
             implemented=True,
         )
         return opcode_t_states

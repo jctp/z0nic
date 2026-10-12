@@ -75,9 +75,43 @@ def execute(self, opcode):
             )
             return opcode_t_states
 
+        # JR C,e
+        case 0x38:
+
+            source_address = self.pc
+            
+            # -----
+            # Opcode logic:
+            offset = self.memory.read8(self.pc)
+            self.pc += 1
+            if offset & 0x80:
+                offset -= 0x100
+            if self.flag_c:
+                self.pc += offset
+                opcode_t_states = 12
+            else:
+                opcode_t_states = 7
+            dest_address = self.pc
+            # -----
+
+            self.log_opcode(
+                opcode=opcode,
+                asm="JR C,e",
+                prefix="",
+                opcode_t_states=opcode_t_states,
+                message=(
+                    f"C={int(self.flag_c)} "
+                    f"jumped from "
+                    f"{source_address:04X} "
+                    f"to {dest_address:04X}"
+                ),
+                implemented=True,
+            )
+
+            return opcode_t_states
+
         # DJNZ e
         # Decrement B and jump relative if B is not zero
-
         case 0x10:
 
             opcode_t_states = 8
@@ -102,7 +136,8 @@ def execute(self, opcode):
                 prefix="",
                 opcode_t_states=opcode_t_states,
                 message=(
-                    f"Decremented B to {self.b:02X}, "
+                    f"B={self.b:02X} "
+                    f"C={self.c:02X} "
                     f"jumped from {source_address:04X} "
                     f"to {dest_address:04X}"
                 ),

@@ -48,6 +48,14 @@ class Z80:
         self.flag_n = False  # Add/Subtract
         self.flag_c = False  # Carry
 
+        # Alternate flag register bits
+        self.flag_s_alt = False
+        self.flag_z_alt = False
+        self.flag_h_alt = False
+        self.flag_pv_alt = False
+        self.flag_n_alt = False
+        self.flag_c_alt = False
+
         # Special registers
         self.pc = 0
         self.sp = 0
@@ -58,6 +66,11 @@ class Z80:
         self.iff1 = False
         self.iff2 = False
 
+        # Interrupt state
+        self.interrupt_mode = 0
+        self.interrupt_pending = False
+        self.cycles_since_interrupt = 0
+
     def step(self):
         opcode = self.memory.read8(self.pc)
         self.pc += 1
@@ -67,6 +80,17 @@ class Z80:
         # Ensure that opcode_t_states is always valid and avoids divide by zero
         if opcode_t_states in (None, 0):
             opcode_t_states = 1
+
+        # Simple interrupt test
+        self.cycles_since_interrupt += opcode_t_states
+
+        if self.cycles_since_interrupt >= 50000:
+            self.interrupt_pending = True
+            self.cycles_since_interrupt = 0
+
+        if self.interrupt_pending:
+            self.interrupt()
+            self.interrupt_pending = False
 
         time.sleep((1 / self.clock_hz) * opcode_t_states)
 
@@ -113,32 +137,24 @@ class Z80:
     def get_register_pair(self, pair):
         match pair:
             case 0:     # BC
-                return (self.b << 8) | self.c
+                return self.get_bc()
             case 1:     # DE
-                return (self.d << 8) | self.e
+                return self.get_de()
             case 2:     # HL
-                return (self.h << 8) | self.l
+                return self.get_hl()
             case 3:     # AF
-                return (self.a << 8) | self.f
+                return self.get_af()
 
     def set_register_pair(self, pair, value):
-
-        high = (value >> 8) & 0xFF
-        low  = value & 0xFF
-
         match pair:
             case 0:     # BC
-                self.b = high
-                self.c = low
+                self.set_bc(value)
             case 1:     # DE
-                self.d = high
-                self.e = low
+                self.set_de(value)
             case 2:     # HL
-                self.h = high
-                self.l = low
+                self.set_hl(value)
             case 3:     # AF
-                self.a = high
-                self.f = low
+                self.set_af(value)
 
     def push16(self, value):
         self.sp -= 1
@@ -158,6 +174,151 @@ class Z80:
         high = self.memory.read8(self.sp)
         self.sp += 1
         return (high << 8) | low
+
+    def exchange_af(self):
+
+        logger.debug(
+            f"BEFORE EX AF: A={self.a:02X} ALT={self.a_alt:02X}"
+        )
+
+        self.a, self.a_alt = (
+            self.a_alt,
+            self.a
+        )
+
+        self.flag_s, self.flag_s_alt = (
+            self.flag_s_alt,
+            self.flag_s
+        )
+
+        self.flag_z, self.flag_z_alt = (
+            self.flag_z_alt,
+            self.flag_z
+        )
+
+        self.flag_h, self.flag_h_alt = (
+            self.flag_h_alt,
+            self.flag_h
+        )
+
+        self.flag_pv, self.flag_pv_alt = (
+            self.flag_pv_alt,
+            self.flag_pv
+        )
+
+        self.flag_n, self.flag_n_alt = (
+            self.flag_n_alt,
+            self.flag_n
+        )
+
+        self.flag_c, self.flag_c_alt = (
+            self.flag_c_alt,
+            self.flag_c
+        )
+
+        logger.debug(
+            f"AFTER EX AF: A={self.a:02X} ALT={self.a_alt:02X}"
+        )
+        
+    def exchange_bcdEhl(self):
+        self.b, self.b_alt = self.b_alt, self.b
+        self.c, self.c_alt = self.c_alt, self.c
+        self.d, self.d_alt = self.d_alt, self.d
+        self.e, self.e_alt = self.e_alt, self.e
+        self.h, self.h_alt = self.h_alt, self.h
+        self.l, self.l_alt = self.l_alt, self.l
+
+    # BC register pair
+    # Combines B and C into a 16-bit value
+    def get_bc(self):
+        return (self.b << 8) | self.c
+
+    # BC register pair
+    # Splits a 16-bit value into B and C
+    def set_bc(self, value):
+        value &= 0xFFFF
+
+        self.b = (value >> 8) & 0xFF
+        self.c = value & 0xFF
+
+    # DE register pair
+    # Combines D and E into a 16-bit value
+    def get_de(self):
+        return (self.d << 8) | self.e
+
+    # DE register pair
+    # Splits a 16-bit value into D and E
+    def set_de(self, value):
+        value &= 0xFFFF
+        self.d = (value >> 8) & 0xFF
+        self.e = value & 0xFF
+
+    # HL register pair
+    # Combines H and L into a 16-bit value
+    def get_hl(self):
+        return (self.h << 8) | self.l
+
+    # HL register pair
+    # Splits a 16-bit value into H and L
+    def set_hl(self, value):
+        value &= 0xFFFF
+        self.h = (value >> 8) & 0xFF
+        self.l = value & 0xFF
+
+    # AF register pair
+    # Combines A and the individual CPU flags into a 16-bit value
+    def get_af(self):
+        flags = (
+            (self.flag_s  << 7) |
+            (self.flag_z  << 6) |
+            (self.flag_h  << 4) |
+            (self.flag_pv << 2) |
+            (self.flag_n  << 1) |
+            (self.flag_c)
+        )
+        return (self.a << 8) | flags
+
+    # AF register pair
+    # Loads A and the CPU flags from a 16-bit value
+    def set_af(self, value):
+        value &= 0xFFFF
+        self.a = (value >> 8) & 0xFF
+        f = value & 0xFF
+        self.flag_s = bool(f & 0x80)
+        self.flag_z = bool(f & 0x40)
+        self.flag_h = bool(f & 0x10)
+        self.flag_pv = bool(f & 0x04)
+        self.flag_n = bool(f & 0x02)
+        self.flag_c = bool(f & 0x01)
+
+    def interrupt(self):
+
+        if not self.iff1:
+            return
+
+        logger.debug(
+            f"INTERRUPT IM{self.interrupt_mode}"
+        )
+
+        self.iff1 = False
+        self.iff2 = False
+
+        self.push16(self.pc)
+
+        match self.interrupt_mode:
+
+            case 0:
+                logger.warning(
+                    "IM0 interrupt"
+                )
+
+            case 1:
+                self.pc = 0x0038
+
+            case 2:
+                logger.warning(
+                    "IM2 interrupt"
+                )
 
     def opcode_not_implemented(self, opcode=0, asm="Unknown"):
         if self.exception_on_non_implemented == True:

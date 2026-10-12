@@ -52,7 +52,6 @@ def execute(self, opcode):
         
         # RET
         # Return to caller
-
         case 0xC9:
 
             opcode_t_states = 10

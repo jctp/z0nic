@@ -1,6 +1,7 @@
 # DD CB d xx
 # IX + displacement bit operations
-def execute_0xDDCB(self):
+def execute(self):
+
     displacement = self.memory.read8(self.pc)
     self.pc += 1
 

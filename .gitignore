@@ -221,6 +221,7 @@ __marimo__/
 
 # Testing ROM and VS Code
 *.bin
+*.sms
 .vscode/
 debug/*
 z80/__pycache__
