@@ -39,9 +39,13 @@ class Memory:
             offset = self.bank2 * 0x4000 + (address - 0x8000)
             return self.cartridge.rom[offset]
 
+        # RAM reads
+        elif address <= 0xFFFF:
+            return self.ram[address & 0x1FFF]
+
     def write8(self, address, value):
         # Keep only the lowest 8 bits; ensures valid 8-bit value
         value &= 0xFF
 
-        if 0xC000 < -address <= 0xFFFF:
+        if 0xC000 <= address <= 0xFFFF:
             self.ram[address & 0x1FFF] = value

@@ -14,7 +14,7 @@ system_io = Input_Output()
 system_cpu = Z80(
     memory=system_memory,
     io=system_io,
-    clock_hz=30,  # Real CPU is 3.58 Mhz
+    clock_hz=50,  # Real CPU is 3.58 Mhz
     exception_on_non_implemented=True,
 )
 

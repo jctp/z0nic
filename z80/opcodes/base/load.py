@@ -103,6 +103,29 @@ def execute(self, opcode):
 
             return opcode_t_states
 
+        # LD SP, HL
+        # Contents of register pair HL are loaded into Stack Pointer SP
+        case 0xF9:
+
+            opcode_t_states = 6
+        
+            # -----
+            # Opcode logic:
+            hl = (self.h << 8) | self.l
+            self.sp = hl
+            # -----
+
+            self.log_opcode(
+                opcode=opcode,
+                asm="LD SP, HL",
+                prefix="",
+                opcode_t_states=opcode_t_states,
+                message=f"Loaded HL ({hl:04X}) into SP",
+                implemented=True,
+            )
+
+            return opcode_t_states
+
         case _:
             pass
 
