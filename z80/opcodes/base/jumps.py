@@ -28,7 +28,7 @@ def execute(self, opcode):
             # Opcode logic:
             # Low byte of 2-byte opcode
             low = self.memory.read8(self.pc)
-            self.pc += 1
+            self.inc_pc(increment=1)
             # High byte
             high = self.memory.read8(self.pc)
             self.pc = (high << 8) | low  # Takes two bytes, combines into one 16b addr
@@ -56,7 +56,7 @@ def execute(self, opcode):
             # -----
             # Opcode logic:
             offset = self.memory.read8(self.pc)
-            self.pc += 1
+            self.inc_pc(increment=1)
             # Convert an unsigned byte into a signed byte
             if offset & 0x80:
                 offset -= 0x100
@@ -83,7 +83,7 @@ def execute(self, opcode):
             # -----
             # Opcode logic:
             offset = self.memory.read8(self.pc)
-            self.pc += 1
+            self.inc_pc(increment=1)
             if offset & 0x80:
                 offset -= 0x100
             if self.flag_c:
@@ -120,7 +120,7 @@ def execute(self, opcode):
             # Opcode logic:
             source_address = self.pc
             offset = self.memory.read8(self.pc)
-            self.pc += 1
+            self.inc_pc(increment=1)
             self.b = (self.b - 1) & 0xFF
             if self.b != 0:
                 if offset & 0x80:

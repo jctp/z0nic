@@ -29,7 +29,7 @@ def execute(self, opcode):
         # Opcode logic:
         dest = (opcode >> 3) & 0x07
         value = self.memory.read8(self.pc)
-        self.pc += 1
+        self.inc_pc(increment=1)
         self.set_register(dest, value)
         # -----
 
@@ -54,9 +54,9 @@ def execute(self, opcode):
         # -----
         # Opcode logic:
         low = self.memory.read8(self.pc)
-        self.pc += 1
+        self.inc_pc(increment=1)
         high = self.memory.read8(self.pc)
-        self.pc += 1
+        self.inc_pc(increment=1)
         value = (high << 8) | low
         dest = (opcode >> 4) & 0x03
         self.set_register_pair(dest, value)
@@ -140,9 +140,9 @@ def execute(self, opcode):
             # -----
             # Opcode logic:
             low = self.memory.read8(self.pc)
-            self.pc += 1
+            self.inc_pc(increment=1)
             high = self.memory.read8(self.pc)
-            self.pc += 1
+            self.inc_pc(increment=1)
             address = (high << 8) | low
             self.memory.write8(
                 address,

@@ -15,7 +15,7 @@ def execute(self, opcode):
             # -----
             # Opcode logic:
             operand = self.memory.read8(self.pc)
-            self.pc += 1
+            self.inc_pc(increment=1)
 
             result = self.a - operand
 

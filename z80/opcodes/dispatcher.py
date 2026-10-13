@@ -282,7 +282,7 @@ def execute(self, opcode):
         # Hand off to prefixed opcodes
 
         case 0xCB:
-            bit_operations.execute(self)
+            bit_operations.execute(self, opcode)
 
         case 0xED:
             extended.execute(self)

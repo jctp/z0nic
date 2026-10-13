@@ -21,9 +21,9 @@ def execute(self, opcode):
             # -----
             # Opcode logic:
             low = self.memory.read8(self.pc)
-            self.pc += 1
+            self.inc_pc(increment=1)
             high = self.memory.read8(self.pc)
-            self.pc += 1
+            self.inc_pc(increment=1)
             destination = (high << 8) | low
             return_address = self.pc
             self.sp -= 1

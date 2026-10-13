@@ -21,7 +21,7 @@ from z80.opcodes import (
 def execute(self):
 
     opcode = self.memory.read8(self.pc)
-    self.pc += 1
+    self.inc_pc(increment=1)
 
     # FD 70-FD 77
     # LD (IY+d),r
@@ -32,7 +32,7 @@ def execute(self):
         # -----
         # Opcode logic:
         displacement = self.memory.read8(self.pc)
-        self.pc += 1
+        self.inc_pc(increment=1)
 
         if displacement & 0x80:
             displacement -= 0x100
@@ -84,7 +84,7 @@ def execute(self):
         # -----
         # Opcode logic:
         displacement = self.memory.read8(self.pc)
-        self.pc += 1
+        self.inc_pc(increment=1)
 
         if displacement & 0x80:
             displacement -= 0x100
@@ -152,7 +152,7 @@ def execute(self):
             # -----
             # Opcode logic:
             displacement = self.memory.read8(self.pc)
-            self.pc += 1
+            self.inc_pc(increment=1)
 
             if displacement & 0x80:
                 displacement -= 0x100
@@ -186,13 +186,13 @@ def execute(self):
             # -----
             # Opcode logic:
             displacement = self.memory.read8(self.pc)
-            self.pc += 1
+            self.inc_pc(increment=1)
 
             if displacement & 0x80:
                 displacement -= 0x100
 
             value = self.memory.read8(self.pc)
-            self.pc += 1
+            self.inc_pc(increment=1)
 
             address = (
                 self.iy + displacement

@@ -14,7 +14,7 @@ def execute(self, opcode):
             # Opcode logic:
             # Put contents of IO address port_number into a
             port_number = self.memory.read8(self.pc)
-            self.pc += 1
+            self.inc_pc(increment=1)
             self.a = self.io.read(port_number)
             # -----
 
@@ -37,7 +37,7 @@ def execute(self, opcode):
             # Opcode logic:
             # Write contents of a to port_number
             port_number = self.memory.read8(self.pc)
-            self.pc += 1
+            self.inc_pc(increment=1)
             self.io.write(port_number, self.a)
             # -----
 

@@ -1,5 +1,5 @@
 from logger import logger
-
+from z80 import z80
 
 # SMS memory map
 # 0000-3FFF  ROM Bank 0
@@ -53,13 +53,6 @@ class Memory:
         # RAM reads
         elif address <= 0xFFFF:
             return self.ram[address & 0x1FFF]
-
-    def read16(self, address):
-
-        low = self.read8(address)
-        high = self.read8(address + 1)
-
-        return (high << 8) | low
 
     def write8(self, address, value):
 

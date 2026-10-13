@@ -3,10 +3,10 @@
 def execute(self):
 
     displacement = self.memory.read8(self.pc)
-    self.pc += 1
+    self.inc_pc(increment=1)
 
     opcode = self.memory.read8(self.pc)
-    self.pc += 1
+    self.inc_pc(increment=1)
 
     if displacement & 0x80:
         displacement -= 0x100

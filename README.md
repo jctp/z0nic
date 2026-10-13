@@ -7,19 +7,21 @@ Toy Sega Master System emulator in Python, built to understand the Z80. Currentl
 
 **If you're looking for a functional SMS emulator, you are in the wrong place.**
 
-- Is it fast?
-    - I have no idea, it's nowhere close to being able to run a commercial game. I would strongly suspect that it won't be - Python is hardly the best environment for a CPU and given its purpose logging is cranked up to the uber-max by default.
+### Is it fast?
+I have no idea, it's nowhere close to being able to run a commercial game. I would strongly suspect that it won't be - Python is hardly the best environment for a CPU and given its purpose logging is cranked up to the uber-max by default.
 
-- Is it complete?
-    - Absolutely not.
+### Is it complete?
+Absolutely not.
 
-- Is it vibe-coded?
-    - No, this is a learning project so vibe-coding the whole thing would be pointless. I've used a hands-off LLM (i.e. not running in the IDE or with direct access to the code) to guide me on the Z80 in a teaching capacity, help me with the Zilog manual, help keep track of opcodes, and type some repetitive parts and where I got stuck translating opcodes into Python. Which, considering this is my first emulator, was more than a few times. Quite a lot of the opcode implementations themselves are currently LLM-generated; I want to look at them again once I'm more confident with the hardware, but this gets things rolling.
+### Is it vibe-coded?
+No, this is a learning project so vibe-coding the whole thing would be pointless. I did use AI to help in that process.
+    
+I've used a hands-off LLM (i.e. not running in the IDE or with direct access to the code) to guide me on the Z80 in a teaching capacity, help me with the Zilog manual, help keep track of opcodes, and type some repetitive parts and where I got stuck translating opcodes into Python. Which, considering this is my first emulator, was more than a few times. Quite a lot of the opcode implementations themselves are currently LLM-generated; I want to look at them again once I'm more confident with the hardware (and emulation in general!), but this gets things rolling.
 
-    Long story short, LLM-assisted with me making the tactical decisions on flow and structure, with the LLM helping me make sense of the Zilog documentation. It's also explaining everything, which is 98% of the point.
+Long story short, I wrote the structure and flow, the LLM helped me with the opcodes.
 
-- What does it look like?
-    - At the moment, its output is simply logging what the Z80 is doing, and looks like this:
+### What does it look like?
+At the moment, its output is simply logging what the Z80 is doing, and looks like this:
 
 ```
 DEBUG:main:1CE8:       10 [DJNZ e      ] ( 13) - B=03 C=18 jumped from 1CEB to 1CE8
@@ -60,7 +62,7 @@ DEBUG:main:IO WRITE port=BF value=09
 DEBUG:main:041C:       D3 [OUT A       ] ( 11) - Wrote value 09 to BF
 ```
 
-In short, unless you've learned to read the Matrix, you're not playing Sonic on this yet.
+In short, unless you can read the Matrix, you're not playing Sonic on this yet.
 
-- How is it licenced?
-    - It's MIT.
+### How is it licenced?
+It's MIT.
