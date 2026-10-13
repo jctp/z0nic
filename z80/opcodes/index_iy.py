@@ -67,60 +67,6 @@ def execute(self):
         return opcode_t_states
 
 
-    # FD 46-FD 7E
-    # LD r,(IY+d)
-    if opcode in (
-        0x46,
-        0x4E,
-        0x56,
-        0x5E,
-        0x66,
-        0x6E,
-        0x7E,
-    ):
-
-        opcode_t_states = 19
-
-        # -----
-        # Opcode logic:
-        displacement = self.memory.read8(self.pc)
-        self.inc_pc(increment=1)
-
-        if displacement & 0x80:
-            displacement -= 0x100
-
-        address = (
-            self.iy + displacement
-        ) & 0xFFFF
-
-        value = self.memory.read8(
-            address
-        )
-
-        destination = (
-            (opcode >> 3) & 0x07
-        )
-
-        self.set_register(
-            destination,
-            value
-        )
-        # -----
-
-        self.log_opcode(
-            opcode=opcode,
-            asm="LD r,(IY+d)",
-            prefix="FD",
-            opcode_t_states=opcode_t_states,
-            message=(
-                f"Loaded {value:02X} "
-                f"from {address:04X} "
-                f"(IY{displacement:+d})"
-            ),
-            implemented=True,
-        )
-
-        return opcode_t_states
 
     match opcode:
 
@@ -143,6 +89,53 @@ def execute(self):
 
         case 0xC9:
             return subroutines.execute(self, opcode)
+
+        # FD 46-FD 7E
+        # LD r,(IY+d)
+        case 0x46 | 0x4E | 0x56 | 0x5E | 0x66 | 0x6E | 0x7E:
+
+            opcode_t_states = 19
+
+            # -----
+            # Opcode logic:
+            displacement = self.memory.read8(self.pc)
+            self.inc_pc(increment=1)
+
+            if displacement & 0x80:
+                displacement -= 0x100
+
+            address = (
+                self.iy + displacement
+            ) & 0xFFFF
+
+            value = self.memory.read8(
+                address
+            )
+
+            destination = (
+                (opcode >> 3) & 0x07
+            )
+
+            self.set_register(
+                destination,
+                value
+            )
+            # -----
+
+            self.log_opcode(
+                opcode=opcode,
+                asm="LD r,(IY+d)",
+                prefix="FD",
+                opcode_t_states=opcode_t_states,
+                message=(
+                    f"Loaded {value:02X} "
+                    f"from {address:04X} "
+                    f"(IY{displacement:+d})"
+                ),
+                implemented=True,
+            )
+
+            return opcode_t_states
 
         # LD A,(IY+d)
         case 0x7E:
@@ -176,6 +169,56 @@ def execute(self):
             )
 
             return opcode_t_states
+
+        # LD (nn),IY
+        case 0x22:
+
+            # -----
+            # Opcode logic:
+
+            address = self.store_register_pair(
+                self.iy
+            )
+
+            opcode_t_states = 20
+
+            # -----
+
+            self.log_opcode(
+                opcode=opcode,
+                asm="LD (nn),IY",
+                prefix="FD",
+                opcode_t_states=opcode_t_states,
+                message=(
+                    f"Stored IY ({self.iy:04X}) "
+                    f"into memory at {address:04X}"
+                )
+            )
+
+        # LD IY,(nn)
+        case 0x2A:
+
+            # -----
+            # Opcode logic:
+
+            value, address = self.load_register_pair(
+                self.set_iy
+            )
+
+            opcode_t_states = 20
+
+            # -----
+
+            self.log_opcode(
+                opcode=opcode,
+                asm="LD IY,(nn)",
+                prefix="FD",
+                opcode_t_states=opcode_t_states,
+                message=(
+                    f"Loaded {value:04X} from "
+                    f"memory at {address:04X} into IY"
+                )
+            )
 
         # FD 36
         # LD (IY+d),n
@@ -214,6 +257,76 @@ def execute(self):
                     f"to {address:04X} "
                     f"(IY{displacement:+d})"
                 ),
+                implemented=True,
+            )
+
+            return opcode_t_states
+
+        # PUSH IY
+        case 0xE5:
+
+            # -----
+            # Opcode logic:
+            value = self.push_register_pair(
+                self.iy
+            )
+
+            opcode_t_states = 15
+            # -----
+
+            self.log_opcode(
+                opcode=opcode,
+                asm="PUSH IY",
+                prefix="FD",
+                opcode_t_states=opcode_t_states,
+                message=f"Pushed {value:04X}",
+                implemented=True,
+            )
+
+            return opcode_t_states
+
+        # POP IY
+        case 0xE1:
+
+            # -----
+            # Opcode logic:
+            value = self.pop_register_pair(
+                self.set_iy
+            )
+
+            opcode_t_states = 14
+            # -----
+
+            self.log_opcode(
+                opcode=opcode,
+                asm="POP IY",
+                prefix="FD",
+                opcode_t_states=opcode_t_states,
+                message=f"Popped {value:04X}",
+                implemented=True,
+            )
+
+            return opcode_t_states
+
+        # INC IY
+        case 0x23:
+
+            # -----
+            # Opcode logic:
+            value = self.increment_register_pair(
+                lambda: self.iy,
+                self.set_iy
+            )
+
+            opcode_t_states = 10
+            # -----
+
+            self.log_opcode(
+                opcode=opcode,
+                asm="INC IY",
+                prefix="FD",
+                opcode_t_states=opcode_t_states,
+                message=f"Incremented IY to {value:04X}",
                 implemented=True,
             )
 

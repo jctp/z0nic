@@ -82,8 +82,8 @@ class Z80:
         assert 0x00 <= self.c <= 0xFF, f"Register C out of range (value is {self.c:#04X}), last opcode ended: {opcode:02X}"
         assert 0x00 <= self.d <= 0xFF, f"Register D out of range (value is {self.d:#04X}), last opcode ended: {opcode:02X}"
         assert 0x00 <= self.e <= 0xFF, f"Register E out of range (value is {self.e:#04X}), last opcode ended: {opcode:02X}"
-        assert 0x00 <= self.h <= 0xFF, f"Register H out of range (value is {self.f:#04X}), last opcode ended: {opcode:02X}"
-        assert 0x00 <= self.l <= 0xFF, f"Register L out of range (value is {self.g:#04X}), last opcode ended: {opcode:02X}"
+        assert 0x00 <= self.h <= 0xFF, f"Register H out of range (value is {self.h:#04X}), last opcode ended: {opcode:02X}"
+        assert 0x00 <= self.l <= 0xFF, f"Register L out of range (value is {self.l:#04X}), last opcode ended: {opcode:02X}"
 
         assert 0x00 <= self.a_alt <= 0xFF, f"Register A' out of range (value is {self.a_alt:#04X}), last opcode ended: {opcode:02X}"
         assert 0x00 <= self.b_alt <= 0xFF, f"Register B' out of range (value is {self.b_alt:#04X}), last opcode ended: {opcode:02X}"
@@ -93,8 +93,8 @@ class Z80:
         assert 0x00 <= self.h_alt <= 0xFF, f"Register H' out of range (value is {self.h_alt:#04X}), last opcode ended: {opcode:02X}"
         assert 0x00 <= self.l_alt <= 0xFF, f"Register L' out of range (value is {self.l_alt:#04X}), last opcode ended: {opcode:02X}"
            
-        assert 0x00 <= self.i <= 0xFF, f"Register I out of range (value is {self.a:#04X}), last opcode ended: {opcode:02X}"
-        assert 0x00 <= self.r <= 0xFF, f"Register R out of range (value is {self.a:#04X}), last opcode ended: {opcode:02X}"
+        assert 0x00 <= self.i <= 0xFF, f"Register I out of range (value is {self.i:#04X}), last opcode ended: {opcode:02X}"
+        assert 0x00 <= self.r <= 0xFF, f"Register R out of range (value is {self.r:#04X}), last opcode ended: {opcode:02X}"
 
         assert 0x0000 <= self.pc <= 0xFFFF, (
             f"PC out of range ({self.pc:04X}), last opcode ended: {opcode:02X}"
@@ -121,6 +121,10 @@ class Z80:
     # Set PC directly with wraparound
     def set_pc(self, value):
         self.pc = value & 0xFFFF
+
+    # ----------------------------------------
+    # Helpers for complex opcodes
+    # ----------------------------------------
 
     # Helper for OUTI, OUTD, OTIR, and OTDR
     def block_out(self, increment, repeat):
@@ -167,33 +171,78 @@ class Z80:
             self.flag_s = bool(result)
 
         return value
-    
-    def step(self):
-        opcode = self.memory.read8(self.pc)
-        self.inc_pc(increment=1)
 
-        opcode_t_states = dispatcher.execute(self, opcode)
+    # Helper for LD r,(IX+d)
+    def load_register_from_ix_displacement(
+        self,
+        displacement,
+        register
+    ):
 
-        # Ensure that opcode_t_states is always valid and avoids divide by zero
-        if opcode_t_states in (None, 0):
-            opcode_t_states = 1
+        if displacement & 0x80:
+            displacement -= 0x100
 
-        # Validate registers are within range
-        if self.register_check:
-            self.register_in_range_check(opcode)
+        address = (
+            self.ix + displacement
+        ) & 0xFFFF
 
-        # Simple interrupt test
-        self.cycles_since_interrupt += opcode_t_states
+        value = self.memory.read8(address)
 
-        if self.cycles_since_interrupt >= 50000:
-            self.interrupt_pending = True
-            self.cycles_since_interrupt = 0
+        self.set_register(
+            register,
+            value
+        )
 
-        if self.interrupt_pending:
-            self.interrupt()
-            self.interrupt_pending = False
+        return value
 
-        time.sleep((1 / self.clock_hz) * opcode_t_states)
+    # Helper for LD (IX+d),r
+    def store_register_to_ix_displacement(
+        self,
+        displacement,
+        register
+    ):
+
+        if displacement & 0x80:
+            displacement -= 0x100
+
+        address = (
+            self.ix + displacement
+        ) & 0xFFFF
+
+        value = self.get_register(
+            register
+        )
+
+        self.memory.write8(
+            address,
+            value
+        )
+
+        return value
+
+    # Helper for LD (nn),rr
+    def store_register_pair(self, value):
+        address = self.read16_immediate()
+        self.memory.write8(
+            address,
+            value & 0xFF
+        )
+        self.memory.write8(
+            (address + 1) & 0xFFFF,
+            (value >> 8) & 0xFF
+        )
+        return address
+
+    # Helper for LD rr,(nn)
+    def load_register_pair(self, setter):
+        address = self.read16_immediate()
+        value = self.read16(address)
+        setter(value)
+        return value, address
+
+    # ----------------------------------------
+    # Register management
+    # ----------------------------------------
 
     def get_register(self, register):
         # Duplicated opcodes like ADD A,r use this to locate the
@@ -257,6 +306,10 @@ class Z80:
             case 3:     # AF
                 self.set_af(value)
 
+    # ----------------------------------------
+    # Read/Writes
+    # ----------------------------------------
+
     # Read two bytes from an address as a 16-bit value
     def read16(self, address):
         low = self.memory.read8(address)
@@ -276,6 +329,10 @@ class Z80:
         setter(value)
         return value
 
+    # ----------------------------------------
+    # Push/Pop helpers
+    # ----------------------------------------
+
     def push16(self, value):
         self.sp = (self.sp - 1) & 0xFFFF
         self.memory.write8(
@@ -294,6 +351,121 @@ class Z80:
         high = self.memory.read8(self.sp)
         self.sp = (self.sp + 1) & 0xFFFF
         return (high << 8) | low
+
+    # Helper for PUSH rr
+    def push_register_pair(self, value):
+        self.push16(value)
+        return value
+
+    # Helper for POP rr instructions
+    def pop_register_pair(self, setter):
+        value = self.pop16()
+        setter(value)
+        return value
+
+    # Helper for INC rr instructions
+    def increment_register_pair(self, getter, setter):
+        value = (getter() + 1) & 0xFFFF
+        setter(value)
+        return value
+
+    # Helper for LDI/LDD/LDIR/LDDR
+    def block_transfer(self, increment, repeat):
+
+        value = self.memory.read8(
+            self.get_hl()
+        )
+
+        self.memory.write8(
+            self.get_de(),
+            value
+        )
+
+        self.set_hl(
+            (self.get_hl() + increment) & 0xFFFF
+        )
+
+        self.set_de(
+            (self.get_de() + increment) & 0xFFFF
+        )
+
+        self.set_bc(
+            (self.get_bc() - 1) & 0xFFFF
+        )
+
+        self.flag_h = False
+        self.flag_n = False
+        self.flag_pv = (self.get_bc() != 0)
+
+        if repeat and self.get_bc() != 0:
+            self.set_pc(self.pc - 2)
+            return value, 21
+
+        return value, 16
+
+    # Helper for INI, IND, INIR, and INDR
+    def block_in(self, increment, repeat):
+
+        # Read the value from port BC
+        value = self.io.read(
+            self.get_bc()
+        )
+
+        # Write the value to memory at HL
+        self.memory.write8(
+            self.get_hl(),
+            value
+        )
+
+        # Decrement B
+        self.b = (self.b - 1) & 0xFF
+
+        # Advance or retreat HL
+        self.set_hl(
+            (self.get_hl() + increment) & 0xFFFF
+        )
+
+        # TODO: Accurate flag behaviour
+
+        # INIR and INDR repeat until B becomes zero
+        if repeat and self.b != 0:
+            self.set_pc(self.pc - 2)
+            return 21
+
+        return 16
+
+    # Helper for OUTI, OUTD, OTIR, and OTDR
+    def block_out(self, increment, repeat):
+
+        # Take the value from HL
+        value = self.memory.read8(self.get_hl())
+
+        # Write the byte pointed to by HL to BC
+        self.io.write(
+            port=self.get_bc(),
+            value=value
+        )
+
+        # Decrement B
+        self.b = (self.b - 1) & 0xFF
+
+        # Advance or retreat HL by the increment
+        self.set_hl(
+            (self.get_hl() + increment) & 0xFFFF
+        )
+
+        # TODO: Accurate flag behaviour
+
+        # OTIR and OTDR repeat until B becomes zero
+        if repeat and self.b != 0:
+            self.set_pc(self.pc - 2)
+            return 21
+
+        return 16
+
+    # ----------------------------------------
+    # Register/Prime Register exhange
+    # ----------------------------------------
 
     def exchange_af(self):
 
@@ -347,6 +519,10 @@ class Z80:
         self.e, self.e_alt = self.e_alt, self.e
         self.h, self.h_alt = self.h_alt, self.h
         self.l, self.l_alt = self.l_alt, self.l
+
+    # ----------------------------------------
+    # Gets and sets
+    # ----------------------------------------
 
     # BC register pair
     # Combines B and C into a 16-bit value
@@ -418,6 +594,10 @@ class Z80:
     def set_iy(self, value):
         self.iy = value & 0xFFFF
 
+    # ----------------------------------------
+    # Interrupt handling
+    # ----------------------------------------
+
     def interrupt(self):
 
         if not self.iff1:
@@ -446,6 +626,41 @@ class Z80:
                 logger.warning(
                     "IM2 interrupt"
                 )
+
+    # ----------------------------------------
+    # Step through the opcodes
+    # ----------------------------------------
+
+    def step(self):
+        opcode = self.memory.read8(self.pc)
+        self.inc_pc(increment=1)
+
+        opcode_t_states = dispatcher.execute(self, opcode)
+
+        # Ensure that opcode_t_states is always valid and avoids divide by zero
+        if opcode_t_states in (None, 0):
+            opcode_t_states = 1
+
+        # Validate registers are within range
+        if self.register_check:
+            self.register_in_range_check(opcode)
+
+        # Simple interrupt test
+        self.cycles_since_interrupt += opcode_t_states
+
+        if self.cycles_since_interrupt >= 50000:
+            self.interrupt_pending = True
+            self.cycles_since_interrupt = 0
+
+        if self.interrupt_pending:
+            self.interrupt()
+            self.interrupt_pending = False
+
+        time.sleep((1 / self.clock_hz) * opcode_t_states)
+
+    # ----------------------------------------
+    # Error handling
+    # ----------------------------------------
 
     def opcode_not_implemented(self, opcode=0, asm="Unknown"):
         if self.exception_on_non_implemented == True:
