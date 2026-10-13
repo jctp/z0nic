@@ -1,5 +1,6 @@
 # Base opcodes
 from z80.opcodes.base import arithmetic
+from z80.opcodes.base import block
 from z80.opcodes.base import compare
 from z80.opcodes.base import interrupts
 from z80.opcodes.base import io
@@ -100,7 +101,19 @@ def execute(self, opcode):
 
     ):
         return bit_operations.execute(self, opcode)
-    
+
+    # ----------------------------------------
+    # BLOCK INSTRUCTIONS
+    # ----------------------------------------
+
+    if opcode in (
+        0xA0, 0xA1, 0xA2, 0xA3,
+        0xA8, 0xA9, 0xAA, 0xAB,
+        0xB0, 0xB1, 0xB2, 0xB3,
+        0xB8, 0xB9, 0xBA, 0xBB,
+    ):
+        return block.execute(self, opcode)
+
     # ----------------------------------------
     # COMPARE
     # ----------------------------------------
