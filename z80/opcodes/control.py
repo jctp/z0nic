@@ -1,7 +1,5 @@
 def execute(self, opcode):
-
     match opcode:
-
         # NOP
         # No operation
         case 0x00:
@@ -15,7 +13,7 @@ def execute(self, opcode):
                 implemented=True,
             )
             return opcode_t_states
-           
+
         case _:
             pass
 

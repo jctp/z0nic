@@ -12,7 +12,6 @@
 
 
 def execute(self, opcode):
-
     # LD r,n
     # 8-bit loads
     if opcode in (
@@ -24,7 +23,6 @@ def execute(self, opcode):
         0x2E,
         0x3E,
     ):
-
         # -----
         # Opcode logic:
         dest = (opcode >> 3) & 0x07
@@ -48,7 +46,6 @@ def execute(self, opcode):
     # LD r,nn
     # 16-bit loads
     if opcode in (0x01, 0x11, 0x21, 0x31):
-
         opcode_t_states = 10
 
         # -----
@@ -84,10 +81,7 @@ def execute(self, opcode):
             address = (self.b << 8) | self.c
         else:
             address = (self.d << 8) | self.e
-        self.memory.write8(
-            address,
-            self.a
-        )
+        self.memory.write8(address, self.a)
         # -----
 
         self.log_opcode(
@@ -101,7 +95,6 @@ def execute(self, opcode):
 
     # LD A,(rr)
     if opcode in (0x0A, 0x1A):
-
         opcode_t_states = 7
 
         # -----
@@ -127,20 +120,15 @@ def execute(self, opcode):
             implemented=True,
         )
 
-        return opcode_t_states  
-
+        return opcode_t_states
 
     match opcode:
-
         # LD (nn),HL
         case 0x22:
-
             # -----
             # Opcode logic:
 
-            address = self.store_register_pair(
-                self.get_hl()
-            )
+            address = self.store_register_pair(self.get_hl())
 
             opcode_t_states = 16
 
@@ -152,20 +140,16 @@ def execute(self, opcode):
                 prefix="",
                 opcode_t_states=opcode_t_states,
                 message=(
-                    f"Stored HL ({self.get_hl():04X}) "
-                    f"into memory at {address:04X}"
-                )
+                    f"Stored HL ({self.get_hl():04X}) into memory at {address:04X}"
+                ),
             )
 
         # LD HL,(nn)
         case 0x2A:
-
             # -----
             # Opcode logic:
 
-            value, address = self.load_register_pair(
-                self.set_hl
-            )
+            value, address = self.load_register_pair(self.set_hl)
 
             opcode_t_states = 16
 
@@ -176,14 +160,10 @@ def execute(self, opcode):
                 asm="LD HL,(nn)",
                 prefix="",
                 opcode_t_states=opcode_t_states,
-                message=(
-                    f"Loaded {value:04X} from "
-                    f"memory at {address:04X} into HL"
-                )
+                message=(f"Loaded {value:04X} from memory at {address:04X} into HL"),
             )
-                
-        case 0x32:
 
+        case 0x32:
             opcode_t_states = 13
 
             # -----
@@ -193,10 +173,7 @@ def execute(self, opcode):
             high = self.memory.read8(self.pc)
             self.inc_pc(increment=1)
             address = (high << 8) | low
-            self.memory.write8(
-                address,
-                self.a
-            )
+            self.memory.write8(address, self.a)
             # -----
 
             self.log_opcode(
@@ -213,9 +190,8 @@ def execute(self, opcode):
         # LD SP, HL
         # Contents of register pair HL are loaded into Stack Pointer SP
         case 0xF9:
-
             opcode_t_states = 6
-        
+
             # -----
             # Opcode logic:
             hl = (self.h << 8) | self.l

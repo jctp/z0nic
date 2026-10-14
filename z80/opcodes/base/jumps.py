@@ -15,7 +15,6 @@
 
 
 def execute(self, opcode):
-
     match opcode:
         # JP nn
         # Jump directly to nn
@@ -77,9 +76,8 @@ def execute(self, opcode):
 
         # JR C,e
         case 0x38:
-
             source_address = self.pc
-            
+
             # -----
             # Opcode logic:
             offset = self.memory.read8(self.pc)
@@ -113,7 +111,6 @@ def execute(self, opcode):
         # DJNZ e
         # Decrement B and jump relative if B is not zero
         case 0x10:
-
             opcode_t_states = 8
 
             # -----

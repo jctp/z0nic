@@ -3,13 +3,11 @@
 
 
 def execute(self, opcode):
-
     match opcode:
         # CP nn
         # Compare A with operand
 
         case 0xFE:
-
             opcode_t_states = 7
 
             # -----
@@ -21,21 +19,13 @@ def execute(self, opcode):
 
             self.flag_s = bool((result & 0xFF) & 0x80)
 
-            self.flag_z = ((result & 0xFF) == 0)
+            self.flag_z = (result & 0xFF) == 0
 
-            self.flag_h = (
-                (self.a & 0x0F)
-                <
-                (operand & 0x0F)
-            )
+            self.flag_h = (self.a & 0x0F) < (operand & 0x0F)
 
-            self.flag_pv = (
-                ((self.a ^ operand) &
-                (self.a ^ result) &
-                0x80) != 0
-            )
+            self.flag_pv = ((self.a ^ operand) & (self.a ^ result) & 0x80) != 0
 
-            self.flag_c = (result < 0)
+            self.flag_c = result < 0
 
             self.flag_n = True
             # -----

@@ -6,7 +6,6 @@
 
 
 def execute(self, opcode):
-
     match opcode:
         # DI
         # Disable interrupts
@@ -17,6 +16,7 @@ def execute(self, opcode):
             # Opcode logic:
             self.iff1 = False
             self.iff2 = False
+            self.ei_pending = False
             # -----
 
             self.log_opcode(
@@ -30,15 +30,15 @@ def execute(self, opcode):
             return opcode_t_states
 
         # EI
-        # Enable interrupts
+        # Enable interrupts after the next instruction
         case 0xFB:
-
             opcode_t_states = 4
 
             # -----
             # Opcode logic:
             self.iff1 = True
             self.iff2 = True
+            self.ei_pending = True
             # -----
 
             self.log_opcode(
@@ -46,15 +46,15 @@ def execute(self, opcode):
                 asm="EI",
                 prefix="",
                 opcode_t_states=opcode_t_states,
-                message="Interrupts enabled",
+                message="Interrupts enabled (after next instruction)",
                 implemented=True,
             )
+
             return opcode_t_states
 
         # ED 45
         # RETN
         case 0x45:
-
             opcode_t_states = 14
 
             # -----
@@ -80,7 +80,6 @@ def execute(self, opcode):
         # ED 4D
         # RETI
         case 0x4D:
-
             opcode_t_states = 14
 
             # -----

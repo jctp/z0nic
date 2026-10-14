@@ -15,17 +15,15 @@ from logger import logger
 
 # 00  NOP
 
-def execute(self, opcode):
 
+def execute(self, opcode):
     # ----------------------------------------
     # ROTATES AND SHIFTS
     # ----------------------------------------
     match opcode:
-
         # RRA
         # Rotate Right Accumulator through Carry
         case 0x1F:
-
             opcode_t_states = 4
 
             # -----
@@ -46,7 +44,7 @@ def execute(self, opcode):
             )
 
             return opcode_t_states
-        
+
     # ----------------------------------------
     # BIT
     # ----------------------------------------
@@ -62,7 +60,6 @@ def execute(self, opcode):
         0x08,  # EX AF,AF'
         0xD9,  # EXX
     ):
-
         opcode_t_states = 4
 
         logger.debug(
@@ -107,11 +104,9 @@ def execute(self, opcode):
         return opcode_t_states
 
     match opcode:
-
         # EX (SP),HL
         # Exchange the value in HL with the 16b value at the top of the stack
         case 0xE3:
-
             opcode_t_states = 19
 
             # -----
@@ -120,14 +115,8 @@ def execute(self, opcode):
             stack_high = self.memory.read8(self.sp + 1)
             stack_value = (stack_high << 8) | stack_low
             hl = (self.h << 8) | self.l
-            self.memory.write8(
-                self.sp,
-                hl & 0xFF
-            )
-            self.memory.write8(
-                self.sp + 1,
-                (hl >> 8) & 0xFF
-            )
+            self.memory.write8(self.sp, hl & 0xFF)
+            self.memory.write8(self.sp + 1, (hl >> 8) & 0xFF)
             self.h = (stack_value >> 8) & 0xFF
             self.l = stack_value & 0xFF
             # -----
@@ -146,7 +135,6 @@ def execute(self, opcode):
         # EX DE,HL
         # Exchange DE and HL
         case 0xEB:
-
             opcode_t_states = 4
 
             # -----
@@ -163,10 +151,7 @@ def execute(self, opcode):
                 asm="EX DE,HL",
                 prefix="",
                 opcode_t_states=opcode_t_states,
-                message=(
-                    f"DE now {self.get_de():04X}, "
-                    f"HL now {self.get_hl():04X}"
-                ),
+                message=(f"DE now {self.get_de():04X}, HL now {self.get_hl():04X}"),
                 implemented=True,
             )
 
@@ -181,6 +166,6 @@ def execute(self, opcode):
     match opcode:
         case _:
             pass
-        
+
     # Not implemented
     return None

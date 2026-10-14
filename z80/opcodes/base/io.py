@@ -3,7 +3,6 @@
 
 
 def execute(self, opcode):
-
     match opcode:
         # IN A, (n)
         # Loads one byte from the data bus at port n into the accumulator a

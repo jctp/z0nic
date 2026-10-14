@@ -10,17 +10,13 @@
 
 
 def execute(self, opcode):
-
     # PUSH qq
     if opcode in (0xC5, 0xD5, 0xE5, 0xF5):
-
         # -----
         # Opcode logic:
         pair = (opcode >> 4) & 0x03
 
-        value = self.push_register_pair(
-            self.get_register_pair(pair)
-        )
+        value = self.push_register_pair(self.get_register_pair(pair))
 
         opcode_t_states = 11
         # -----
@@ -38,17 +34,13 @@ def execute(self, opcode):
 
     # POP qq
     if opcode in (0xC1, 0xD1, 0xE1, 0xF1):
-
         # -----
         # Opcode logic:
         pair = (opcode >> 4) & 0x03
 
         value = self.pop16()
 
-        self.set_register_pair(
-            pair,
-            value
-        )
+        self.set_register_pair(pair, value)
 
         opcode_t_states = 10
         # -----
@@ -63,5 +55,5 @@ def execute(self, opcode):
         )
 
         return opcode_t_states
-        
+
     return None

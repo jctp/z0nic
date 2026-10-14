@@ -14,11 +14,14 @@
 # RETN
 # RETI
 
+
 def execute(self):
     opcode = self.memory.read8(self.pc)
     self.inc_pc(increment=1)
 
     match opcode:
+        # region Interrupt Mode
+
         # ED 56
         # Set interrupt mode to 1
         case 0x56:
@@ -39,58 +42,8 @@ def execute(self):
             )
             return opcode_t_states
 
-        # ED B0
-        # LDIR
-        case 0xB0:
-
-            # -----
-            # Opcode logic:
-            hl = (self.h << 8) | self.l
-            de = (self.d << 8) | self.e
-            bc = (self.b << 8) | self.c
-
-            start_hl = hl
-            start_de = de
-            bytes_copied = bc
-
-            while bc > 0:
-
-                value = self.memory.read8(hl)
-
-                self.memory.write8(
-                    de,
-                    value
-                )
-
-                hl += 1
-                de += 1
-                bc -= 1
-
-            self.h = (hl >> 8) & 0xFF
-            self.l = hl & 0xFF
-
-            self.d = (de >> 8) & 0xFF
-            self.e = de & 0xFF
-
-            self.b = (bc >> 8) & 0xFF
-            self.c = bc & 0xFF
-
-            opcode_t_states = 21 * bytes_copied
-            # -----
-            
-            self.log_opcode(
-                opcode=opcode,
-                asm="LDIR",
-                prefix="ED",
-                opcode_t_states=opcode_t_states,
-                message=(
-                    f"Copied {bytes_copied} bytes "
-                    f"from {start_hl:04X} "
-                    f"to {start_de:04X}"
-                ),
-                implemented=True,
-            )
-            return opcode_t_states
+        # endregion
+        # region 16-bit Direct Load/Store
 
         # ED 43      LD (nn),BC
         # ED 4B      LD BC,(nn)
@@ -105,7 +58,6 @@ def execute(self):
         # ED 7B      LD SP,(nn)
         # ED 16-bit direct load/store
         case 0x43 | 0x4B | 0x53 | 0x5B | 0x63 | 0x6B | 0x73 | 0x7B:
-
             opcode_t_states = 20
 
             # -----
@@ -122,14 +74,12 @@ def execute(self):
             address = (high << 8) | low
 
             if opcode in (0x4B, 0x5B, 0x6B, 0x7B):
-
                 low = self.memory.read8(address)
                 high = self.memory.read8(address + 1)
 
                 value = (high << 8) | low
 
                 match opcode:
-
                     case 0x4B:
                         self.set_register_pair(0, value)
                         asm = "LD BC,(nn)"
@@ -146,15 +96,10 @@ def execute(self):
                         self.sp = value
                         asm = "LD SP,(nn)"
 
-                message = (
-                    f"Loaded {value:04X} "
-                    f"from {address:04X}"
-                )
+                message = f"Loaded {value:04X} from {address:04X}"
 
             else:
-
                 match opcode:
-
                     case 0x43:
                         value = self.get_register_pair(0)
                         asm = "LD (nn),BC"
@@ -181,10 +126,7 @@ def execute(self):
                     (value >> 8) & 0xFF,
                 )
 
-                message = (
-                    f"Stored {value:04X} "
-                    f"to {address:04X}"
-                )
+                message = f"Stored {value:04X} to {address:04X}"
 
             # -----
 
@@ -199,6 +141,9 @@ def execute(self):
 
             return opcode_t_states
 
+        # endregion
+        # region 16-bit Arithmetic
+
         # ED 42  SBC HL,BC
         # ED 52  SBC HL,DE
         # ED 62  SBC HL,HL
@@ -209,11 +154,7 @@ def execute(self):
         # ED 6A  ADC HL,HL
         # ED 7A  ADC HL,SP
         # HL = HL - BC - Carry
-        case (
-            0x42 | 0x52 | 0x62 | 0x72 |
-            0x4A | 0x5A | 0x6A | 0x7A
-        ):
-
+        case 0x42 | 0x52 | 0x62 | 0x72 | 0x4A | 0x5A | 0x6A | 0x7A:
             opcode_t_states = 15
 
             # -----
@@ -222,7 +163,6 @@ def execute(self):
             hl = self.get_register_pair(2)
 
             match opcode:
-
                 case 0x42 | 0x4A:
                     rhs = self.get_register_pair(0)
                     rhs_name = "BC"
@@ -242,46 +182,24 @@ def execute(self):
             carry = int(self.flag_c)
 
             if opcode & 0x08:
-
                 result = hl + rhs + carry
 
                 asm = f"ADC HL,{rhs_name}"
 
-                self.flag_h = (
-                    ((hl & 0x0FFF)
-                    + (rhs & 0x0FFF)
-                    + carry)
-                    > 0x0FFF
-                )
+                self.flag_h = ((hl & 0x0FFF) + (rhs & 0x0FFF) + carry) > 0x0FFF
 
-                self.flag_pv = (
-                    (~(hl ^ rhs)
-                    & (hl ^ result)
-                    & 0x8000)
-                    != 0
-                )
+                self.flag_pv = (~(hl ^ rhs) & (hl ^ result) & 0x8000) != 0
 
                 self.flag_n = False
 
             else:
-
                 result = hl - rhs - carry
 
                 asm = f"SBC HL,{rhs_name}"
 
-                self.flag_h = (
-                    ((hl & 0x0FFF)
-                    - (rhs & 0x0FFF)
-                    - carry)
-                    < 0
-                )
+                self.flag_h = ((hl & 0x0FFF) - (rhs & 0x0FFF) - carry) < 0
 
-                self.flag_pv = (
-                    ((hl ^ rhs)
-                    & (hl ^ result)
-                    & 0x8000)
-                    != 0
-                )
+                self.flag_pv = ((hl ^ rhs) & (hl ^ result) & 0x8000) != 0
 
                 self.flag_n = True
 
@@ -289,18 +207,11 @@ def execute(self):
 
             self.flag_z = (result & 0xFFFF) == 0
 
-            self.flag_c = (
-                result > 0xFFFF
-                if opcode & 0x08
-                else result < 0
-            )
+            self.flag_c = result > 0xFFFF if opcode & 0x08 else result < 0
 
             result &= 0xFFFF
 
-            self.set_register_pair(
-                2,
-                result
-            )
+            self.set_register_pair(2, result)
 
             # -----
 
@@ -309,87 +220,180 @@ def execute(self):
                 asm=asm,
                 prefix="ED",
                 opcode_t_states=opcode_t_states,
-                message=(
-                    f"HL={result:04X} "
-                    f"RHS={rhs:04X}"
-                ),
+                message=(f"HL={result:04X} RHS={rhs:04X}"),
                 implemented=True,
             )
 
             return opcode_t_states
+
+        # endregion
+        # region Output Block
 
         # OUTI
         # Byte at address HL is written to I/O port BC
         # B is decremented
         # HL is incremented
         case 0xA3:
-            opcode_t_states = self.block_out(
-                increment=1,
-                repeat=False
-            )
+            opcode_t_states = self.block_out(increment=1, repeat=False)
 
         # OUTD
         # Byte at address HL is written to I/O port BC
         # B is decremented
         # HL is decremented
         case 0xAB:
-            opcode_t_states = self.block_out(
-                increment=-1,
-                repeat=False
-            )
+            opcode_t_states = self.block_out(increment=-1, repeat=False)
 
         # OTIR
         # Repeated OUTI until B becomes zero
         case 0xB3:
-            opcode_t_states = self.block_out(
-                increment=1,
-                repeat=True
-            )
+            opcode_t_states = self.block_out(increment=1, repeat=True)
 
         # OTDR
         # Repeated OUTD until B becomes zero
         case 0xBB:
-            opcode_t_states = self.block_out(
-                increment=-1,
-                repeat=True
-            )
+            opcode_t_states = self.block_out(increment=-1, repeat=True)
 
-        # LD (nn),DE
-        # Store DE at the specified memory address
-        case 0x53:
+        # endregion
+        # region Block Transfer
 
-            opcode_t_states = 20
-
-            # -----
-            # Opcode logic:
-            address = self.mread16(self.pc)
-            self.pc += 2
-
-            self.memory.write8(
-                address,
-                self.e
-            )
-
-            self.memory.write8(
-                (address + 1) & 0xFFFF,
-                self.d
-            )
-            # -----
+        # ED A0
+        # LDI
+        case 0xA0:
+            opcode_t_states = self.block_transfer_helper(increment=1, repeat=0)
 
             self.log_opcode(
                 opcode=opcode,
-                asm="LD (nn),DE",
+                asm="LDI",
+                prefix="A0",
+                opcode_t_states=opcode_t_states,
+                message=("LDI Block Transfer"),
+                implemented=True,
+            )
+            return opcode_t_states
+
+        # ED B0
+        # LDIR
+        case 0xB0:
+            opcode_t_states = self.block_transfer_helper(increment=1, repeat=1)
+
+            self.log_opcode(
+                opcode=opcode,
+                asm="LDIR",
                 prefix="ED",
                 opcode_t_states=opcode_t_states,
-                message=(
-                    f"Stored DE ({self.get_de():04X}) "
-                    f"to memory location {address:04X}"
-                ),
+                message=("LDIR Repeating Block Transfer"),
                 implemented=True,
+            )
+            return opcode_t_states
+
+        # ED A8
+        # LDD
+        case 0xA8:
+            opcode_t_states = self.block_transfer_helper(increment=0, repeat=0)
+
+            self.log_opcode(
+                opcode=opcode,
+                asm="LDD",
+                prefix="ED",
+                opcode_t_states=opcode_t_states,
+                message=("LDD Block Transfer"),
+                implemented=True,
+            )
+            return opcode_t_states
+
+        # ED B8
+        # LDDR
+        case 0xB8:
+            opcode_t_states = self.block_transfer_helper(increment=0, repeat=1)
+
+            self.log_opcode(
+                opcode=opcode,
+                asm="LDIR",
+                prefix="ED",
+                opcode_t_states=opcode_t_states,
+                message=("LDDR Repeating Block Transfer"),
+                implemented=True,
+            )
+            return opcode_t_states
+
+        # endregion
+        # region Block Compare
+
+        # ED A1
+        # CPI
+
+        # ED B1
+        # CPIR
+
+        # ED A9
+        # CPD
+
+        # ED B9
+        # CPDR
+
+        # endregion
+
+        # region Block I/O (Input)
+
+        # INI
+        case 0xA2:
+            opcode_t_states = self.block_in(increment=1, repeat=False)
+
+            self.log_opcode(
+                opcode=opcode,
+                asm="INI",
+                prefix="ED",
+                opcode_t_states=opcode_t_states,
+                message="Input from port BC to memory at HL",
             )
 
             return opcode_t_states
-        
+
+        # IND
+        case 0xAA:
+            opcode_t_states = self.block_in(increment=-1, repeat=False)
+
+            self.log_opcode(
+                opcode=opcode,
+                asm="IND",
+                prefix="ED",
+                opcode_t_states=opcode_t_states,
+                message="Input from port BC to memory at HL",
+            )
+
+            return opcode_t_states
+
+        # INIR
+        case 0xB2:
+            opcode_t_states = self.block_in(increment=1, repeat=True)
+
+            self.log_opcode(
+                opcode=opcode,
+                asm="INIR",
+                prefix="ED",
+                opcode_t_states=opcode_t_states,
+                message="Repeated input from port BC to memory at HL",
+            )
+
+            return opcode_t_states
+
+        # INDR
+        case 0xBA:
+            opcode_t_states = self.block_in(increment=-1, repeat=True)
+
+            self.log_opcode(
+                opcode=opcode,
+                asm="INDR",
+                prefix="ED",
+                opcode_t_states=opcode_t_states,
+                message="Repeated input from port BC to memory at HL",
+            )
+
+            return opcode_t_states
+
+        # endregion
+        # region Block I/O (Output)
+
         # Not implemented
         case _:
             self.opcode_not_implemented(f"ED {opcode:02X}", "Unknown mnemonic")

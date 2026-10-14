@@ -8,7 +8,6 @@
 
 
 def execute(self, opcode):
-
     match opcode:
         # XOR A
         # Exclusive OR A with itself

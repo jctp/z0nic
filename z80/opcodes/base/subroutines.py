@@ -10,9 +10,7 @@
 
 
 def execute(self, opcode):
-
     match opcode:
-
         # CALL nn
         # Push current PC onto stack and jump to nn
         case 0xCD:
@@ -27,15 +25,9 @@ def execute(self, opcode):
             destination = (high << 8) | low
             return_address = self.pc
             self.sp -= 1
-            self.memory.write8(
-                self.sp,
-                (return_address >> 8) & 0xFF
-            )
+            self.memory.write8(self.sp, (return_address >> 8) & 0xFF)
             self.sp -= 1
-            self.memory.write8(
-                self.sp,
-                return_address & 0xFF
-            )
+            self.memory.write8(self.sp, return_address & 0xFF)
             self.pc = destination
             # -----
 
@@ -49,11 +41,10 @@ def execute(self, opcode):
             )
 
             return opcode_t_states
-        
+
         # RET
         # Return to caller
         case 0xC9:
-
             opcode_t_states = 10
 
             # -----

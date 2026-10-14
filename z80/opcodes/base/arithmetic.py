@@ -11,7 +11,6 @@
 
 
 def execute(self, opcode):
-
     # GROUPED OPCODES
     # Some opcodes are very similar, and have things like
     # source addresses embedded in the opcode itself
@@ -22,7 +21,6 @@ def execute(self, opcode):
     # 80-87   ADD A,r
     # Contents of register r are added to A and stored in A
     if 0x80 <= opcode <= 0x87:
-
         self_a_before = self.a
 
         # -----
@@ -31,20 +29,12 @@ def execute(self, opcode):
         value = self.get_register(source)
         result = self.a + value
         self.a = result & 0xFF
-        self.flag_z = ((result & 0xFF) == 0)
-        self.flag_c = (result > 0xFF)
+        self.flag_z = (result & 0xFF) == 0
+        self.flag_c = result > 0xFF
         self.flag_n = False
         self.flag_s = bool(self.a & 0x80)
-        self.flag_pv = (
-            (~(self_a_before ^ value) &
-            (self_a_before ^ result) &
-            0x80) != 0
-        )
-        self.flag_h = (
-            ((self_a_before & 0x0F) +
-            (value & 0x0F))
-            > 0x0F
-        )
+        self.flag_pv = (~(self_a_before ^ value) & (self_a_before ^ result) & 0x80) != 0
+        self.flag_h = ((self_a_before & 0x0F) + (value & 0x0F)) > 0x0F
         # -----
 
         opcode_t_states = 7 if source == 6 else 4
@@ -63,7 +53,6 @@ def execute(self, opcode):
     # Contents of register r and carry are added to A and stored in A
 
     if 0x88 <= opcode <= 0x8F:
-
         self_a_before = self.a
 
         # -----
@@ -77,22 +66,14 @@ def execute(self, opcode):
         self.a = result & 0xFF
 
         self.flag_s = bool(self.a & 0x80)
-        self.flag_z = (self.a == 0)
+        self.flag_z = self.a == 0
 
-        self.flag_h = (
-            ((self_a_before & 0x0F) +
-            (value & 0x0F) +
-            carry) > 0x0F
-        )
+        self.flag_h = ((self_a_before & 0x0F) + (value & 0x0F) + carry) > 0x0F
 
-        self.flag_pv = (
-            (~(self_a_before ^ value) &
-            (self_a_before ^ result) &
-            0x80) != 0
-        )
+        self.flag_pv = (~(self_a_before ^ value) & (self_a_before ^ result) & 0x80) != 0
 
         self.flag_n = False
-        self.flag_c = (result > 0xFF)
+        self.flag_c = result > 0xFF
         # -----
 
         opcode_t_states = 7 if source == 6 else 4
@@ -108,12 +89,10 @@ def execute(self, opcode):
 
         return opcode_t_states
 
-
     # 98-9F    SBC A,r
     # TODO: Define
 
     if 0x98 <= opcode <= 0x9F:
-
         # -----
         # Opcode logic:
         self_a_before = self.a
@@ -127,22 +106,14 @@ def execute(self, opcode):
         self.a = result & 0xFF
 
         self.flag_s = bool(self.a & 0x80)
-        self.flag_z = (self.a == 0)
+        self.flag_z = self.a == 0
 
-        self.flag_h = (
-            (self_a_before & 0x0F)
-            <
-            ((value & 0x0F) + carry)
-        )
+        self.flag_h = (self_a_before & 0x0F) < ((value & 0x0F) + carry)
 
-        self.flag_pv = (
-            ((self_a_before ^ value) &
-            (self_a_before ^ result) &
-            0x80) != 0
-        )
+        self.flag_pv = ((self_a_before ^ value) & (self_a_before ^ result) & 0x80) != 0
 
         self.flag_n = True
-        self.flag_c = (result < 0)
+        self.flag_c = result < 0
         # -----
 
         opcode_t_states = 7 if source == 6 else 4
@@ -161,7 +132,6 @@ def execute(self, opcode):
     # 90-97    SUB r
     # Subtract r from A and store in A
     if 0x90 <= opcode <= 0x97:
-
         self_a_before = self.a
 
         # -----
@@ -174,21 +144,13 @@ def execute(self, opcode):
         self.a = result & 0xFF
 
         self.flag_s = bool(self.a & 0x80)
-        self.flag_z = (self.a == 0)
+        self.flag_z = self.a == 0
 
-        self.flag_h = (
-            (self_a_before & 0x0F)
-            <
-            (value & 0x0F)
-        )
+        self.flag_h = (self_a_before & 0x0F) < (value & 0x0F)
 
-        self.flag_pv = (
-            ((self_a_before ^ value) &
-            (self_a_before ^ result) &
-            0x80) != 0
-        )
+        self.flag_pv = ((self_a_before ^ value) & (self_a_before ^ result) & 0x80) != 0
 
-        self.flag_c = (result < 0)
+        self.flag_c = result < 0
         self.flag_n = True
         # -----
 
@@ -205,11 +167,9 @@ def execute(self, opcode):
 
         return opcode_t_states
 
-
     # 98-9F    SBC A,r
     # TODO: Define
     if 0x98 <= opcode <= 0x9F:
-
         # -----
         # Opcode logic:
         self_a_before = self.a
@@ -218,15 +178,11 @@ def execute(self, opcode):
         carry = 1 if self.flag_c else 0
         result = self.a - value - carry
         self.a = result & 0xFF
-        self.flag_z = ((result & 0xFF) == 0)
-        self.flag_c = (result > 0xFF)
+        self.flag_z = (result & 0xFF) == 0
+        self.flag_c = result > 0xFF
         self.flag_n = True
         self.flag_s = bool(self.a & 0x80)
-        self.flag_pv = (
-            (~(self_a_before ^ value) &
-            (self_a_before ^ result) &
-            0x80) != 0
-        )
+        self.flag_pv = (~(self_a_before ^ value) & (self_a_before ^ result) & 0x80) != 0
         # -----
 
         opcode_t_states = 7 if source == 6 else 4

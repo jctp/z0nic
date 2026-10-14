@@ -1,19 +1,39 @@
 from logger import logger
+import datetime
 import time
 
 from z80.opcodes import dispatcher
 
+# endregion
+# region Z80 CPU
+
 
 class Z80:
-    def __init__(self, memory, io, clock_hz, exception_on_non_implemented, register_check):
+    def __init__(
+        self,
+        memory,
+        io,
+        clock_hz,
+        exception_on_non_implemented,
+        register_check,
+        heartbeat_seconds=False,
+        opcode_trace=None,
+    ):
         self.setup()
         self.memory = memory
         self.io = io
         self.clock_hz = clock_hz
         self.exception_on_non_implemented = exception_on_non_implemented
         self.register_check = register_check
+        self.heartbeat_seconds = heartbeat_seconds
+        self.opcode_trace = opcode_trace
+
+    # endregion
+    # region Z80 Setup
 
     def setup(self):
+        # Diagnostic variables
+        self.heartbeat_counter = 0  # Counts cycles to log status message every X cycles instead of full DEBUG level
 
         # Main registers
         self.a = 0  # Accumulator
@@ -75,44 +95,8 @@ class Z80:
         self.interrupt_pending = False
         self.cycles_since_interrupt = 0
 
-    # Assert that all 8-bit CPU registers are within 8-bit range and raise if not
-    def register_in_range_check(self, opcode):
-        assert 0x00 <= self.a <= 0xFF, f"Register A out of range (value is {self.a:#04X}), last opcode ended: {opcode:02X}"
-        assert 0x00 <= self.b <= 0xFF, f"Register B out of range (value is {self.b:#04X}), last opcode ended: {opcode:02X}"
-        assert 0x00 <= self.c <= 0xFF, f"Register C out of range (value is {self.c:#04X}), last opcode ended: {opcode:02X}"
-        assert 0x00 <= self.d <= 0xFF, f"Register D out of range (value is {self.d:#04X}), last opcode ended: {opcode:02X}"
-        assert 0x00 <= self.e <= 0xFF, f"Register E out of range (value is {self.e:#04X}), last opcode ended: {opcode:02X}"
-        assert 0x00 <= self.h <= 0xFF, f"Register H out of range (value is {self.h:#04X}), last opcode ended: {opcode:02X}"
-        assert 0x00 <= self.l <= 0xFF, f"Register L out of range (value is {self.l:#04X}), last opcode ended: {opcode:02X}"
-
-        assert 0x00 <= self.a_alt <= 0xFF, f"Register A' out of range (value is {self.a_alt:#04X}), last opcode ended: {opcode:02X}"
-        assert 0x00 <= self.b_alt <= 0xFF, f"Register B' out of range (value is {self.b_alt:#04X}), last opcode ended: {opcode:02X}"
-        assert 0x00 <= self.c_alt <= 0xFF, f"Register C' out of range (value is {self.c_alt:#04X}), last opcode ended: {opcode:02X}"
-        assert 0x00 <= self.d_alt <= 0xFF, f"Register D' out of range (value is {self.d_alt:#04X}), last opcode ended: {opcode:02X}"
-        assert 0x00 <= self.e_alt <= 0xFF, f"Register E' out of range (value is {self.e_alt:#04X}), last opcode ended: {opcode:02X}"
-        assert 0x00 <= self.h_alt <= 0xFF, f"Register H' out of range (value is {self.h_alt:#04X}), last opcode ended: {opcode:02X}"
-        assert 0x00 <= self.l_alt <= 0xFF, f"Register L' out of range (value is {self.l_alt:#04X}), last opcode ended: {opcode:02X}"
-           
-        assert 0x00 <= self.i <= 0xFF, f"Register I out of range (value is {self.i:#04X}), last opcode ended: {opcode:02X}"
-        assert 0x00 <= self.r <= 0xFF, f"Register R out of range (value is {self.r:#04X}), last opcode ended: {opcode:02X}"
-
-        assert 0x0000 <= self.pc <= 0xFFFF, (
-            f"PC out of range ({self.pc:04X}), last opcode ended: {opcode:02X}"
-        )
-
-        assert 0x0000 <= self.sp <= 0xFFFF, (
-            f"SP out of range ({self.sp:04X}), last opcode ended: {opcode:02X}"
-        )
-
-        assert 0x0000 <= self.ix <= 0xFFFF, (
-            f"IX out of range ({self.ix:04X}), last opcode ended: {opcode:02X}"
-        )
-
-        assert 0x0000 <= self.iy <= 0xFFFF, (
-            f"IY out of range ({self.iy:04X}), last opcode ended: {opcode:02X}"
-        )
-
-        return None
+    # endregion
+    # region PC Control
 
     # Increment PC with wraparound
     def inc_pc(self, increment=1):
@@ -122,25 +106,19 @@ class Z80:
     def set_pc(self, value):
         self.pc = value & 0xFFFF
 
-    # ----------------------------------------
-    # Helpers for complex opcodes
-    # ----------------------------------------
+    # endregion
+    # region Opcode Helpers
 
     # Helper for OUTI, OUTD, OTIR, and OTDR
     def block_out(self, increment, repeat):
         # Take the value from HL
         value = self.memory.read8(self.get_hl())
         # Write the byte pointed to by HL to BC
-        self.io.write(
-            port = self.get_bc(),
-            value = value
-        )
+        self.io.write(port=self.get_bc(), value=value)
         # Decrement B
         self.b = (self.b - 1) & 0xFF
         # Advance or retreat HL by the increment
-        self.set_hl(
-            (self.get_hl() + increment) & 0xFFFF
-        )
+        self.set_hl((self.get_hl() + increment) & 0xFFFF)
         # OTIR and OTDR require that this repeats
         if repeat and self.b != 0:
             self.set_pc(self.pc - 2)
@@ -150,20 +128,17 @@ class Z80:
 
     # Helper for BIT b,(IX+d)
     def bit_ix_displacement(self, displacement, bit):
-
         if displacement & 0x80:
             displacement -= 0x100
 
-        address = (
-            self.ix + displacement
-        ) & 0xFFFF
+        address = (self.ix + displacement) & 0xFFFF
 
         value = self.memory.read8(address)
 
         result = value & (1 << bit)
 
-        self.flag_z = (result == 0)
-        self.flag_pv = (result == 0)
+        self.flag_z = result == 0
+        self.flag_pv = result == 0
         self.flag_h = True
         self.flag_n = False
 
@@ -173,64 +148,36 @@ class Z80:
         return value
 
     # Helper for LD r,(IX+d)
-    def load_register_from_ix_displacement(
-        self,
-        displacement,
-        register
-    ):
-
+    def load_register_from_ix_displacement(self, displacement, register):
         if displacement & 0x80:
             displacement -= 0x100
 
-        address = (
-            self.ix + displacement
-        ) & 0xFFFF
+        address = (self.ix + displacement) & 0xFFFF
 
         value = self.memory.read8(address)
 
-        self.set_register(
-            register,
-            value
-        )
+        self.set_register(register, value)
 
         return value
 
     # Helper for LD (IX+d),r
-    def store_register_to_ix_displacement(
-        self,
-        displacement,
-        register
-    ):
-
+    def store_register_to_ix_displacement(self, displacement, register):
         if displacement & 0x80:
             displacement -= 0x100
 
-        address = (
-            self.ix + displacement
-        ) & 0xFFFF
+        address = (self.ix + displacement) & 0xFFFF
 
-        value = self.get_register(
-            register
-        )
+        value = self.get_register(register)
 
-        self.memory.write8(
-            address,
-            value
-        )
+        self.memory.write8(address, value)
 
         return value
 
     # Helper for LD (nn),rr
     def store_register_pair(self, value):
         address = self.read16_immediate()
-        self.memory.write8(
-            address,
-            value & 0xFF
-        )
-        self.memory.write8(
-            (address + 1) & 0xFFFF,
-            (value >> 8) & 0xFF
-        )
+        self.memory.write8(address, value & 0xFF)
+        self.memory.write8((address + 1) & 0xFFFF, (value >> 8) & 0xFF)
         return address
 
     # Helper for LD rr,(nn)
@@ -240,13 +187,9 @@ class Z80:
         setter(value)
         return value, address
 
-    # ----------------------------------------
-    # Register management
-    # ----------------------------------------
-
+    # Duplicated opcodes like ADD A,r use this to locate the
+    # register embodied in the right three bits of the opcode
     def get_register(self, register):
-        # Duplicated opcodes like ADD A,r use this to locate the
-        # register embodied in the right three bits of the opcode
         match register:
             case 0:
                 return self.b
@@ -286,64 +229,107 @@ class Z80:
 
     def get_register_pair(self, pair):
         match pair:
-            case 0:     # BC
+            case 0:  # BC
                 return self.get_bc()
-            case 1:     # DE
+            case 1:  # DE
                 return self.get_de()
-            case 2:     # HL
+            case 2:  # HL
                 return self.get_hl()
-            case 3:     # AF
+            case 3:  # AF
                 return self.get_af()
 
     def set_register_pair(self, pair, value):
         match pair:
-            case 0:     # BC
+            case 0:  # BC
                 self.set_bc(value)
-            case 1:     # DE
+            case 1:  # DE
                 self.set_de(value)
-            case 2:     # HL
+            case 2:  # HL
                 self.set_hl(value)
-            case 3:     # AF
+            case 3:  # AF
                 self.set_af(value)
 
-    # ----------------------------------------
-    # Read/Writes
-    # ----------------------------------------
+    # Helper for LDI, LDIR, LDD, LDDR
+    def block_transfer_helper(self, increment, repeat):
+        match increment, repeat:
+            # LDI
+            case 1, 0:
+                t_states = 15
+                value = self.memory.read8(self.get_hl())
+                self.memory.write8(self.get_de(), value)
+                self.set_hl((self.get_hl() + 1) & 0xFFFF)
+                self.set_de((self.get_de() + 1) & 0xFFFF)
+                self.set_bc((self.get_bc() - 1) & 0xFFFF)
+                self.flag_h = 0
+                self.flag_pv = int(self.get_bc() != 0)
+                self.flag_n = 0
+                return t_states
 
-    # Read two bytes from an address as a 16-bit value
-    def read16(self, address):
-        low = self.memory.read8(address)
-        high = self.memory.read8((address + 1) & 0xFFFF)
-        return (high << 8) | low
+            # LDIR
+            case 1, 1:
+                value = self.memory.read8(self.get_hl())
+                self.memory.write8(self.get_de(), value)
 
-    # Read two bytes from an address immediately, incrementing PC accordingly
-    def read16_immediate(self):
-        value = self.read16(self.pc)
-        self.pc = (self.pc + 2) & 0xFFFF
-        return value
+                self.set_hl((self.get_hl() + 1) & 0xFFFF)
+                self.set_de((self.get_de() + 1) & 0xFFFF)
+                self.set_bc((self.get_bc() - 1) & 0xFFFF)
 
-    # Helper for LD rr,nn instructions
-    # Read a 16-bit immediate value and load it into a register pair
-    def load16_register(self, setter):
-        value = self.read16_immediate()
-        setter(value)
-        return value
+                if self.get_bc() != 0:
+                    t_states = 21
+                    self.pc = (self.pc - 2) & 0xFFFF
+                else:
+                    t_states = 16
 
-    # ----------------------------------------
-    # Push/Pop helpers
-    # ----------------------------------------
+                if self.get_bc() == 0:
+                    logger.debug("LDIR COMPLETE")
+
+                self.flag_h = 0
+                self.flag_pv = int(self.get_bc() != 0)
+                self.flag_n = 0
+
+                return t_states
+
+            # LDD
+            case 0, 0:
+                t_states = 16
+                value = self.memory.read8(self.get_hl())
+                self.memory.write8(self.get_de(), value)
+                self.set_hl((self.get_hl() - 1) & 0xFFFF)
+                self.set_de((self.get_de() - 1) & 0xFFFF)
+                self.set_bc((self.get_bc() - 1) & 0xFFFF)
+                self.flag_h = 0
+                self.flag_pv = int(self.get_bc() != 0)
+                self.flag_n = 0
+                return t_states
+
+            # LDDR
+            case 0, 1:
+                value = self.memory.read8(self.get_hl())
+                self.memory.write8(self.get_de(), value)
+                self.set_hl((self.get_hl() - 1) & 0xFFFF)
+                self.set_de((self.get_de() - 1) & 0xFFFF)
+                self.set_bc((self.get_bc() - 1) & 0xFFFF)
+
+                if self.get_bc() != 0:
+                    t_states = 21
+                    self.pc = (self.pc - 2) & 0xFFFF
+                else:
+                    t_states = 16
+
+                self.flag_h = 0
+                self.flag_pv = int(self.get_bc() != 0)
+                self.flag_n = 0
+
+                return t_states
+
+    # endregion
+    # region Push/Pop Helpers
 
     def push16(self, value):
         self.sp = (self.sp - 1) & 0xFFFF
-        self.memory.write8(
-            self.sp,
-            (value >> 8) & 0xFF
-        )
+        self.memory.write8(self.sp, (value >> 8) & 0xFF)
         self.sp = (self.sp - 1) & 0xFFFF
-        self.memory.write8(
-            self.sp,
-            value & 0xFF
-        )
+        self.memory.write8(self.sp, value & 0xFF)
 
     def pop16(self):
         low = self.memory.read8(self.sp)
@@ -369,61 +355,19 @@ class Z80:
         setter(value)
         return value
 
-    # Helper for LDI/LDD/LDIR/LDDR
-    def block_transfer(self, increment, repeat):
-
-        value = self.memory.read8(
-            self.get_hl()
-        )
-
-        self.memory.write8(
-            self.get_de(),
-            value
-        )
-
-        self.set_hl(
-            (self.get_hl() + increment) & 0xFFFF
-        )
-
-        self.set_de(
-            (self.get_de() + increment) & 0xFFFF
-        )
-
-        self.set_bc(
-            (self.get_bc() - 1) & 0xFFFF
-        )
-
-        self.flag_h = False
-        self.flag_n = False
-        self.flag_pv = (self.get_bc() != 0)
-
-        if repeat and self.get_bc() != 0:
-            self.set_pc(self.pc - 2)
-            return value, 21
-
-        return value, 16
-
     # Helper for INI, IND, INIR, and INDR
     def block_in(self, increment, repeat):
-
         # Read the value from port BC
-        value = self.io.read(
-            self.get_bc()
-        )
+        value = self.io.read(self.get_bc())
 
         # Write the value to memory at HL
-        self.memory.write8(
-            self.get_hl(),
-            value
-        )
+        self.memory.write8(self.get_hl(), value)
 
         # Decrement B
         self.b = (self.b - 1) & 0xFF
 
         # Advance or retreat HL
-        self.set_hl(
-            (self.get_hl() + increment) & 0xFFFF
-        )
+        self.set_hl((self.get_hl() + increment) & 0xFFFF)
 
         # TODO: Accurate flag behaviour
 
@@ -436,23 +380,17 @@ class Z80:
 
     # Helper for OUTI, OUTD, OTIR, and OTDR
     def block_out(self, increment, repeat):
-
         # Take the value from HL
         value = self.memory.read8(self.get_hl())
 
         # Write the byte pointed to by HL to BC
-        self.io.write(
-            port=self.get_bc(),
-            value=value
-        )
+        self.io.write(port=self.get_bc(), value=value)
 
         # Decrement B
         self.b = (self.b - 1) & 0xFF
 
         # Advance or retreat HL by the increment
-        self.set_hl(
-            (self.get_hl() + increment) & 0xFFFF
-        )
+        self.set_hl((self.get_hl() + increment) & 0xFFFF)
 
         # TODO: Accurate flag behaviour
 
@@ -463,55 +401,51 @@ class Z80:
 
         return 16
 
-    # ----------------------------------------
-    # Register/Prime Register exhange
-    # ----------------------------------------
+    # endregion
+
+    # region Read/Writes
+
+    # Read two bytes from an address as a 16-bit value
+    def read16(self, address):
+        low = self.memory.read8(address)
+        high = self.memory.read8((address + 1) & 0xFFFF)
+        return (high << 8) | low
+
+    # Read two bytes from an address immediately, incrementing PC accordingly
+    def read16_immediate(self):
+        value = self.read16(self.pc)
+        self.pc = (self.pc + 2) & 0xFFFF
+        return value
+
+    # Helper for LD rr,nn instructions
+    # Read a 16-bit immediate value and load it into a register pair
+    def load16_register(self, setter):
+        value = self.read16_immediate()
+        setter(value)
+        return value
+
+    # endregion
+    # region Register Exchange
 
     def exchange_af(self):
+        logger.debug(f"BEFORE EX AF: A={self.a:02X} ALT={self.a_alt:02X}")
 
-        logger.debug(
-            f"BEFORE EX AF: A={self.a:02X} ALT={self.a_alt:02X}"
-        )
+        self.a, self.a_alt = (self.a_alt, self.a)
 
-        self.a, self.a_alt = (
-            self.a_alt,
-            self.a
-        )
+        self.flag_s, self.flag_s_alt = (self.flag_s_alt, self.flag_s)
 
-        self.flag_s, self.flag_s_alt = (
-            self.flag_s_alt,
-            self.flag_s
-        )
+        self.flag_z, self.flag_z_alt = (self.flag_z_alt, self.flag_z)
 
-        self.flag_z, self.flag_z_alt = (
-            self.flag_z_alt,
-            self.flag_z
-        )
+        self.flag_h, self.flag_h_alt = (self.flag_h_alt, self.flag_h)
 
-        self.flag_h, self.flag_h_alt = (
-            self.flag_h_alt,
-            self.flag_h
-        )
+        self.flag_pv, self.flag_pv_alt = (self.flag_pv_alt, self.flag_pv)
 
-        self.flag_pv, self.flag_pv_alt = (
-            self.flag_pv_alt,
-            self.flag_pv
-        )
+        self.flag_n, self.flag_n_alt = (self.flag_n_alt, self.flag_n)
 
-        self.flag_n, self.flag_n_alt = (
-            self.flag_n_alt,
-            self.flag_n
-        )
+        self.flag_c, self.flag_c_alt = (self.flag_c_alt, self.flag_c)
 
-        self.flag_c, self.flag_c_alt = (
-            self.flag_c_alt,
-            self.flag_c
-        )
+        logger.debug(f"AFTER EX AF: A={self.a:02X} ALT={self.a_alt:02X}")
 
-        logger.debug(
-            f"AFTER EX AF: A={self.a:02X} ALT={self.a_alt:02X}"
-        )
-        
     def exchange_bcdEhl(self):
         self.b, self.b_alt = self.b_alt, self.b
         self.c, self.c_alt = self.c_alt, self.c
@@ -520,9 +454,8 @@ class Z80:
         self.h, self.h_alt = self.h_alt, self.h
         self.l, self.l_alt = self.l_alt, self.l
 
-    # ----------------------------------------
-    # Gets and sets
-    # ----------------------------------------
+    # endregion
+    # region Gets/Sets
 
     # BC register pair
     # Combines B and C into a 16-bit value
@@ -565,12 +498,12 @@ class Z80:
     # Combines A and the individual CPU flags into a 16-bit value
     def get_af(self):
         flags = (
-            (self.flag_s  << 7) |
-            (self.flag_z  << 6) |
-            (self.flag_h  << 4) |
-            (self.flag_pv << 2) |
-            (self.flag_n  << 1) |
-            (self.flag_c)
+            (self.flag_s << 7)
+            | (self.flag_z << 6)
+            | (self.flag_h << 4)
+            | (self.flag_pv << 2)
+            | (self.flag_n << 1)
+            | (self.flag_c)
         )
         return (self.a << 8) | flags
 
@@ -587,25 +520,20 @@ class Z80:
         self.flag_n = bool(f & 0x02)
         self.flag_c = bool(f & 0x01)
 
-
     def set_ix(self, value):
         self.ix = value & 0xFFFF
 
     def set_iy(self, value):
         self.iy = value & 0xFFFF
 
-    # ----------------------------------------
-    # Interrupt handling
-    # ----------------------------------------
+    # endregion
+    # region Interrupt Handling
 
     def interrupt(self):
-
         if not self.iff1:
             return
 
-        logger.debug(
-            f"INTERRUPT IM{self.interrupt_mode}"
-        )
+        logger.debug(f"INTERRUPT IM{self.interrupt_mode}")
 
         self.iff1 = False
         self.iff2 = False
@@ -613,23 +541,17 @@ class Z80:
         self.push16(self.pc)
 
         match self.interrupt_mode:
-
             case 0:
-                logger.warning(
-                    "IM0 interrupt"
-                )
+                logger.warning("IM0 interrupt")
 
             case 1:
                 self.set_pc(0x0038)
 
             case 2:
-                logger.warning(
-                    "IM2 interrupt"
-                )
+                logger.warning("IM2 interrupt")
 
-    # ----------------------------------------
-    # Step through the opcodes
-    # ----------------------------------------
+    # endregion
+    # region Stepping
 
     def step(self):
         opcode = self.memory.read8(self.pc)
@@ -640,6 +562,12 @@ class Z80:
         # Ensure that opcode_t_states is always valid and avoids divide by zero
         if opcode_t_states in (None, 0):
             opcode_t_states = 1
+
+        # Process delayed EI behaviour
+        if self.ei_pending:
+            self.ei_pending = False
+        else:
+            self.interrupt()
 
         # Validate registers are within range
         if self.register_check:
@@ -656,11 +584,40 @@ class Z80:
             self.interrupt()
             self.interrupt_pending = False
 
+        if self.opcode_trace != None:
+            if self.pc == self.opcode_trace:
+                print(
+                    f"Entering {self.opcode_trace:02X}: "
+                    f"BC={self.get_bc():04X} "
+                    f"DE={self.get_de():04X} "
+                    f"HL={self.get_hl():04X}"
+                )
+
+        # ----------
+        # DEBUGGING
+
+        # ----------
+
+        # Heartbeat every N seconds to show CPU is alive
+        self.heartbeat_counter += opcode_t_states
+
+        if self.heartbeat_seconds != None and self.heartbeat_counter >= (
+            self.clock_hz * self.heartbeat_seconds
+        ):
+            logger.info(
+                f"\n"
+                f"---------- CPU HEARTBEAT @ {datetime.datetime.now().strftime('%I:%M:%S %p')}\n"
+                f"PC={self.pc:04X}\n"
+                f"AF={self.get_af():02X} BC={self.get_bc():02X} DE={self.get_de():02X} HL={self.get_hl():02X}\n"
+                f"OP={self.memory.read8(self.pc):02X}"
+            )
+
+            self.heartbeat_counter = 0
+
         time.sleep((1 / self.clock_hz) * opcode_t_states)
 
-    # ----------------------------------------
-    # Error handling
-    # ----------------------------------------
+    # endregion
+    # region Error Handling
 
     def opcode_not_implemented(self, opcode=0, asm="Unknown"):
         if self.exception_on_non_implemented == True:
@@ -696,3 +653,79 @@ class Z80:
 
         if implemented == False:
             self.opcode_not_implemented(opcode, asm)
+
+    # endregion
+    # region Register Assertion
+
+    # Assert that all 8-bit CPU registers are within 8-bit range and raise if not
+    def register_in_range_check(self, opcode):
+        assert 0x00 <= self.a <= 0xFF, (
+            f"Register A out of range (value is {self.a:#04X}), last opcode ended: {opcode:02X}"
+        )
+        assert 0x00 <= self.b <= 0xFF, (
+            f"Register B out of range (value is {self.b:#04X}), last opcode ended: {opcode:02X}"
+        )
+        assert 0x00 <= self.c <= 0xFF, (
+            f"Register C out of range (value is {self.c:#04X}), last opcode ended: {opcode:02X}"
+        )
+        assert 0x00 <= self.d <= 0xFF, (
+            f"Register D out of range (value is {self.d:#04X}), last opcode ended: {opcode:02X}"
+        )
+        assert 0x00 <= self.e <= 0xFF, (
+            f"Register E out of range (value is {self.e:#04X}), last opcode ended: {opcode:02X}"
+        )
+        assert 0x00 <= self.h <= 0xFF, (
+            f"Register H out of range (value is {self.h:#04X}), last opcode ended: {opcode:02X}"
+        )
+        assert 0x00 <= self.l <= 0xFF, (
+            f"Register L out of range (value is {self.l:#04X}), last opcode ended: {opcode:02X}"
+        )
+
+        assert 0x00 <= self.a_alt <= 0xFF, (
+            f"Register A' out of range (value is {self.a_alt:#04X}), last opcode ended: {opcode:02X}"
+        )
+        assert 0x00 <= self.b_alt <= 0xFF, (
+            f"Register B' out of range (value is {self.b_alt:#04X}), last opcode ended: {opcode:02X}"
+        )
+        assert 0x00 <= self.c_alt <= 0xFF, (
+            f"Register C' out of range (value is {self.c_alt:#04X}), last opcode ended: {opcode:02X}"
+        )
+        assert 0x00 <= self.d_alt <= 0xFF, (
+            f"Register D' out of range (value is {self.d_alt:#04X}), last opcode ended: {opcode:02X}"
+        )
+        assert 0x00 <= self.e_alt <= 0xFF, (
+            f"Register E' out of range (value is {self.e_alt:#04X}), last opcode ended: {opcode:02X}"
+        )
+        assert 0x00 <= self.h_alt <= 0xFF, (
+            f"Register H' out of range (value is {self.h_alt:#04X}), last opcode ended: {opcode:02X}"
+        )
+        assert 0x00 <= self.l_alt <= 0xFF, (
+            f"Register L' out of range (value is {self.l_alt:#04X}), last opcode ended: {opcode:02X}"
+        )
+
+        assert 0x00 <= self.i <= 0xFF, (
+            f"Register I out of range (value is {self.i:#04X}), last opcode ended: {opcode:02X}"
+        )
+        assert 0x00 <= self.r <= 0xFF, (
+            f"Register R out of range (value is {self.r:#04X}), last opcode ended: {opcode:02X}"
+        )
+
+        assert 0x0000 <= self.pc <= 0xFFFF, (
+            f"PC out of range ({self.pc:04X}), last opcode ended: {opcode:02X}"
+        )
+
+        assert 0x0000 <= self.sp <= 0xFFFF, (
+            f"SP out of range ({self.sp:04X}), last opcode ended: {opcode:02X}"
+        )
+
+        assert 0x0000 <= self.ix <= 0xFFFF, (
+            f"IX out of range ({self.ix:04X}), last opcode ended: {opcode:02X}"
+        )
+
+        assert 0x0000 <= self.iy <= 0xFFFF, (
+            f"IY out of range ({self.iy:04X}), last opcode ended: {opcode:02X}"
+        )
+
+        return None
+
+    # endregion

@@ -1,6 +1,5 @@
 # Base opcodes
 from z80.opcodes.base import arithmetic
-from z80.opcodes.base import block
 from z80.opcodes.base import compare
 from z80.opcodes.base import interrupts
 from z80.opcodes.base import io
@@ -19,8 +18,8 @@ from z80.opcodes import index_iy  # Includes includes index_iy_bits passoff
 # CPU control
 from z80.opcodes import control
 
-def execute(self, opcode):
 
+def execute(self, opcode):
     # Between the lines is currently LLM-generated
     # in order to speed up getting the opcode ranges in place.
     # This is not a long-term solution.
@@ -32,14 +31,22 @@ def execute(self, opcode):
 
     # INC r / DEC r
     if opcode in (
-        0x04, 0x05,
-        0x0C, 0x0D,
-        0x14, 0x15,
-        0x1C, 0x1D,
-        0x24, 0x25,
-        0x2C, 0x2D,
-        0x34, 0x35,
-        0x3C, 0x3D,
+        0x04,
+        0x05,
+        0x0C,
+        0x0D,
+        0x14,
+        0x15,
+        0x1C,
+        0x1D,
+        0x24,
+        0x25,
+        0x2C,
+        0x2D,
+        0x34,
+        0x35,
+        0x3C,
+        0x3D,
     ):
         return arithmetic.execute(self, opcode)
 
@@ -62,12 +69,10 @@ def execute(self, opcode):
         0x19,  # ADD HL,DE
         0x29,  # ADD HL,HL
         0x39,  # ADD HL,SP
-
         0x03,  # INC BC
         0x13,  # INC DE
         0x23,  # INC HL
         0x33,  # INC SP
-
         0x0B,  # DEC BC
         0x1B,  # DEC DE
         0x2B,  # DEC HL
@@ -80,39 +85,23 @@ def execute(self, opcode):
     # ----------------------------------------
 
     if opcode in (
-
         # Rotate accumulator
         0x07,  # RLCA
         0x0F,  # RRCA
         0x17,  # RLA
         0x1F,  # RRA
-
         # Flag/bit manipulation
         0x27,  # DAA
         0x2F,  # CPL
         0x37,  # SCF
         0x3F,  # CCF
-
         # Register exchange
         0x08,  # EX AF,AF'
         0xD9,  # EXX
         0xE3,  # EX (SP),HL
-        0xEB   # EX DE,HL
-
+        0xEB,  # EX DE,HL
     ):
         return bit_operations.execute(self, opcode)
-
-    # ----------------------------------------
-    # BLOCK INSTRUCTIONS
-    # ----------------------------------------
-
-    if opcode in (
-        0xA0, 0xA1, 0xA2, 0xA3,
-        0xA8, 0xA9, 0xAA, 0xAB,
-        0xB0, 0xB1, 0xB2, 0xB3,
-        0xB8, 0xB9, 0xBA, 0xBB,
-    ):
-        return block.execute(self, opcode)
 
     # ----------------------------------------
     # COMPARE
@@ -149,27 +138,22 @@ def execute(self, opcode):
     # ----------------------------------------
 
     if opcode in (
-        0x10,      # DJNZ e
-        0x18,      # JR
-        0x20,      # JR NZ
-        0x28,      # JR Z
-        0x30,      # JR NC
-        0x38,      # JR C
-
-        0xC2,      # JP NZ
-        0xC3,      # JP
-        0xCA,      # JP Z
-
-        0xD2,      # JP NC
-        0xDA,      # JP C
-
-        0xE2,      # JP PO
-        0xEA,      # JP PE
-
-        0xF2,      # JP P
-        0xFA,      # JP M
-
-        0xE9,      # JP (HL)
+        0x10,  # DJNZ e
+        0x18,  # JR
+        0x20,  # JR NZ
+        0x28,  # JR Z
+        0x30,  # JR NC
+        0x38,  # JR C
+        0xC2,  # JP NZ
+        0xC3,  # JP
+        0xCA,  # JP Z
+        0xD2,  # JP NC
+        0xDA,  # JP C
+        0xE2,  # JP PO
+        0xEA,  # JP PE
+        0xF2,  # JP P
+        0xFA,  # JP M
+        0xE9,  # JP (HL)
     ):
         return jumps.execute(self, opcode)
 
@@ -178,49 +162,50 @@ def execute(self, opcode):
     # ----------------------------------------
 
     if (
-
         # LD r,n
-        opcode in (
-            0x06, 0x0E,
-            0x16, 0x1E,
-            0x26, 0x2E,
+        opcode
+        in (
+            0x06,
+            0x0E,
+            0x16,
+            0x1E,
+            0x26,
+            0x2E,
             0x3E,
         )
-
         # LD rr,nn
-        or opcode in (
+        or opcode
+        in (
             0x01,
             0x11,
             0x21,
             0x31,
         )
-
         # LD (BC),A / LD (DE),A
-        or opcode in (
+        or opcode
+        in (
             0x02,
             0x12,
         )
-
         # LD A,(BC) / LD A,(DE)
-        or opcode in (
+        or opcode
+        in (
             0x0A,
             0x1A,
         )
-
         # Direct memory loads
-        or opcode in (
+        or opcode
+        in (
             0x22,  # LD (nn),HL
             0x2A,  # LD HL,(nn)
-
             0x32,  # LD (nn),A
             0x3A,  # LD A,(nn)
         )
-
         # Register-to-register loads
         or (0x40 <= opcode <= 0x7F and opcode != 0x76)
-
         # Special loads
-        or opcode in (
+        or opcode
+        in (
             0xF9,  # LD SP,HL
         )
     ):
@@ -245,10 +230,14 @@ def execute(self, opcode):
     # ----------------------------------------
 
     if opcode in (
-        0xC1, 0xC5,   # BC
-        0xD1, 0xD5,   # DE
-        0xE1, 0xE5,   # HL
-        0xF1, 0xF5,   # AF
+        0xC1,
+        0xC5,  # BC
+        0xD1,
+        0xD5,  # DE
+        0xE1,
+        0xE5,  # HL
+        0xF1,
+        0xF5,  # AF
     ):
         return stack.execute(self, opcode)
 
@@ -257,23 +246,32 @@ def execute(self, opcode):
     # ----------------------------------------
 
     if opcode in (
-        0xC0, 0xC4,
-        0xC8, 0xC9, 0xCC,
+        0xC0,
+        0xC4,
+        0xC8,
+        0xC9,
+        0xCC,
         0xCD,
-
-        0xD0, 0xD4,
-        0xD8, 0xDC,
-
-        0xE0, 0xE4,
-        0xE8, 0xEC,
-
-        0xF0, 0xF4,
-        0xF8, 0xFC,
-
-        0xC7, 0xCF,
-        0xD7, 0xDF,
-        0xE7, 0xEF,
-        0xF7, 0xFF,   # RST
+        0xD0,
+        0xD4,
+        0xD8,
+        0xDC,
+        0xE0,
+        0xE4,
+        0xE8,
+        0xEC,
+        0xF0,
+        0xF4,
+        0xF8,
+        0xFC,
+        0xC7,
+        0xCF,
+        0xD7,
+        0xDF,
+        0xE7,
+        0xEF,
+        0xF7,
+        0xFF,  # RST
     ):
         return subroutines.execute(self, opcode)
 
@@ -291,7 +289,6 @@ def execute(self, opcode):
     # Human code resumes here
 
     match opcode:
-
         # Hand off to prefixed opcodes
 
         case 0xCB:

@@ -16,8 +16,10 @@ system_cpu = Z80(
     io=system_io,
     clock_hz=3.58 * 1000000,  # Real CPU is 3.58 Mhz
     exception_on_non_implemented=True,
-    register_check=True
+    register_check=True,
+    heartbeat_seconds=0.2,
+    opcode_trace=None,
 )
 
 while True:
-   system_cpu.step()
+    system_cpu.step()
