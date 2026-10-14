@@ -18,7 +18,7 @@ No, this is a learning project so vibe-coding the whole thing would be pointless
     
 I've used a hands-off LLM (i.e. not running in the IDE or with direct access to the code) to guide me on the Z80 in a teaching capacity, help me with the Zilog manual, help keep track of opcodes, and type some repetitive parts and where I got stuck translating opcodes into Python. Which, considering this is my first emulator, was more than a few times. Quite a lot of the opcode implementations themselves are currently LLM-generated; I want to look at them again once I'm more confident with the hardware (and emulation in general!), but this gets things rolling.
 
-Long story short, I wrote the structure and flow, the LLM helped me with the opcodes.
+Long story short, I wrote the structure and flow, the LLM helped me with the opcodes and the VDP.
 
 ### What does it look like?
 At the moment, its output is simply logging what the Z80 is doing, and looks like this:

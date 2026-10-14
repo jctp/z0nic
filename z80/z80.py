@@ -109,23 +109,6 @@ class Z80:
     # endregion
     # region Opcode Helpers
 
-    # Helper for OUTI, OUTD, OTIR, and OTDR
-    def block_out(self, increment, repeat):
-        # Take the value from HL
-        value = self.memory.read8(self.get_hl())
-        # Write the byte pointed to by HL to BC
-        self.io.write(port=self.get_bc(), value=value)
-        # Decrement B
-        self.b = (self.b - 1) & 0xFF
-        # Advance or retreat HL by the increment
-        self.set_hl((self.get_hl() + increment) & 0xFFFF)
-        # OTIR and OTDR require that this repeats
-        if repeat and self.b != 0:
-            self.set_pc(self.pc - 2)
-            return 21
-
-        return 16
-
     # Helper for BIT b,(IX+d)
     def bit_ix_displacement(self, displacement, bit):
         if displacement & 0x80:
@@ -378,29 +361,6 @@ class Z80:
 
         return 16
 
-    # Helper for OUTI, OUTD, OTIR, and OTDR
-    def block_out(self, increment, repeat):
-        # Take the value from HL
-        value = self.memory.read8(self.get_hl())
-
-        # Write the byte pointed to by HL to BC
-        self.io.write(port=self.get_bc(), value=value)
-
-        # Decrement B
-        self.b = (self.b - 1) & 0xFF
-
-        # Advance or retreat HL by the increment
-        self.set_hl((self.get_hl() + increment) & 0xFFFF)
-
-        # TODO: Accurate flag behaviour
-
-        # OTIR and OTDR repeat until B becomes zero
-        if repeat and self.b != 0:
-            self.set_pc(self.pc - 2)
-            return 21
-
-        return 16
-
     # endregion
 
     # region Read/Writes
@@ -550,6 +510,39 @@ class Z80:
             case 2:
                 logger.warning("IM2 interrupt")
 
+    # region IO
+
+    def io_read_bc(self):
+        return self.io.read(port=self.get_bc())
+
+    def io_write_bc(self, value):
+        self.io.write(port=self.get_bc(), value=value)
+
+    # Helper for OUTI, OUTD, OTIR, and OTDR
+    def block_out(self, increment, repeat):
+        # Take the value from HL
+        value = self.memory.read8(self.get_hl())
+
+        # Write the byte pointed to by HL to BC
+        self.io.write(port=self.get_bc(), value=value)
+
+        # Decrement B
+        self.b = (self.b - 1) & 0xFF
+
+        # Advance or retreat HL by the increment
+        self.set_hl((self.get_hl() + increment) & 0xFFFF)
+
+        # TODO: Accurate flag behaviour
+
+        # OTIR and OTDR repeat until B becomes zero
+        if repeat and self.b != 0:
+            self.set_pc(self.pc - 2)
+            return 21
+
+        return 16
+
+    # endregion
+
     # endregion
     # region Stepping
 
@@ -566,23 +559,15 @@ class Z80:
         # Process delayed EI behaviour
         if self.ei_pending:
             self.ei_pending = False
-        else:
+
+        elif self.interrupt_pending:
+            # TODO: Restore interrupt behaviour after the VDP is implemented
             self.interrupt()
+            self.interrupt_pending = False
 
         # Validate registers are within range
         if self.register_check:
             self.register_in_range_check(opcode)
-
-        # Simple interrupt test
-        self.cycles_since_interrupt += opcode_t_states
-
-        if self.cycles_since_interrupt >= 50000:
-            self.interrupt_pending = True
-            self.cycles_since_interrupt = 0
-
-        if self.interrupt_pending:
-            self.interrupt()
-            self.interrupt_pending = False
 
         if self.opcode_trace != None:
             if self.pc == self.opcode_trace:

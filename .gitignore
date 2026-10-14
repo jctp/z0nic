@@ -227,3 +227,4 @@ debug/*
 z80/__pycache__
 .DS_Store
 **/.DS_Store
+vram.txt

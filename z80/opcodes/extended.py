@@ -22,6 +22,58 @@ def execute(self):
     match opcode:
         # region Interrupt Mode
 
+        # ED 40,48,50,58,60,68,78
+        # IN r,(C)
+        case 0x40 | 0x48 | 0x50 | 0x58 | 0x60 | 0x68 | 0x78:
+            opcode_t_states = 12
+
+            # -----
+            # Opcode logic:
+            register = (opcode >> 3) & 0x07
+
+            value = self.io_read_bc()
+
+            self.set_register(register, value)
+
+            self.flag_s = bool(value & 0x80)
+            self.flag_z = value == 0
+            self.flag_h = False
+            self.flag_pv = self.parity(value)
+            self.flag_n = False
+            # -----
+
+            self.log_opcode(
+                opcode=opcode,
+                asm="IN r,(C)",
+                prefix="ED",
+                opcode_t_states=opcode_t_states,
+                message=f"IO read {value:02X} from {(self.get_bc() & 0xFFFF):04X}",
+                implemented=True,
+            )
+
+            return opcode_t_states
+
+        # ED 41,49,51,59,61,69,79
+        # OUT (C),r
+        case 0x41 | 0x49 | 0x51 | 0x59 | 0x61 | 0x69 | 0x79:
+            opcode_t_states = 12
+
+            # -----
+            # Opcode logic:
+            register = (opcode >> 3) & 0x07
+            value = self.get_register(register)
+            self.io_write_bc(value)
+            # -----
+            self.log_opcode(
+                opcode=opcode,
+                asm="OUT (C), r",
+                prefix="ED",
+                opcode_t_states=opcode_t_states,
+                message=f"IO write {value:02X} to {register:04X}",
+                implemented=True,
+            )
+            return opcode_t_states
+
         # ED 56
         # Set interrupt mode to 1
         case 0x56:
@@ -319,16 +371,16 @@ def execute(self):
         # endregion
         # region Block Compare
 
-        # ED A1
+        # TODO: ED A1
         # CPI
 
-        # ED B1
+        # TODO: ED B1
         # CPIR
 
-        # ED A9
+        # TODO: ED A9
         # CPD
 
-        # ED B9
+        # TODO: ED B9
         # CPDR
 
         # endregion
