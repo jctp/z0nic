@@ -373,15 +373,79 @@ def execute(self):
 
         # TODO: ED A1
         # CPI
+        case 0xA1:
 
-        # TODO: ED B1
+            # -----
+            # Opcode logic:
+            opcode_t_states = self.block_compare_helper(increment=1, repeat=0)
+            # -----
+
+            self.log_opcode(
+                opcode=opcode,
+                asm="CPI",
+                prefix="ED",
+                opcode_t_states=opcode_t_states,
+                message=(""),
+                implemented=True,
+            )
+            return opcode_t_states
+
+        # ED B1
         # CPIR
+        case 0xB1:
 
-        # TODO: ED A9
+            # -----
+            # Opcode logic:
+            opcode_t_states = self.block_compare_helper(increment=1, repeat=1)
+            # -----
+
+            self.log_opcode(
+                opcode=opcode,
+                asm="CPIR",
+                prefix="ED",
+                opcode_t_states=opcode_t_states,
+                message=(""),
+                implemented=True,
+            )
+            return opcode_t_states
+
+        # ED A9
         # CPD
+        case 0xA9:
 
-        # TODO: ED B9
+            # -----
+            # Opcode logic:
+            opcode_t_states = self.block_compare_helper(increment=0, repeat=0)
+            # -----
+
+            self.log_opcode(
+                opcode=opcode,
+                asm="CPD",
+                prefix="ED",
+                opcode_t_states=opcode_t_states,
+                message=(""),
+                implemented=True,
+            )
+            return opcode_t_states
+        
+        # ED B9
         # CPDR
+        case 0xB9:
+
+            # -----
+            # Opcode logic:
+            opcode_t_states = self.block_compare_helper(increment=0, repeat=1)
+            # -----
+
+            self.log_opcode(
+                opcode=opcode,
+                asm="CPDR",
+                prefix="ED",
+                opcode_t_states=opcode_t_states,
+                message=(""),
+                implemented=True,
+            )
+            return opcode_t_states
 
         # endregion
 

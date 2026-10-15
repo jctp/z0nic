@@ -4,7 +4,7 @@ from pathlib import Path
 
 
 class Cartridge:
-    def __init(self):
+    def __init__(self):
         self.rom = bytearray()
 
     def load(self, filename):

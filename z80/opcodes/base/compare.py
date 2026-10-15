@@ -41,4 +41,20 @@ def execute(self, opcode):
 
             return opcode_t_states
 
+    # CP r
+    if 0xB8 <= opcode <= 0xBF:
+        opcode_t_states = 7 if (opcode & 0x07) == 6 else 4
+        # TODO: Implement
+
+        self.log_opcode(
+            opcode=opcode,
+            asm="CP r",
+            prefix="",
+            opcode_t_states=opcode_t_states,
+            message="Not implemented",
+            implemented=False,
+        )
+
+        return opcode_t_states
+
     return None

@@ -37,4 +37,71 @@ def execute(self, opcode):
             )
             return opcode_t_states
 
+    # AND r
+    if 0xA0 <= opcode <= 0xA7:
+        opcode_t_states = 7 if (opcode & 0x07) == 6 else 4
+        # TODO: Implement
+
+        self.log_opcode(
+            opcode=opcode,
+            asm="AND r",
+            prefix="",
+            opcode_t_states=opcode_t_states,
+            message="Not implemented",
+            implemented=False,
+        )
+
+        return opcode_t_states
+
+    # XOR r
+    # AF (XOR A) is handled above
+    if 0xA8 <= opcode <= 0xAE:
+        opcode_t_states = 7 if (opcode & 0x07) == 6 else 4
+        # TODO: Implement
+
+        self.log_opcode(
+            opcode=opcode,
+            asm="XOR r",
+            prefix="",
+            opcode_t_states=opcode_t_states,
+            message="Not implemented",
+            implemented=False,
+        )
+
+        return opcode_t_states
+
+    # OR r
+    if 0xB0 <= opcode <= 0xB7:
+        opcode_t_states = 7 if (opcode & 0x07) == 6 else 4
+        # TODO: Implement
+
+        self.log_opcode(
+            opcode=opcode,
+            asm="OR r",
+            prefix="",
+            opcode_t_states=opcode_t_states,
+            message="Not implemented",
+            implemented=False,
+        )
+
+        return opcode_t_states
+
+    # AND n / XOR n / OR n
+    if opcode in (0xE6, 0xEE, 0xF6):
+        opcode_t_states = 7
+        # TODO: Implement
+
+        asm = {0xE6: "AND n", 0xEE: "XOR n", 0xF6: "OR n"}[opcode]
+
+        self.log_opcode(
+            opcode=opcode,
+            asm=asm,
+            prefix="",
+            opcode_t_states=opcode_t_states,
+            message="Not implemented",
+            implemented=False,
+        )
+
+        return opcode_t_states
+
     return None

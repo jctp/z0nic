@@ -89,11 +89,15 @@ class Z80:
         # Interrupt enable flip-flops
         self.iff1 = False
         self.iff2 = False
+        self.ei_pending = False
 
         # Interrupt state
         self.interrupt_mode = 0
         self.interrupt_pending = False
         self.cycles_since_interrupt = 0
+
+        # Debugging
+        self.trace = False
 
     # endregion
     # region PC Control
@@ -305,6 +309,91 @@ class Z80:
 
                 return t_states
 
+    # Helper for CPI, CPIR, CPD, CPDR
+    def block_compare_helper(self, increment, repeat):
+        match increment, repeat:
+
+            # CPI
+            case 1, 0:
+                t_states = 16
+                value = self.memory.read8(self.get_hl())
+                result = (self.a - value) & 0xFF
+
+                self.set_hl((self.get_hl() + 1) & 0xFFFF)
+                self.set_bc((self.get_bc() - 1) & 0xFFFF)
+
+                self.flag_s = (result >> 7) & 1
+                self.flag_z = int(result == 0)
+                self.flag_h = int((self.a & 0x0F) < (value & 0x0F))
+                self.flag_pv = int(self.get_bc() != 0)
+                self.flag_n = 1
+
+                return t_states
+
+            # CPIR
+            case 1, 1:
+
+                value = self.memory.read8(self.get_hl())
+                result = (self.a - value) & 0xFF
+
+                self.set_hl((self.get_hl() + 1) & 0xFFFF)
+                self.set_bc((self.get_bc() - 1) & 0xFFFF)
+
+                self.flag_s = (result >> 7) & 1
+                self.flag_z = int(result == 0)
+                self.flag_h = int((self.a & 0x0F) < (value & 0x0F))
+                self.flag_pv = int(self.get_bc() != 0)
+                self.flag_n = 1
+
+                t_states =  16
+
+                if result != 0 and self.get_bc() != 0:
+                    self.set_pc((self.pc - 2) & 0xFFFF)
+                    t_states = 21
+
+
+                return t_states
+            
+            # CPD
+            case 0, 0:
+                t_states = 16
+                value = self.memory.read8(self.get_hl())
+                result = (self.a - value) & 0xFF
+
+                self.set_hl((self.get_hl() - 1) & 0xFFFF)
+                self.set_bc((self.get_bc() - 1) & 0xFFFF)
+
+                self.flag_s = (result >> 7) & 1
+                self.flag_z = int(result == 0)
+                self.flag_h = int((self.a & 0x0F) < (value & 0x0F))
+                self.flag_pv = int(self.get_bc() != 0)
+                self.flag_n = 1
+
+                return t_states
+
+            # CPDR
+            case 0, 1:
+                value = self.memory.read8(self.get_hl())
+                result = (self.a - value) & 0xFF
+
+                self.set_hl((self.get_hl() - 1) & 0xFFFF)
+                self.set_bc((self.get_bc() - 1) & 0xFFFF)
+
+                self.flag_s = (result >> 7) & 1
+                self.flag_z = int(result == 0)
+                self.flag_h = int((self.a & 0x0F) < (value & 0x0F))
+                self.flag_pv = int(self.get_bc() != 0)
+                self.flag_n = 1
+
+                t_states =  16
+
+                if result != 0 and self.get_bc() != 0:
+                    self.set_pc((self.pc - 2) & 0xFFFF)
+
+                    t_states = 21
+
+                return t_states
+
     # endregion
     # region Push/Pop Helpers
 
@@ -490,6 +579,11 @@ class Z80:
     # region Interrupt Handling
 
     def interrupt(self):
+
+        logger.info(
+            f"INTERRUPT IM{self.interrupt_mode} PC={self.pc:04X}"
+        )
+        
         if not self.iff1:
             return
 
@@ -502,13 +596,13 @@ class Z80:
 
         match self.interrupt_mode:
             case 0:
-                logger.warning("IM0 interrupt")
+                logger.info("IM0 interrupt")
 
             case 1:
                 self.set_pc(0x0038)
 
             case 2:
-                logger.warning("IM2 interrupt")
+                logger.info("IM2 interrupt")
 
     # region IO
 
@@ -519,6 +613,7 @@ class Z80:
         self.io.write(port=self.get_bc(), value=value)
 
     # Helper for OUTI, OUTD, OTIR, and OTDR
+    # TODO: Make the opcodes use this...
     def block_out(self, increment, repeat):
         # Take the value from HL
         value = self.memory.read8(self.get_hl())
@@ -547,6 +642,23 @@ class Z80:
     # region Stepping
 
     def step(self):
+        current_pc = self.pc # For the debugging section below to dump at PC
+
+        # ----------
+        # DEBUGGING
+        if self.pc == 0x038B:
+            logger.warning(
+                f"DJNZ B={self.b:02X}"
+            )
+
+        if self.pc == 0x1C49:
+            self.trace = True
+
+        if self.trace:
+            logger.info(f"{self.pc:04X}")
+
+        # ----------
+
         opcode = self.memory.read8(self.pc)
         self.inc_pc(increment=1)
 
@@ -558,6 +670,8 @@ class Z80:
 
         # Process delayed EI behaviour
         if self.ei_pending:
+            self.iff1 = True
+            self.iff2 = True
             self.ei_pending = False
 
         elif self.interrupt_pending:
@@ -577,11 +691,6 @@ class Z80:
                     f"DE={self.get_de():04X} "
                     f"HL={self.get_hl():04X}"
                 )
-
-        # ----------
-        # DEBUGGING
-
-        # ----------
 
         # Heartbeat every N seconds to show CPU is alive
         self.heartbeat_counter += opcode_t_states

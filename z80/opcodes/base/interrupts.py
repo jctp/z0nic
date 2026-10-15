@@ -36,8 +36,6 @@ def execute(self, opcode):
 
             # -----
             # Opcode logic:
-            self.iff1 = True
-            self.iff2 = True
             self.ei_pending = True
             # -----
 

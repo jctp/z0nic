@@ -55,17 +55,15 @@ def execute(self):
     match opcode:
         # FDCB table
         case 0xCB:
-            index_iy_bits.execute(self)
+            return index_iy_bits.execute(self)
 
         # Instructions where FD has no effect
+
         case 0x00:
             return control.execute(self, opcode)
 
         case 0x08:
             return bit_operations.execute(self, opcode)
-
-        case 0x01 | 0x11 | 0x21 | 0x31:
-            return load.execute(self, opcode)
 
         case 0x02 | 0x12 | 0x32:
             return load.execute(self, opcode)
@@ -73,6 +71,32 @@ def execute(self):
         case 0xC9:
             return subroutines.execute(self, opcode)
 
+        # LD IY,nn
+        case 0x21:
+            opcode_t_states = 14
+
+            # -----
+            # Opcode logic:
+            low = self.memory.read8(self.pc)
+            self.inc_pc(increment=1)
+
+            high = self.memory.read8(self.pc)
+            self.inc_pc(increment=1)
+
+            self.iy = (high << 8) | low
+            # -----
+
+            self.log_opcode(
+                opcode=opcode,
+                asm="LD IY,nn",
+                prefix="FD",
+                opcode_t_states=opcode_t_states,
+                message=f"Loaded {self.iy:04X} into IY",
+                implemented=True,
+            )
+
+            return opcode_t_states
+        
         # FD 46-FD 7E
         # LD r,(IY+d)
         case 0x46 | 0x4E | 0x56 | 0x5E | 0x66 | 0x6E | 0x7E:

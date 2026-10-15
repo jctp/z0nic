@@ -11,7 +11,7 @@ def execute(self):
 
     match opcode:
         case 0xCB:
-            index_ix_bits.execute(self)
+            return index_ix_bits.execute(self)
 
         # AND n
         case 0xE6:
