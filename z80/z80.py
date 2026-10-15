@@ -502,13 +502,13 @@ class Z80:
 
         match self.interrupt_mode:
             case 0:
-                logger.warning("IM0 interrupt")
+                logger.debug("IM0 interrupt")
 
             case 1:
                 self.set_pc(0x0038)
 
             case 2:
-                logger.warning("IM2 interrupt")
+                logger.debug("IM2 interrupt")
 
     # region IO
 
