@@ -20,6 +20,8 @@ I've used a hands-off LLM (i.e. not running in the IDE or with direct access to 
 
 Long story short, I wrote the structure and flow, the LLM helped me with the opcodes and the VDP.
 
+Update 15/10/26 - Cheated a little. Missing opcodes were causing an intractable looping bug due to CPU desync. I have an error handler for this, but it needs the opcode to be stubbed out. I had Claude do the stubbing for about 170 opcodes because it's a very dull, very repetitive task and my time for this is limited. Broke the rules, but they're my rules, and this is a hobby/educational project so I don't consider myself to be having fun wrong or learning wrong.
+
 ### What does it look like?
 At the moment, its output is simply logging what the Z80 is doing, and looks like this:
 
