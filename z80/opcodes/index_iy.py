@@ -13,13 +13,36 @@ from z80.opcodes import control, bit_operations, index_iy_bits
 
 # FD xx
 # Prefix for IY instructions
+#
+# NOTE: The opcode table below is agent-generated. The code in this file is not.
+# Stub = placeholder that raises via log_opcode(implemented=False).
+# Opcodes are the byte(s) after the FD prefix.
+#
+# | Opcode                     | Mnemonic              | Status      | Notes                                |
+# |----------------------------|-----------------------|-------------|--------------------------------------|
+# | 00                         | NOP                   | Implemented | Prefix ignored                       |
+# | 02, 12                     | LD (BC),A / LD (DE),A | Implemented | Prefix ignored                       |
+# | 08                         | EX AF,AF'             | Implemented | Prefix ignored                       |
+# | 21                         | LD IY,nn              | Implemented |                                      |
+# | 22                         | LD (nn),IY            | Implemented | Bug: returns None, so no cycle count |
+# | 23                         | INC IY                | Implemented |                                      |
+# | 2A                         | LD IY,(nn)            | Implemented | Bug: returns None, so no cycle count |
+# | 32                         | LD (nn),A             | Implemented | Prefix ignored                       |
+# | 36                         | LD (IY+d),n           | Implemented |                                      |
+# | 46, 4E, 56, 5E, 66, 6E, 7E | LD r,(IY+d)           | Implemented |                                      |
+# | 70-75, 77                  | LD (IY+d),r           | Implemented |                                      |
+# | C9                         | RET                   | Implemented | Prefix ignored                       |
+# | E1                         | POP IY                | Implemented |                                      |
+# | E5                         | PUSH IY               | Implemented |                                      |
+# | CB                         | IY bit table          | Implemented | Hands off to index_iy_bits.py        |
+# | Any other                  | -                     | Not handled | Raises 'IY instruction'              |
 
 
 def execute(self):
     opcode = self.memory.read8(self.pc)
     self.inc_pc(increment=1)
 
-    # FD 70-FD 77
+    # FD 70-FD 75, FD 77
     # LD (IY+d),r
     if 0x70 <= opcode <= 0x77 and opcode != 0x76:
         opcode_t_states = 19
@@ -97,7 +120,7 @@ def execute(self):
 
             return opcode_t_states
         
-        # FD 46-FD 7E
+        # FD 46, 4E, 56, 5E, 66, 6E, 7E
         # LD r,(IY+d)
         case 0x46 | 0x4E | 0x56 | 0x5E | 0x66 | 0x6E | 0x7E:
             opcode_t_states = 19
@@ -133,6 +156,7 @@ def execute(self):
             return opcode_t_states
 
         # LD A,(IY+d)
+        # Unreachable: FD 7E is matched by LD r,(IY+d) above
         case 0x7E:
             opcode_t_states = 19
 

@@ -1,5 +1,10 @@
-# DB      IN
-# D3      OUT
+# NOTE: The opcode table below is agent-generated. The code in this file is not.
+# Stub = placeholder that raises via log_opcode(implemented=False).
+#
+# | Opcode | Mnemonic  | Status      | Notes |
+# |--------|-----------|-------------|-------|
+# | DB     | IN A,(n)  | Implemented |       |
+# | D3     | OUT (n),A | Implemented |       |
 
 
 def execute(self, opcode):

@@ -1,5 +1,16 @@
 # DD CB d xx
 # IX + displacement bit operations
+#
+# NOTE: The opcode table below is agent-generated. The code in this file is not.
+# Stub = placeholder that raises via log_opcode(implemented=False).
+# Opcodes are the byte after the displacement.
+#
+# | Opcode | Mnemonic                  | Status      | Notes |
+# |--------|---------------------------|-------------|-------|
+# | 40-7F  | BIT b,(IX+d)              | Implemented |       |
+# | 00-3F  | Rotates and shifts (IX+d) | Not handled |       |
+# | 80-BF  | RES b,(IX+d)              | Not handled |       |
+# | C0-FF  | SET b,(IX+d)              | Not handled |       |
 def execute(self):
     displacement = self.memory.read8(self.pc)
     self.inc_pc(increment=1)

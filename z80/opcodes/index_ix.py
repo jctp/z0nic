@@ -5,6 +5,30 @@ from z80.opcodes import index_ix_bits
 
 # DD xx
 # Prefix for IX instructions
+#
+# NOTE: The opcode table below is agent-generated. The code in this file is not.
+# Stub = placeholder that raises via log_opcode(implemented=False).
+# Opcodes are the byte(s) after the DD prefix.
+#
+# | Opcode                     | Mnemonic              | Status      | Notes                                                    |
+# |----------------------------|-----------------------|-------------|----------------------------------------------------------|
+# | 01, 11, 21                 | LD rr,nn (BC, DE, HL) | Implemented | Prefix ignored. 21 should be LD IX,nn, which is shadowed |
+# | 22                         | LD (nn),IX            | Implemented | Bug: returns None, so no cycle count                     |
+# | 23                         | INC IX                | Implemented |                                                          |
+# | 2A                         | LD IX,(nn)            | Implemented | Bug: returns None, so no cycle count                     |
+# | 31                         | LD SP,nn              | Implemented | Broken: calls Z80.set_sp(), which does not exist         |
+# | 46, 4E, 56, 5E, 66, 6E, 7E | LD r,(IX+d)           | Implemented |                                                          |
+# | 70-75, 77                  | LD (IX+d),r           | Implemented |                                                          |
+# | E1                         | POP IX                | Implemented |                                                          |
+# | E5                         | PUSH IX               | Implemented |                                                          |
+# | 18                         | JR e                  | Implemented | Prefix ignored                                           |
+# | 3A                         | LD A,(nn)             | Stub        | Prefix ignored                                           |
+# | E6                         | AND n                 | Stub        | Prefix ignored                                           |
+# | EE                         | XOR n                 | Stub        | Prefix ignored                                           |
+# | F6                         | OR n                  | Stub        | Prefix ignored                                           |
+# | FE                         | CP n                  | Implemented | Prefix ignored                                           |
+# | CB                         | IX bit table          | Implemented | Hands off to index_ix_bits.py                            |
+# | Any other                  | -                     | Not handled | Raises 'Unknown mnemonic'                                |
 def execute(self):
     opcode = self.memory.read8(self.pc)
     self.inc_pc(increment=1)
@@ -33,7 +57,7 @@ def execute(self):
         case 0x18:
             return jumps.execute(self, opcode)
 
-        # LD A,nn
+        # LD A,(nn)
         case 0x3A:
             return load.execute(self, opcode)
 
@@ -77,6 +101,7 @@ def execute(self):
 
         # LD HL,nn
         # Read the next 16-bit immediate value into HL
+        # DD 21 is really LD IX,nn, but this case matches first
         case 0x21:
             # -----
             # Opcode logic:
@@ -153,6 +178,7 @@ def execute(self):
 
         # LD IX,nn
         # Read the next 16-bit immediate value into IX
+        # Unreachable: DD 21 is matched by LD HL,nn above
         case 0x21:
             # -----
             # Opcode logic:
@@ -172,6 +198,7 @@ def execute(self):
 
         # LD IY,nn
         # Read the next 16-bit immediate value into IY
+        # Unreachable: this is FD 21, not a DD opcode
         case 0x21:
             # -----
             # Opcode logic:
@@ -229,7 +256,7 @@ def execute(self):
 
             return opcode_t_states
 
-        # LD (ID+d),r
+        # LD (IX+d),r
         case 0x70 | 0x71 | 0x72 | 0x73 | 0x74 | 0x75 | 0x77:
             opcode_t_states = 19
 

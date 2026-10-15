@@ -1,15 +1,28 @@
 from logger import logger
 
-# 80-87   ADD A,r - Implemented
-# 88-8F   ADC A,r - Implemented
-
-# 90-97   SUB r = Implemented
-# 98-9F   SBC A,r - Implemented
-
-# C6       ADD A,n
-# CE       ADC A,n
-# D6       SUB n
-# DE       SBC A,n
+# NOTE: The opcode table below is agent-generated. The code in this file is not.
+# Stub = placeholder that raises via log_opcode(implemented=False).
+#
+# | Opcode                     | Mnemonic               | Status      | Notes                               |
+# |----------------------------|------------------------|-------------|-------------------------------------|
+# | 03, 13, 23                 | INC rr (BC, DE, HL)    | Implemented |                                     |
+# | 33                         | INC SP                 | Implemented | Bug: operates on AF, not SP         |
+# | 04, 0C, 14, 1C, 24, 2C, 3C | INC r                  | Implemented |                                     |
+# | 34                         | INC (HL)               | Stub        |                                     |
+# | 05, 0D, 15, 1D, 25, 2D, 3D | DEC r                  | Implemented |                                     |
+# | 35                         | DEC (HL)               | Implemented |                                     |
+# | 0B, 1B, 2B                 | DEC rr (BC, DE, HL)    | Implemented |                                     |
+# | 3B                         | DEC SP                 | Implemented | Bug: operates on AF, not SP         |
+# | 09, 19, 29                 | ADD HL,rr (BC, DE, HL) | Implemented |                                     |
+# | 39                         | ADD HL,SP              | Implemented | Bug: operates on AF, not SP         |
+# | 80-87                      | ADD A,r                | Implemented |                                     |
+# | 88-8F                      | ADC A,r                | Implemented |                                     |
+# | 90-97                      | SUB r                  | Implemented |                                     |
+# | 98-9F                      | SBC A,r                | Implemented | Second SBC A,r block is unreachable |
+# | C6                         | ADD A,n                | Stub        |                                     |
+# | CE                         | ADC A,n                | Stub        |                                     |
+# | D6                         | SUB n                  | Stub        |                                     |
+# | DE                         | SBC A,n                | Stub        |                                     |
 
 
 def execute(self, opcode):

@@ -1,19 +1,26 @@
 from logger import logger
 
-# 18      JR e
-# 20      JR NZ,e
-# 28      JR Z,e
-
-# 30      JR NC,e
-# 38      JR C,e
-
-# C3      JP nn
-
-# C2      JP NZ,nn
-# CA      JP Z,nn
-
-# D2      JP NC,nn
-# DA      JP C,nn
+# NOTE: The opcode table below is agent-generated. The code in this file is not.
+# Stub = placeholder that raises via log_opcode(implemented=False).
+#
+# | Opcode | Mnemonic | Status      | Notes |
+# |--------|----------|-------------|-------|
+# | 10     | DJNZ e   | Implemented |       |
+# | 18     | JR e     | Implemented |       |
+# | 20     | JR NZ,e  | Stub        |       |
+# | 28     | JR Z,e   | Stub        |       |
+# | 30     | JR NC,e  | Stub        |       |
+# | 38     | JR C,e   | Implemented |       |
+# | C2     | JP NZ,nn | Stub        |       |
+# | C3     | JP nn    | Implemented |       |
+# | CA     | JP Z,nn  | Stub        |       |
+# | D2     | JP NC,nn | Stub        |       |
+# | DA     | JP C,nn  | Stub        |       |
+# | E2     | JP PO,nn | Stub        |       |
+# | E9     | JP (HL)  | Stub        |       |
+# | EA     | JP PE,nn | Stub        |       |
+# | F2     | JP P,nn  | Stub        |       |
+# | FA     | JP M,nn  | Stub        |       |
 
 
 def execute(self, opcode):

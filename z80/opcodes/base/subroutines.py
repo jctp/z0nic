@@ -1,14 +1,29 @@
 from logger import logger
 
-# CD      CALL nn
-# C4      CALL NZ
-
-# CC      CALL Z
-
-# C9      RET
-
-# C0      RET NZ
-# C8      RET Z
+# NOTE: The opcode table below is agent-generated. The code in this file is not.
+# Stub = placeholder that raises via log_opcode(implemented=False).
+#
+# | Opcode                         | Mnemonic   | Status      | Notes |
+# |--------------------------------|------------|-------------|-------|
+# | C0                             | RET NZ     | Stub        |       |
+# | C8                             | RET Z      | Stub        |       |
+# | C9                             | RET        | Implemented |       |
+# | D0                             | RET NC     | Stub        |       |
+# | D8                             | RET C      | Stub        |       |
+# | E0                             | RET PO     | Stub        |       |
+# | E8                             | RET PE     | Stub        |       |
+# | F0                             | RET P      | Stub        |       |
+# | F8                             | RET M      | Stub        |       |
+# | C4                             | CALL NZ,nn | Stub        |       |
+# | CC                             | CALL Z,nn  | Stub        |       |
+# | CD                             | CALL nn    | Implemented |       |
+# | D4                             | CALL NC,nn | Stub        |       |
+# | DC                             | CALL C,nn  | Stub        |       |
+# | E4                             | CALL PO,nn | Stub        |       |
+# | EC                             | CALL PE,nn | Stub        |       |
+# | F4                             | CALL P,nn  | Stub        |       |
+# | FC                             | CALL M,nn  | Stub        |       |
+# | C7, CF, D7, DF, E7, EF, F7, FF | RST p      | Implemented |       |
 
 
 def execute(self, opcode):

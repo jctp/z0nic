@@ -1,19 +1,23 @@
 from logger import logger
 
-# 07  RLCA
-# 0F  RRCA
-# 17  RLA
-# 1F  RRA
-
-# 27  DAA
-# 2F  CPL
-
-# 37  SCF
-# 3F  CCF
-
-# 76  HALT
-
-# 00  NOP
+# NOTE: The opcode table below is agent-generated. The code in this file is not.
+# Stub = placeholder that raises via log_opcode(implemented=False).
+#
+# | Opcode | Mnemonic        | Status      | Notes                               |
+# |--------|-----------------|-------------|-------------------------------------|
+# | 07     | RLCA            | Stub        |                                     |
+# | 08     | EX AF,AF'       | Implemented |                                     |
+# | 0F     | RRCA            | Stub        |                                     |
+# | 17     | RLA             | Stub        |                                     |
+# | 1F     | RRA             | Implemented |                                     |
+# | 27     | DAA             | Stub        |                                     |
+# | 2F     | CPL             | Stub        |                                     |
+# | 37     | SCF             | Stub        |                                     |
+# | 3F     | CCF             | Stub        |                                     |
+# | CB     | CB prefix table | Stub        | Consumes the sub-opcode then raises |
+# | D9     | EXX             | Implemented |                                     |
+# | E3     | EX (SP),HL      | Implemented |                                     |
+# | EB     | EX DE,HL        | Implemented |                                     |
 
 
 def execute(self, opcode):

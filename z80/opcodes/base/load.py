@@ -1,14 +1,20 @@
-# 01    LD BC,nn
-# 06    LD B,n
-# 0E    LD C,n
-# 11    LD DE,nn
-# 16    LD D,n
-# 21    LD HL,nn
-# 26    LD H,n
-# 31    LD SP,nn
-# 3E    LD A,n
-
-# 40-7F LD r,r
+# NOTE: The opcode table below is agent-generated. The code in this file is not.
+# Stub = placeholder that raises via log_opcode(implemented=False).
+#
+# | Opcode                     | Mnemonic              | Status      | Notes                   |
+# |----------------------------|-----------------------|-------------|-------------------------|
+# | 01, 11, 21                 | LD rr,nn (BC, DE, HL) | Implemented |                         |
+# | 31                         | LD SP,nn              | Implemented | Bug: loads AF, not SP   |
+# | 02, 12                     | LD (BC),A / LD (DE),A | Implemented |                         |
+# | 0A, 1A                     | LD A,(BC) / LD A,(DE) | Implemented |                         |
+# | 06, 0E, 16, 1E, 26, 2E, 3E | LD r,n                | Implemented |                         |
+# | 22                         | LD (nn),HL            | Implemented |                         |
+# | 2A                         | LD HL,(nn)            | Implemented |                         |
+# | 32                         | LD (nn),A             | Implemented |                         |
+# | 36                         | LD (HL),n             | Stub        |                         |
+# | 3A                         | LD A,(nn)             | Stub        |                         |
+# | 40-75, 77-7F               | LD r,r                | Stub        | 76 is HALT (control.py) |
+# | F9                         | LD SP,HL              | Implemented |                         |
 
 
 def execute(self, opcode):
@@ -43,7 +49,7 @@ def execute(self, opcode):
         )
         return opcode_t_states
 
-    # LD r,nn
+    # LD rr,nn
     # 16-bit loads
     if opcode in (0x01, 0x11, 0x21, 0x31):
         opcode_t_states = 10
@@ -70,7 +76,7 @@ def execute(self, opcode):
 
         return opcode_t_states
 
-    # LD rr,A
+    # LD (BC),A / LD (DE),A
     if opcode in (0x02, 0x12):
         opcode_t_states = 7
 
@@ -222,6 +228,7 @@ def execute(self, opcode):
 
             return opcode_t_states
 
+        # LD (nn),A
         case 0x32:
             opcode_t_states = 13
 

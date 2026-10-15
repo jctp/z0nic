@@ -1,18 +1,36 @@
-# LDI
-# LDIR
-# LDD
-# LDDR
-
-# CPIR
-# CPDR
-
-# NEG
-
-# IN
-# OUT
-
-# RETN
-# RETI
+# NOTE: The opcode table below is agent-generated. The code in this file is not.
+# Stub = placeholder that raises via log_opcode(implemented=False).
+# Opcodes are the byte(s) after the ED prefix.
+#
+# | Opcode                     | Mnemonic                          | Status      | Notes                                          |
+# |----------------------------|-----------------------------------|-------------|------------------------------------------------|
+# | 40, 48, 50, 58, 60, 68, 78 | IN r,(C)                          | Implemented | Bug: calls Z80.parity(), which does not exist  |
+# | 41, 49, 51, 59, 61, 69, 79 | OUT (C),r                         | Implemented |                                                |
+# | 42, 52, 62, 72             | SBC HL,rr (BC, DE, HL, SP)        | Implemented |                                                |
+# | 4A, 5A, 6A, 7A             | ADC HL,rr (BC, DE, HL, SP)        | Implemented |                                                |
+# | 43, 53, 63, 73             | LD (nn),rr (BC, DE, HL, SP)       | Implemented |                                                |
+# | 4B, 5B, 6B, 7B             | LD rr,(nn) (BC, DE, HL, SP)       | Implemented |                                                |
+# | 56                         | IM 1                              | Implemented |                                                |
+# | A0                         | LDI                               | Implemented |                                                |
+# | A8                         | LDD                               | Implemented |                                                |
+# | B0                         | LDIR                              | Implemented |                                                |
+# | B8                         | LDDR                              | Implemented | Logs itself as LDIR                            |
+# | A1                         | CPI                               | Implemented |                                                |
+# | A9                         | CPD                               | Implemented |                                                |
+# | B1                         | CPIR                              | Implemented |                                                |
+# | B9                         | CPDR                              | Implemented |                                                |
+# | A2                         | INI                               | Implemented |                                                |
+# | AA                         | IND                               | Implemented |                                                |
+# | B2                         | INIR                              | Implemented |                                                |
+# | BA                         | INDR                              | Implemented |                                                |
+# | A3, AB, B3, BB             | OUTI, OUTD, OTIR, OTDR            | Implemented | Returns None, so no cycle count                |
+# | 44                         | NEG                               | Not handled |                                                |
+# | 45                         | RETN                              | Implemented |                                                |
+# | 4D                         | RETI                              | Implemented |                                                |
+# | 46, 5E                     | IM 0, IM 2                        | Not handled |                                                |
+# | 47, 4F, 57, 5F             | LD I,A / LD R,A / LD A,I / LD A,R | Not handled |                                                |
+# | 67, 6F                     | RRD, RLD                          | Not handled |                                                |
+# | Any other                  | -                                 | Not handled | Raises 'Unknown mnemonic'                      |
 
 
 def execute(self):
@@ -205,7 +223,8 @@ def execute(self):
         # ED 5A  ADC HL,DE
         # ED 6A  ADC HL,HL
         # ED 7A  ADC HL,SP
-        # HL = HL - BC - Carry
+        # SBC HL,rr: HL = HL - rr - Carry
+        # ADC HL,rr: HL = HL + rr + Carry
         case 0x42 | 0x52 | 0x62 | 0x72 | 0x4A | 0x5A | 0x6A | 0x7A:
             opcode_t_states = 15
 
@@ -449,7 +468,7 @@ def execute(self):
 
         # endregion
 
-        # region Block I/O (Input)
+        # region Block IO
 
         # INI
         case 0xA2:
@@ -458,20 +477,6 @@ def execute(self):
             self.log_opcode(
                 opcode=opcode,
                 asm="INI",
-                prefix="ED",
-                opcode_t_states=opcode_t_states,
-                message="Input from port BC to memory at HL",
-            )
-
-            return opcode_t_states
-
-        # IND
-        case 0xAA:
-            opcode_t_states = self.block_in(increment=-1, repeat=False)
-
-            self.log_opcode(
-                opcode=opcode,
-                asm="IND",
                 prefix="ED",
                 opcode_t_states=opcode_t_states,
                 message="Input from port BC to memory at HL",
@@ -493,6 +498,20 @@ def execute(self):
 
             return opcode_t_states
 
+        # IND
+        case 0xAA:
+            opcode_t_states = self.block_in(increment=-1, repeat=False)
+
+            self.log_opcode(
+                opcode=opcode,
+                asm="IND",
+                prefix="ED",
+                opcode_t_states=opcode_t_states,
+                message="Input from port BC to memory at HL",
+            )
+
+            return opcode_t_states
+
         # INDR
         case 0xBA:
             opcode_t_states = self.block_in(increment=-1, repeat=True)
@@ -503,6 +522,55 @@ def execute(self):
                 prefix="ED",
                 opcode_t_states=opcode_t_states,
                 message="Repeated input from port BC to memory at HL",
+            )
+
+            return opcode_t_states
+
+        # endregion
+        # region Interrupt Return
+
+        # RETN
+        case 0x45:
+            opcode_t_states = 14
+
+            # -----
+            # Opcode logic:
+            self.iff1 = self.iff2
+
+            address = self.pop16()
+
+            self.pc = address
+            # -----
+
+            self.log_opcode(
+                opcode=opcode,
+                asm="RETN",
+                prefix="ED",
+                opcode_t_states=opcode_t_states,
+                message=f"Returned to {address:04X}",
+                implemented=True,
+            )
+
+            return opcode_t_states
+
+        # RETI
+        case 0x4D:
+            opcode_t_states = 14
+
+            # -----
+            # Opcode logic:
+            address = self.pop16()
+
+            self.pc = address
+            # -----
+
+            self.log_opcode(
+                opcode=opcode,
+                asm="RETI",
+                prefix="ED",
+                opcode_t_states=opcode_t_states,
+                message=f"Returned to {address:04X}",
+                implemented=True,
             )
 
             return opcode_t_states

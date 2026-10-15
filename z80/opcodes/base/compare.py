@@ -1,10 +1,15 @@
-# B8-BF   CP r
-# FE      CP n
+# NOTE: The opcode table below is agent-generated. The code in this file is not.
+# Stub = placeholder that raises via log_opcode(implemented=False).
+#
+# | Opcode | Mnemonic | Status      | Notes |
+# |--------|----------|-------------|-------|
+# | B8-BF  | CP r     | Stub        |       |
+# | FE     | CP n     | Implemented |       |
 
 
 def execute(self, opcode):
     match opcode:
-        # CP nn
+        # CP n
         # Compare A with operand
 
         case 0xFE:

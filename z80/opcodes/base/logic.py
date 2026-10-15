@@ -1,10 +1,15 @@
-# A0-A7  AND r
-# A8-AF  XOR r
-# B0-B7  OR r
-
-# E6      AND n
-# EE      XOR n
-# F6      OR n
+# NOTE: The opcode table below is agent-generated. The code in this file is not.
+# Stub = placeholder that raises via log_opcode(implemented=False).
+#
+# | Opcode | Mnemonic | Status      | Notes |
+# |--------|----------|-------------|-------|
+# | A0-A7  | AND r    | Stub        |       |
+# | A8-AE  | XOR r    | Stub        |       |
+# | AF     | XOR A    | Implemented |       |
+# | B0-B7  | OR r     | Stub        |       |
+# | E6     | AND n    | Stub        |       |
+# | EE     | XOR n    | Stub        |       |
+# | F6     | OR n     | Stub        |       |
 
 
 def execute(self, opcode):

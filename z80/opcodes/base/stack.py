@@ -1,12 +1,10 @@
-# C1      POP BC
-# D1      POP DE
-# E1      POP HL
-# F1      POP AF
-
-# C5      PUSH BC
-# D5      PUSH DE
-# E5      PUSH HL
-# F5      PUSH AF
+# NOTE: The opcode table below is agent-generated. The code in this file is not.
+# Stub = placeholder that raises via log_opcode(implemented=False).
+#
+# | Opcode         | Mnemonic                 | Status      | Notes |
+# |----------------|--------------------------|-------------|-------|
+# | C1, D1, E1, F1 | POP qq (BC, DE, HL, AF)  | Implemented |       |
+# | C5, D5, E5, F5 | PUSH qq (BC, DE, HL, AF) | Implemented |       |
 
 
 def execute(self, opcode):

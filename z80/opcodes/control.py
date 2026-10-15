@@ -1,3 +1,12 @@
+# NOTE: The opcode table below is agent-generated. The code in this file is not.
+# Stub = placeholder that raises via log_opcode(implemented=False).
+#
+# | Opcode | Mnemonic | Status      | Notes |
+# |--------|----------|-------------|-------|
+# | 00     | NOP      | Implemented |       |
+# | 76     | HALT     | Stub        |       |
+
+
 def execute(self, opcode):
     match opcode:
         # NOP
