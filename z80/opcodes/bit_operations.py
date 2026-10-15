@@ -45,10 +45,68 @@ def execute(self, opcode):
 
             return opcode_t_states
 
+        # RLCA / RRCA / RLA
+        # Rotate Accumulator
+        case 0x07 | 0x0F | 0x17:
+            opcode_t_states = 4
+            # TODO: Implement
+
+            asm = {0x07: "RLCA", 0x0F: "RRCA", 0x17: "RLA"}[opcode]
+
+            self.log_opcode(
+                opcode=opcode,
+                asm=asm,
+                prefix="",
+                opcode_t_states=opcode_t_states,
+                message="Not implemented",
+                implemented=False,
+            )
+
+            return opcode_t_states
+
+        # DAA / CPL / SCF / CCF
+        # Accumulator and carry flag adjustments
+        case 0x27 | 0x2F | 0x37 | 0x3F:
+            opcode_t_states = 4
+            # TODO: Implement
+
+            asm = {0x27: "DAA", 0x2F: "CPL", 0x37: "SCF", 0x3F: "CCF"}[opcode]
+
+            self.log_opcode(
+                opcode=opcode,
+                asm=asm,
+                prefix="",
+                opcode_t_states=opcode_t_states,
+                message="Not implemented",
+                implemented=False,
+            )
+
+            return opcode_t_states
+
     # ----------------------------------------
     # BIT
     # ----------------------------------------
     match opcode:
+        # CB xx
+        # Rotate, shift, BIT, RES and SET table
+        case 0xCB:
+            sub_opcode = self.memory.read8(self.pc)
+            self.inc_pc(increment=1)
+
+            opcode_t_states = 8
+            # TODO: Implement the CB table
+
+            self.log_opcode(
+                opcode=sub_opcode,
+                asm="CB prefix",
+                prefix="CB",
+                opcode_t_states=opcode_t_states,
+                message="Not implemented",
+                implemented=False,
+            )
+
+            return opcode_t_states
+
         case _:
             pass
 
@@ -112,11 +170,11 @@ def execute(self, opcode):
             # -----
             # Opcode logic:
             stack_low = self.memory.read8(self.sp)
-            stack_high = self.memory.read8(self.sp + 1)
+            stack_high = self.memory.read8((self.sp + 1) & 0xFFFF)
             stack_value = (stack_high << 8) | stack_low
             hl = (self.h << 8) | self.l
             self.memory.write8(self.sp, hl & 0xFF)
-            self.memory.write8(self.sp + 1, (hl >> 8) & 0xFF)
+            self.memory.write8((self.sp + 1) & 0xFFFF, (hl >> 8) & 0xFF)
             self.h = (stack_value >> 8) & 0xFF
             self.l = stack_value & 0xFF
             # -----

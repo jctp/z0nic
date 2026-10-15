@@ -199,6 +199,7 @@ def execute(self, opcode):
             0x22,  # LD (nn),HL
             0x2A,  # LD HL,(nn)
             0x32,  # LD (nn),A
+            0x36,  # LD (HL),n
             0x3A,  # LD A,(nn)
         )
         # Register-to-register loads
@@ -292,16 +293,16 @@ def execute(self, opcode):
         # Hand off to prefixed opcodes
 
         case 0xCB:
-            bit_operations.execute(self, opcode)
+            return bit_operations.execute(self, opcode)
 
         case 0xED:
-            extended.execute(self)
+            return extended.execute(self)
 
         case 0xDD:
-            index_ix.execute(self)  # Includes DDCB
+            return index_ix.execute(self)  # Includes DDCB
 
         case 0xFD:
-            index_iy.execute(self)  # Includes FDCB
+            return index_iy.execute(self)  # Includes FDCB
 
         case _:
-            self.opcode_not_implemented(opcode, "Unknown mnemonic")
+            return self.opcode_not_implemented(opcode, "Unknown mnemonic")

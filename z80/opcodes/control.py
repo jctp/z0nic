@@ -14,6 +14,21 @@ def execute(self, opcode):
             )
             return opcode_t_states
 
+        # HALT
+        # Suspend the CPU until an interrupt occurs
+        case 0x76:
+            opcode_t_states = 4
+            # TODO: Implement
+            self.log_opcode(
+                opcode=opcode,
+                asm="HALT",
+                prefix="",
+                opcode_t_states=opcode_t_states,
+                message="Not implemented",
+                implemented=False,
+            )
+            return opcode_t_states
+
         case _:
             pass
 

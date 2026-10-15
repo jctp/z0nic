@@ -1,3 +1,5 @@
+from logger import logger
+
 # 18      JR e
 # 20      JR NZ,e
 # 28      JR Z,e
@@ -35,6 +37,10 @@ def execute(self, opcode):
 
             dest_address = self.pc
 
+            logger.info(
+                f"JP nn: {source_address:04X} -> {dest_address:04X}"
+            )
+
             self.log_opcode(
                 opcode=opcode,
                 asm="JP nn",
@@ -59,10 +65,14 @@ def execute(self, opcode):
             # Convert an unsigned byte into a signed byte
             if offset & 0x80:
                 offset -= 0x100
-            self.pc += offset
+            self.pc = (self.pc + offset) & 0xFFFF
             # -----
 
             dest_address = self.pc
+
+            logger.info(
+                f"JR e: {source_address:04X} -> {dest_address:04X}"
+            )
 
             self.log_opcode(
                 opcode=opcode,
@@ -85,12 +95,16 @@ def execute(self, opcode):
             if offset & 0x80:
                 offset -= 0x100
             if self.flag_c:
-                self.pc += offset
+                self.pc = (self.pc + offset) & 0xFFFF
                 opcode_t_states = 12
             else:
                 opcode_t_states = 7
             dest_address = self.pc
             # -----
+
+            logger.info(
+                f"JR C, e: {source_address:04X} -> {dest_address:04X}"
+            )
 
             self.log_opcode(
                 opcode=opcode,
@@ -122,7 +136,7 @@ def execute(self, opcode):
             if self.b != 0:
                 if offset & 0x80:
                     offset -= 0x100
-                self.pc += offset
+                self.pc = (self.pc + offset) & 0xFFFF
                 opcode_t_states = 13
             dest_address = self.pc
             # -----
@@ -139,6 +153,63 @@ def execute(self, opcode):
                     f"to {dest_address:04X}"
                 ),
                 implemented=True,
+            )
+
+            return opcode_t_states
+
+        # JR NZ,e / JR Z,e / JR NC,e
+        # Jump by offset e if condition is true
+        case 0x20 | 0x28 | 0x30:
+            opcode_t_states = 7
+            # TODO: Implement
+
+            condition = ("NZ", "Z", "NC")[(opcode >> 3) & 0x03]
+
+            self.log_opcode(
+                opcode=opcode,
+                asm=f"JR {condition},e",
+                prefix="",
+                opcode_t_states=opcode_t_states,
+                message="Not implemented",
+                implemented=False,
+            )
+
+            return opcode_t_states
+
+        # JP cc,nn
+        # Jump to nn if condition cc is true
+        case 0xC2 | 0xCA | 0xD2 | 0xDA | 0xE2 | 0xEA | 0xF2 | 0xFA:
+            opcode_t_states = 10
+            # TODO: Implement
+
+            condition = ("NZ", "Z", "NC", "C", "PO", "PE", "P", "M")[
+                (opcode >> 3) & 0x07
+            ]
+
+            self.log_opcode(
+                opcode=opcode,
+                asm=f"JP {condition},nn",
+                prefix="",
+                opcode_t_states=opcode_t_states,
+                message="Not implemented",
+                implemented=False,
+            )
+
+            return opcode_t_states
+
+        # JP (HL)
+        # Jump to the address in HL
+        case 0xE9:
+            opcode_t_states = 4
+            # TODO: Implement
+
+            self.log_opcode(
+                opcode=opcode,
+                asm="JP (HL)",
+                prefix="",
+                opcode_t_states=opcode_t_states,
+                message="Not implemented",
+                implemented=False,
             )
 
             return opcode_t_states

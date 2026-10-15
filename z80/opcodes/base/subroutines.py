@@ -1,3 +1,5 @@
+from logger import logger
+
 # CD      CALL nn
 # C4      CALL NZ
 
@@ -16,6 +18,8 @@ def execute(self, opcode):
         case 0xCD:
             opcode_t_states = 17
 
+            source_address = self.pc
+
             # -----
             # Opcode logic:
             low = self.memory.read8(self.pc)
@@ -24,12 +28,13 @@ def execute(self, opcode):
             self.inc_pc(increment=1)
             destination = (high << 8) | low
             return_address = self.pc
-            self.sp -= 1
-            self.memory.write8(self.sp, (return_address >> 8) & 0xFF)
-            self.sp -= 1
-            self.memory.write8(self.sp, return_address & 0xFF)
+            self.push16(return_address)
             self.pc = destination
             # -----
+        
+            logger.info(
+                f"CALL nn: {source_address:04X} -> {destination:04X}"
+            )
 
             self.log_opcode(
                 opcode=opcode,
@@ -47,11 +52,17 @@ def execute(self, opcode):
         case 0xC9:
             opcode_t_states = 10
 
+            source_address = self.pc
+
             # -----
             # Opcode logic:
             return_address = self.pop16()
             self.pc = return_address
             # -----
+
+            logger.info(
+                f"RET: {source_address:04X} -> {return_address:04X}"
+            )
 
             self.log_opcode(
                 opcode=opcode,
@@ -60,6 +71,58 @@ def execute(self, opcode):
                 opcode_t_states=opcode_t_states,
                 message=f"Returned to {return_address:04X}",
                 implemented=True,
+            )
+
+            return opcode_t_states
+
+        # RST
+        case 0xC7 | 0xCF | 0xD7 | 0xDF | 0xE7 | 0xEF | 0xF7 | 0xFF:
+            opcode_t_states = 11
+
+            self.push16(self.pc)
+
+            self.pc = opcode & 0x38
+
+            return opcode_t_states
+
+        # RET cc
+        # Return from subroutine if condition cc is true
+        case 0xC0 | 0xC8 | 0xD0 | 0xD8 | 0xE0 | 0xE8 | 0xF0 | 0xF8:
+            opcode_t_states = 5
+            # TODO: Implement
+
+            condition = ("NZ", "Z", "NC", "C", "PO", "PE", "P", "M")[
+                (opcode >> 3) & 0x07
+            ]
+
+            self.log_opcode(
+                opcode=opcode,
+                asm=f"RET {condition}",
+                prefix="",
+                opcode_t_states=opcode_t_states,
+                message="Not implemented",
+                implemented=False,
+            )
+
+            return opcode_t_states
+
+        # CALL cc,nn
+        # Call subroutine at nn if condition cc is true
+        case 0xC4 | 0xCC | 0xD4 | 0xDC | 0xE4 | 0xEC | 0xF4 | 0xFC:
+            opcode_t_states = 10
+            # TODO: Implement
+
+            condition = ("NZ", "Z", "NC", "C", "PO", "PE", "P", "M")[
+                (opcode >> 3) & 0x07
+            ]
+
+            self.log_opcode(
+                opcode=opcode,
+                asm=f"CALL {condition},nn",
+                prefix="",
+                opcode_t_states=opcode_t_states,
+                message="Not implemented",
+                implemented=False,
             )
 
             return opcode_t_states

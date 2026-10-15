@@ -93,6 +93,8 @@ def execute(self, opcode):
             implemented=True,
         )
 
+        return opcode_t_states
+
     # LD A,(rr)
     if opcode in (0x0A, 0x1A):
         opcode_t_states = 7
@@ -122,6 +124,25 @@ def execute(self, opcode):
 
         return opcode_t_states
 
+    # LD r,r
+    # 40-7F, except 76 which is HALT
+    if 0x40 <= opcode <= 0x7F and opcode != 0x76:
+        opcode_t_states = (
+            7 if (opcode & 0x07) == 6 or ((opcode >> 3) & 0x07) == 6 else 4
+        )
+        # TODO: Implement
+
+        self.log_opcode(
+            opcode=opcode,
+            asm="LD r,r",
+            prefix="",
+            opcode_t_states=opcode_t_states,
+            message="Not implemented",
+            implemented=False,
+        )
+
+        return opcode_t_states
+
     match opcode:
         # LD (nn),HL
         case 0x22:
@@ -144,6 +165,8 @@ def execute(self, opcode):
                 ),
             )
 
+            return opcode_t_states
+
         # LD HL,(nn)
         case 0x2A:
             # -----
@@ -162,6 +185,42 @@ def execute(self, opcode):
                 opcode_t_states=opcode_t_states,
                 message=(f"Loaded {value:04X} from memory at {address:04X} into HL"),
             )
+
+            return opcode_t_states
+
+        # LD (HL),n
+        # Store immediate byte n at the address in HL
+        case 0x36:
+            opcode_t_states = 10
+            # TODO: Implement
+
+            self.log_opcode(
+                opcode=opcode,
+                asm="LD (HL),n",
+                prefix="",
+                opcode_t_states=opcode_t_states,
+                message="Not implemented",
+                implemented=False,
+            )
+
+            return opcode_t_states
+
+        # LD A,(nn)
+        # Load A from the address nn
+        case 0x3A:
+            opcode_t_states = 13
+            # TODO: Implement
+
+            self.log_opcode(
+                opcode=opcode,
+                asm="LD A,(nn)",
+                prefix="",
+                opcode_t_states=opcode_t_states,
+                message="Not implemented",
+                implemented=False,
+            )
+
+            return opcode_t_states
 
         case 0x32:
             opcode_t_states = 13

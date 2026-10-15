@@ -1,3 +1,5 @@
+from logger import logger
+
 # 80-87   ADD A,r - Implemented
 # 88-8F   ADC A,r - Implemented
 
@@ -17,6 +19,184 @@ def execute(self, opcode):
 
     # Decoding this lets us save a lot of repetition
     # see get_register() in Z80 for more
+
+    # INC r
+    if opcode in (0x04, 0x0C, 0x14, 0x1C, 0x24, 0x2C, 0x3C):
+
+        register = (opcode >> 3) & 0x07
+
+        value_before = self.get_register(register)
+
+        result = (value_before + 1) & 0xFF
+
+        self.set_register(register, result)
+
+        # -----
+        # Opcode logic:
+        self.flag_s = bool(result & 0x80)
+        self.flag_z = result == 0
+        self.flag_h = ((value_before & 0x0F) + 1) > 0x0F
+        self.flag_pv = value_before == 0x7F
+        self.flag_n = False
+        # Carry unaffected
+        # -----
+
+        opcode_t_states = 4
+
+        self.log_opcode(
+            opcode=opcode,
+            asm="INC r",
+            prefix="",
+            opcode_t_states=opcode_t_states,
+            message=f"Incremented register {register} from {value_before:02X} to {result:02X}",
+            implemented=True,
+        )
+
+        return opcode_t_states
+
+    # DEC r
+    if opcode in (0x05, 0x0D, 0x15, 0x1D, 0x25, 0x2D, 0x3D):
+
+        register = (opcode >> 3) & 0x07
+
+        value_before = self.get_register(register)
+
+        result = (value_before - 1) & 0xFF
+
+        self.set_register(register, result)
+
+        # -----
+        self.flag_s = bool(result & 0x80)
+        self.flag_z = result == 0
+        self.flag_h = (value_before & 0x0F) == 0x00
+        self.flag_pv = value_before == 0x80
+        self.flag_n = True
+        # Carry unaffected
+        # -----
+
+        opcode_t_states = 4
+
+        self.log_opcode(
+            opcode=opcode,
+            asm="DEC r",
+            prefix="",
+            opcode_t_states=opcode_t_states,
+            message=f"Decremented register {register} from {value_before:02X} to {result:02X}",
+            implemented=True,
+        )
+
+        return opcode_t_states
+
+    # INC rr
+    if opcode in (0x03, 0x13, 0x23, 0x33):
+
+        pair = (opcode >> 4) & 0x03
+
+        value_before = self.get_register_pair(pair)
+
+        result = (value_before + 1) & 0xFFFF
+
+        self.set_register_pair(pair, result)
+
+        opcode_t_states = 6
+
+        self.log_opcode(
+            opcode=opcode,
+            asm="INC rr",
+            prefix="",
+            opcode_t_states=opcode_t_states,
+            message=f"Incremented register pair from {value_before:04X} to {result:04X}",
+            implemented=True,
+        )
+
+        return opcode_t_states
+
+    # 0B,1B,2B,3B    DEC rr
+    if opcode in (0x0B, 0x1B, 0x2B, 0x3B):
+
+        pair = (opcode >> 4) & 0x03
+
+        value_before = self.get_register_pair(pair)
+
+        result = (value_before - 1) & 0xFFFF
+
+        self.set_register_pair(pair, result)
+
+        opcode_t_states = 6
+
+        self.log_opcode(
+            opcode=opcode,
+            asm="DEC rr",
+            prefix="",
+            opcode_t_states=opcode_t_states,
+            message=f"Decremented register pair from {value_before:04X} to {result:04X}",
+            implemented=True,
+        )
+
+        return opcode_t_states
+
+    # 09,19,29,39    ADD HL,rr
+    if opcode in (0x09, 0x19, 0x29, 0x39):
+
+        pair = (opcode >> 4) & 0x03
+
+        hl_before = self.get_hl()
+
+        value = self.get_register_pair(pair)
+
+        result = hl_before + value
+
+        self.set_hl(result & 0xFFFF)
+
+        # -----
+        self.flag_h = ((hl_before & 0x0FFF) + (value & 0x0FFF)) > 0x0FFF
+        self.flag_c = result > 0xFFFF
+        self.flag_n = False
+        # S/Z/PV unaffected
+        # -----
+
+        opcode_t_states = 11
+
+        self.log_opcode(
+            opcode=opcode,
+            asm="ADD HL,rr",
+            prefix="",
+            opcode_t_states=opcode_t_states,
+            message=f"Added {value:04X} to HL {hl_before:04X}, result {self.get_hl():04X}",
+            implemented=True,
+        )
+
+        return opcode_t_states
+
+    # 35 DEC (HL)
+    if opcode == 0x35:
+
+        address = self.get_hl()
+
+        value_before = self.memory.read8(address)
+
+        result = (value_before - 1) & 0xFF
+
+        self.memory.write8(address, result)
+
+        self.flag_s = bool(result & 0x80)
+        self.flag_z = result == 0
+        self.flag_h = (value_before & 0x0F) == 0
+        self.flag_pv = value_before == 0x80
+        self.flag_n = True
+
+        opcode_t_states = 11
+
+        self.log_opcode(
+            opcode=opcode,
+            asm="DEC (HL)",
+            prefix="",
+            opcode_t_states=opcode_t_states,
+            message=f"Decremented memory at {address:04X} from {value_before:02X} to {result:02X}",
+            implemented=True,
+        )
+
+        return opcode_t_states
 
     # 80-87   ADD A,r
     # Contents of register r are added to A and stored in A
@@ -199,7 +379,48 @@ def execute(self, opcode):
 
     # Individual opcodes
     match opcode:
+        # INC (HL)
+        case 0x34:
+            opcode_t_states = 11
+            # TODO: Implement
+
+            self.log_opcode(
+                opcode=opcode,
+                asm="INC (HL)",
+                prefix="",
+                opcode_t_states=opcode_t_states,
+                message="Not implemented",
+                implemented=False,
+            )
+
+            return opcode_t_states
+
+        # ADD A,n / ADC A,n / SUB n / SBC A,n
+        case 0xC6 | 0xCE | 0xD6 | 0xDE:
+            opcode_t_states = 7
+            # TODO: Implement
+
+            asm = {
+                0xC6: "ADD A,n",
+                0xCE: "ADC A,n",
+                0xD6: "SUB n",
+                0xDE: "SBC A,n",
+            }[opcode]
+
+            self.log_opcode(
+                opcode=opcode,
+                asm=asm,
+                prefix="",
+                opcode_t_states=opcode_t_states,
+                message="Not implemented",
+                implemented=False,
+            )
+
+            return opcode_t_states
+
         case _:
             pass
+
+    logger.info(f"Arithmetic handler fell through for opcode {opcode:02X}")
 
     return None
