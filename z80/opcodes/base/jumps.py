@@ -164,17 +164,79 @@ def execute(self, opcode):
 
             return opcode_t_states
 
-        # JR NZ,e / JR Z,e / JR NC,e
+        # JR NZ,e
         # Jump by offset e if condition is true
-        case 0x20 | 0x28 | 0x30:
-            opcode_t_states = 7
-            # TODO: Implement
+        case 0x20:
 
-            condition = ("NZ", "Z", "NC")[(opcode >> 3) & 0x03]
+            before_pc = self.pc
+
+            offset_e = self.memory.read8(self.pc)
+            self.inc_pc(1)
+
+            # Convert offset to signed 8-bit int
+            if offset_e >= 0x80:
+                offset_e -= 0x100
+                
+            if self.flag_z == 0: # This is NZ
+                self.pc = (self.pc + offset_e) & 0xFFFF
+                opcode_t_states = 12
+            else:
+                opcode_t_states = 7
+
+            after_pc = self.pc
 
             self.log_opcode(
                 opcode=opcode,
-                asm=f"JR {condition},e",
+                asm=f"JR NZ,e",
+                prefix="",
+                opcode_t_states=opcode_t_states,
+                message=f"Jumped from {before_pc:04X} to {after_pc:04X}",
+                implemented=True,
+            )
+
+            return opcode_t_states
+
+        # JR Z,e
+        # Jump by offset e if condition is true
+        case 0x28:
+
+            before_pc = self.pc
+
+            offset_e = self.memory.read8(self.pc)
+            self.inc_pc(1)
+
+            # Convert offset to signed 8-bit int
+            if offset_e >= 0x80:
+                offset_e -= 0x100
+                
+            if self.flag_z == 1: # This is Z
+                self.pc = (self.pc + offset_e) & 0xFFFF
+                opcode_t_states = 12
+            else:
+                opcode_t_states = 7
+
+            after_pc = self.pc
+
+            self.log_opcode(
+                opcode=opcode,
+                asm=f"JR Z,e",
+                prefix="",
+                opcode_t_states=opcode_t_states,
+                message=f"Jumped from {before_pc:04X} to {after_pc:04X}",
+                implemented=True,
+            )
+
+            return opcode_t_states
+        # JR NC,e
+        # Jump by offset e if condition is true
+        case 0x30:
+            opcode_t_states = 7
+
+            case 
+
+            self.log_opcode(
+                opcode=opcode,
+                asm=f"JR NC,e",
                 prefix="",
                 opcode_t_states=opcode_t_states,
                 message="Not implemented",
@@ -182,6 +244,7 @@ def execute(self, opcode):
             )
 
             return opcode_t_states
+
 
         # JP cc,nn
         # Jump to nn if condition cc is true

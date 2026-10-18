@@ -646,17 +646,7 @@ class Z80:
 
         # ----------
         # DEBUGGING
-        if self.pc == 0x038B:
-            logger.warning(
-                f"DJNZ B={self.b:02X}"
-            )
-
-        if self.pc == 0x1C49:
-            self.trace = True
-
-        if self.trace:
-            logger.info(f"{self.pc:04X}")
-
+        
         # ----------
 
         opcode = self.memory.read8(self.pc)
