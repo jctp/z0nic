@@ -22,6 +22,8 @@ Long story short, I wrote the structure and flow, the LLM helped me with the opc
 
 Update 15/10/26 - Cheated a little. Missing opcodes were causing an intractable looping bug due to CPU desync. I have an error handler for this, but it needs the opcode to be stubbed out. I had Claude do the stubbing for about 170 opcodes because it's a very dull, very repetitive task and my time for this is limited. Broke the rules, but they're my rules, and this is a hobby/educational project so I don't consider myself to be having fun wrong or learning wrong.
 
+Update 19/10/26 - Finding more issues, and beginning to feel the Z80 is out of my depth for a first emulator and I'm finding myself learning on the LLM more than I'd like for a learning exercise - this is getting put on the shelf and I'm going to try out the CHIP-8, which I should have done at the beginning. **This project is incomplete, buggy, and not considered close to functional. I'll pick it up in the future when it's no longer my first emulator.**
+
 ### What does it look like?
 At the moment, its output is simply logging what the Z80 is doing, and looks like this:
 
