@@ -4,7 +4,7 @@
 # | Opcode                     | Mnemonic              | Status      | Notes                   |
 # |----------------------------|-----------------------|-------------|-------------------------|
 # | 01, 11, 21                 | LD rr,nn (BC, DE, HL) | Implemented |                         |
-# | 31                         | LD SP,nn              | Implemented | Bug: loads AF, not SP   |
+# | 31                         | LD SP,nn              | Implemented | Uses SP, not AF         |
 # | 02, 12                     | LD (BC),A / LD (DE),A | Implemented |                         |
 # | 0A, 1A                     | LD A,(BC) / LD A,(DE) | Implemented |                         |
 # | 06, 0E, 16, 1E, 26, 2E, 3E | LD r,n                | Implemented |                         |

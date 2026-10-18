@@ -16,7 +16,7 @@ from z80.opcodes import index_ix_bits
 # | 22                         | LD (nn),IX            | Implemented | Bug: returns None, so no cycle count                     |
 # | 23                         | INC IX                | Implemented |                                                          |
 # | 2A                         | LD IX,(nn)            | Implemented | Bug: returns None, so no cycle count                     |
-# | 31                         | LD SP,nn              | Implemented | Broken: calls Z80.set_sp(), which does not exist         |
+# | 31                         | LD SP,nn              | Implemented | Uses SP, not AF                                         |
 # | 46, 4E, 56, 5E, 66, 6E, 7E | LD r,(IX+d)           | Implemented |                                                          |
 # | 70-75, 77                  | LD (IX+d),r           | Implemented |                                                          |
 # | E1                         | POP IX                | Implemented |                                                          |

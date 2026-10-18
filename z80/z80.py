@@ -214,7 +214,7 @@ class Z80:
             case 7:
                 self.a = value
 
-    def get_register_pair(self, pair):
+    def get_register_pair(self, pair, allow_af=False):
         match pair:
             case 0:  # BC
                 return self.get_bc()
@@ -222,10 +222,12 @@ class Z80:
                 return self.get_de()
             case 2:  # HL
                 return self.get_hl()
-            case 3:  # AF
-                return self.get_af()
+            case 3:
+                if allow_af:
+                    return self.get_af()  # PUSH/POP qq uses AF
+                return self.get_sp()  # rr instructions use SP
 
-    def set_register_pair(self, pair, value):
+    def set_register_pair(self, pair, value, allow_af=False):
         match pair:
             case 0:  # BC
                 self.set_bc(value)
@@ -233,8 +235,11 @@ class Z80:
                 self.set_de(value)
             case 2:  # HL
                 self.set_hl(value)
-            case 3:  # AF
-                self.set_af(value)
+            case 3:
+                if allow_af:
+                    self.set_af(value)  # PUSH/POP qq uses AF
+                else:
+                    self.set_sp(value)  # rr instructions use SP
 
     # Helper for LDI, LDIR, LDD, LDDR
     def block_transfer_helper(self, increment, repeat):
@@ -542,6 +547,16 @@ class Z80:
         value &= 0xFFFF
         self.h = (value >> 8) & 0xFF
         self.l = value & 0xFF
+
+    # SP register pair
+    # Returns the value of the stack pointer as a 16-bit value
+    def get_sp(self):
+        return self.sp & 0xFFFF
+
+    # SP register pair
+    # Sets the stack pointer from a 16-bit value
+    def set_sp(self, value):
+        self.sp = value & 0xFFFF
 
     # AF register pair
     # Combines A and the individual CPU flags into a 16-bit value

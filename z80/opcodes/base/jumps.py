@@ -7,8 +7,8 @@ from logger import logger
 # |--------|----------|-------------|-------|
 # | 10     | DJNZ e   | Implemented |       |
 # | 18     | JR e     | Implemented |       |
-# | 20     | JR NZ,e  | Stub        |       |
-# | 28     | JR Z,e   | Stub        |       |
+# | 20     | JR NZ,e  | Implemented |       |
+# | 28     | JR Z,e   | Implemented |       |
 # | 30     | JR NC,e  | Stub        |       |
 # | 38     | JR C,e   | Implemented |       |
 # | C2     | JP NZ,nn | Stub        |       |

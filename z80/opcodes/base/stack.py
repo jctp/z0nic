@@ -14,7 +14,7 @@ def execute(self, opcode):
         # Opcode logic:
         pair = (opcode >> 4) & 0x03
 
-        value = self.push_register_pair(self.get_register_pair(pair))
+        value = self.push_register_pair(self.get_register_pair(pair, allow_af=True))
 
         opcode_t_states = 11
         # -----
@@ -38,7 +38,7 @@ def execute(self, opcode):
 
         value = self.pop16()
 
-        self.set_register_pair(pair, value)
+        self.set_register_pair(pair, value, allow_af=True)
 
         opcode_t_states = 10
         # -----
