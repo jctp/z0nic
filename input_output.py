@@ -8,12 +8,18 @@ class Input_Output:
 
         # Generic port storage for unimplemented devices
         self.ports = [0xFF] * 256
-        
-        self.ports[0x7E] = 0xB0 # TESTING
 
     def read(self, port):
         port &= 0xFF
 
+        # V counter
+        if port == 0x7E:
+            return self.vdp._get_v_counter()
+
+        # H counter
+        if port == 0x7F:
+            return self.vdp._get_h_counter()
+        
         # VDP
         if port in (0xBE, 0xBF):
             value = self.vdp.read(port)

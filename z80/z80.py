@@ -364,6 +364,12 @@ class Z80:
         self.PC.set((self.PC.get() + offset) & 0xFFFF)
 
     # endregion
+    # region Interrupt Handling
+    
+    def interrupt(self):
+        logger.debug("Interrupt fired! Did nothing yet...")
+    
+    # endregion
     # region Step
 
     def step(self):
@@ -381,6 +387,10 @@ class Z80:
                 if self.EI_delay == 0:
                     self.IFF1 = True
                     self.IFF2 = True
+
+            # Handle frame interrupts
+            if self.IFF1 and self.io.vdp.frame_interrupt_pending:
+                self.interrupt()
 
             return t_states
             
