@@ -1,65 +1,43 @@
-# NOTE: The opcode table below is agent-generated. The code in this file is not.
-# Stub = placeholder that raises via log_opcode(implemented=False).
-#
-# | Opcode | Mnemonic | Status      | Notes |
-# |--------|----------|-------------|-------|
-# | B8-BF  | CP r     | Stub        |       |
-# | FE     | CP n     | Implemented |       |
+OPCODES = [
+    {"opcode": "0xB8-0xBF", "mnemonic": "CP r", "description": "Compare A with the selected register"},
+    {"opcode": "0xFE", "mnemonic": "CP n", "description": "Compare A with the immediate byte"},
+]
+
+
+def _matches_opcode(opcode, entry):
+    value = entry["opcode"]
+    if "-" in value:
+        start, end = value.split("-", 1)
+        return int(start, 16) <= opcode <= int(end, 16)
+    return opcode == int(value, 16)
+
+
+# Opcode: 0xB8-0xBF
+# Mnemonic: CP r
+# Description: Compare A with the selected register
+
+def _cp_r(self):
+    return None
+
+
+# Opcode: 0xFE
+# Mnemonic: CP n
+# Description: Compare A with the immediate byte
+
+def _cp_n(self):
+    return None
 
 
 def execute(self, opcode):
-    match opcode:
-        # CP n
-        # Compare A with operand
+    for entry in OPCODES:
+        if _matches_opcode(opcode, entry):
+            if opcode in range(0xB8, 0xC0):
+                return _cp_r(self)
+            if opcode == 0xFE:
+                return _cp_n(self)
 
-        case 0xFE:
-            opcode_t_states = 7
-
-            # -----
-            # Opcode logic:
-            operand = self.memory.read8(self.pc)
-            self.inc_pc(increment=1)
-
-            result = self.a - operand
-
-            self.flag_s = bool((result & 0xFF) & 0x80)
-
-            self.flag_z = (result & 0xFF) == 0
-
-            self.flag_h = (self.a & 0x0F) < (operand & 0x0F)
-
-            self.flag_pv = ((self.a ^ operand) & (self.a ^ result) & 0x80) != 0
-
-            self.flag_c = result < 0
-
-            self.flag_n = True
-            # -----
-
-            self.log_opcode(
-                opcode=opcode,
-                asm="CP nn",
-                prefix="",
-                opcode_t_states=opcode_t_states,
-                message=f"Compared {operand:02X} with A ({self.a:02X})",
-                implemented=True,
+            raise NotImplementedError(
+                f"{__name__}: {entry['opcode']} {entry['mnemonic']} ({entry['description']}) is not implemented"
             )
 
-            return opcode_t_states
-
-    # CP r
-    if 0xB8 <= opcode <= 0xBF:
-        opcode_t_states = 7 if (opcode & 0x07) == 6 else 4
-        # TODO: Implement
-
-        self.log_opcode(
-            opcode=opcode,
-            asm="CP r",
-            prefix="",
-            opcode_t_states=opcode_t_states,
-            message="Not implemented",
-            implemented=False,
-        )
-
-        return opcode_t_states
-
-    return None
+    raise NotImplementedError(f"{__name__}: opcode 0x{opcode:02X} is not defined in the compare table")

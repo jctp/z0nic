@@ -1,353 +1,333 @@
-from z80.opcodes.base import logic, compare, jumps, load
+OPCODES = [
+    {"opcode": "0x01", "mnemonic": "LD BC,nn", "description": "Load immediate 16-bit value into BC"},
+    {"opcode": "0x11", "mnemonic": "LD DE,nn", "description": "Load immediate 16-bit value into DE"},
+    {"opcode": "0x18", "mnemonic": "JR e", "description": "Jump relative by signed displacement"},
+    {"opcode": "0x21", "mnemonic": "LD IX,nn", "description": "Load immediate 16-bit value into IX"},
+    {"opcode": "0x22", "mnemonic": "LD (nn),IX", "description": "Store IX to absolute memory address"},
+    {"opcode": "0x23", "mnemonic": "INC IX", "description": "Increment IX"},
+    {"opcode": "0x29", "mnemonic": "ADD IX,BC", "description": "Add BC to IX"},
+    {"opcode": "0x2A", "mnemonic": "LD IX,(nn)", "description": "Load IX from absolute memory address"},
+    {"opcode": "0x2B", "mnemonic": "DEC IX", "description": "Decrement IX"},
+    {"opcode": "0x31", "mnemonic": "LD SP,nn", "description": "Load immediate 16-bit value into SP"},
+    {"opcode": "0x39", "mnemonic": "ADD IX,SP", "description": "Add SP to IX"},
+    {"opcode": "0x3A", "mnemonic": "LD A,(nn)", "description": "Load A from absolute memory address"},
+    {"opcode": "0x46", "mnemonic": "LD B,(IX+d)", "description": "Load B from indexed memory"},
+    {"opcode": "0x4E", "mnemonic": "LD C,(IX+d)", "description": "Load C from indexed memory"},
+    {"opcode": "0x56", "mnemonic": "LD D,(IX+d)", "description": "Load D from indexed memory"},
+    {"opcode": "0x5E", "mnemonic": "LD E,(IX+d)", "description": "Load E from indexed memory"},
+    {"opcode": "0x66", "mnemonic": "LD H,(IX+d)", "description": "Load H from indexed memory"},
+    {"opcode": "0x6E", "mnemonic": "LD L,(IX+d)", "description": "Load L from indexed memory"},
+    {"opcode": "0x70-0x75", "mnemonic": "LD (IX+d),r", "description": "Store a register to indexed memory"},
+    {"opcode": "0x77", "mnemonic": "LD (IX+d),A", "description": "Store A to indexed memory"},
+    {"opcode": "0x7E", "mnemonic": "LD A,(IX+d)", "description": "Load A from indexed memory"},
+    {"opcode": "0xCB", "mnemonic": "DD CB prefix", "description": "Prefix for the IX bit-manipulation table"},
+    {"opcode": "0xE1", "mnemonic": "POP IX", "description": "Pop the top of the stack into IX"},
+    {"opcode": "0xE5", "mnemonic": "PUSH IX", "description": "Push IX onto the stack"},
+    {"opcode": "0xE6", "mnemonic": "AND n", "description": "Logical AND A with the immediate byte"},
+    {"opcode": "0xEE", "mnemonic": "XOR n", "description": "Logical XOR A with the immediate byte"},
+    {"opcode": "0xF6", "mnemonic": "OR n", "description": "Logical OR A with the immediate byte"},
+    {"opcode": "0xFE", "mnemonic": "CP n", "description": "Compare A with the immediate byte"},
+    {"opcode": "0xDD", "mnemonic": "DD prefix", "description": "Prefix for the IX instruction table"},
+]
 
-from z80.opcodes import index_ix_bits
+
+def _matches_opcode(opcode, entry):
+    value = entry["opcode"]
+    if "-" in value:
+        start, end = value.split("-", 1)
+        return int(start, 16) <= opcode <= int(end, 16)
+    return opcode == int(value, 16)
 
 
-# DD xx
-# Prefix for IX instructions
-#
-# NOTE: The opcode table below is agent-generated. The code in this file is not.
-# Stub = placeholder that raises via log_opcode(implemented=False).
-# Opcodes are the byte(s) after the DD prefix.
-#
-# | Opcode                     | Mnemonic              | Status      | Notes                                                    |
-# |----------------------------|-----------------------|-------------|----------------------------------------------------------|
-# | 01, 11, 21                 | LD rr,nn (BC, DE, HL) | Implemented | Prefix ignored. 21 should be LD IX,nn, which is shadowed |
-# | 22                         | LD (nn),IX            | Implemented | Bug: returns None, so no cycle count                     |
-# | 23                         | INC IX                | Implemented |                                                          |
-# | 2A                         | LD IX,(nn)            | Implemented | Bug: returns None, so no cycle count                     |
-# | 31                         | LD SP,nn              | Implemented | Uses SP, not AF                                         |
-# | 46, 4E, 56, 5E, 66, 6E, 7E | LD r,(IX+d)           | Implemented |                                                          |
-# | 70-75, 77                  | LD (IX+d),r           | Implemented |                                                          |
-# | E1                         | POP IX                | Implemented |                                                          |
-# | E5                         | PUSH IX               | Implemented |                                                          |
-# | 18                         | JR e                  | Implemented | Prefix ignored                                           |
-# | 3A                         | LD A,(nn)             | Stub        | Prefix ignored                                           |
-# | E6                         | AND n                 | Stub        | Prefix ignored                                           |
-# | EE                         | XOR n                 | Stub        | Prefix ignored                                           |
-# | F6                         | OR n                  | Stub        | Prefix ignored                                           |
-# | FE                         | CP n                  | Implemented | Prefix ignored                                           |
-# | CB                         | IX bit table          | Implemented | Hands off to index_ix_bits.py                            |
-# | Any other                  | -                     | Not handled | Raises 'Unknown mnemonic'                                |
+# Opcode: 0x01
+# Mnemonic: LD BC,nn
+# Description: Load immediate 16-bit value into BC
+
+def _ld_bc_nn_ix(self):
+    return None
+
+
+# Opcode: 0x11
+# Mnemonic: LD DE,nn
+# Description: Load immediate 16-bit value into DE
+
+def _ld_de_nn_ix(self):
+    return None
+
+
+# Opcode: 0x18
+# Mnemonic: JR e
+# Description: Jump relative by signed displacement
+
+def _jr_e_ix(self):
+    return None
+
+
+# Opcode: 0x21
+# Mnemonic: LD IX,nn
+# Description: Load immediate 16-bit value into IX
+
+def _ld_ix_nn(self):
+    return None
+
+
+# Opcode: 0x22
+# Mnemonic: LD (nn),IX
+# Description: Store IX to absolute memory address
+
+def _ld_nn_ix(self):
+    return None
+
+
+# Opcode: 0x23
+# Mnemonic: INC IX
+# Description: Increment IX
+
+def _inc_ix(self):
+    return None
+
+
+# Opcode: 0x29
+# Mnemonic: ADD IX,BC
+# Description: Add BC to IX
+
+def _add_ix_bc(self):
+    return None
+
+
+# Opcode: 0x2A
+# Mnemonic: LD IX,(nn)
+# Description: Load IX from absolute memory address
+
+def _ld_ix_nn_mem(self):
+    return None
+
+
+# Opcode: 0x2B
+# Mnemonic: DEC IX
+# Description: Decrement IX
+
+def _dec_ix(self):
+    return None
+
+
+# Opcode: 0x31
+# Mnemonic: LD SP,nn
+# Description: Load immediate 16-bit value into SP
+
+def _ld_sp_nn_ix(self):
+    return None
+
+
+# Opcode: 0x39
+# Mnemonic: ADD IX,SP
+# Description: Add SP to IX
+
+def _add_ix_sp(self):
+    return None
+
+
+# Opcode: 0x3A
+# Mnemonic: LD A,(nn)
+# Description: Load A from absolute memory address
+
+def _ld_a_nn_ix(self):
+    return None
+
+
+# Opcode: 0x46
+# Mnemonic: LD B,(IX+d)
+# Description: Load B from indexed memory
+
+def _ld_b_ix_d(self):
+    return None
+
+
+# Opcode: 0x4E
+# Mnemonic: LD C,(IX+d)
+# Description: Load C from indexed memory
+
+def _ld_c_ix_d(self):
+    return None
+
+
+# Opcode: 0x56
+# Mnemonic: LD D,(IX+d)
+# Description: Load D from indexed memory
+
+def _ld_d_ix_d(self):
+    return None
+
+
+# Opcode: 0x5E
+# Mnemonic: LD E,(IX+d)
+# Description: Load E from indexed memory
+
+def _ld_e_ix_d(self):
+    return None
+
+
+# Opcode: 0x66
+# Mnemonic: LD H,(IX+d)
+# Description: Load H from indexed memory
+
+def _ld_h_ix_d(self):
+    return None
+
+
+# Opcode: 0x6E
+# Mnemonic: LD L,(IX+d)
+# Description: Load L from indexed memory
+
+def _ld_l_ix_d(self):
+    return None
+
+
+# Opcode: 0x70-0x75
+# Mnemonic: LD (IX+d),r
+# Description: Store a register to indexed memory
+
+def _ld_ix_d_r(self):
+    return None
+
+
+# Opcode: 0x77
+# Mnemonic: LD (IX+d),A
+# Description: Store A to indexed memory
+
+def _ld_ix_d_a(self):
+    return None
+
+
+# Opcode: 0x7E
+# Mnemonic: LD A,(IX+d)
+# Description: Load A from indexed memory
+
+def _ld_a_ix_d(self):
+    return None
+
+
+# Opcode: 0xCB
+# Mnemonic: DD CB prefix
+# Description: Prefix for the IX bit-manipulation table
+
+def _dd_cb_prefix(self):
+    return None
+
+
+# Opcode: 0xE1
+# Mnemonic: POP IX
+# Description: Pop the top of the stack into IX
+
+def _pop_ix(self):
+    return None
+
+
+# Opcode: 0xE5
+# Mnemonic: PUSH IX
+# Description: Push IX onto the stack
+
+def _push_ix(self):
+    return None
+
+
+# Opcode: 0xE6
+# Mnemonic: AND n
+# Description: Logical AND A with the immediate byte
+
+def _and_n_ix(self):
+    return None
+
+
+# Opcode: 0xEE
+# Mnemonic: XOR n
+# Description: Logical XOR A with the immediate byte
+
+def _xor_n_ix(self):
+    return None
+
+
+# Opcode: 0xF6
+# Mnemonic: OR n
+# Description: Logical OR A with the immediate byte
+
+def _or_n_ix(self):
+    return None
+
+
+# Opcode: 0xFE
+# Mnemonic: CP n
+# Description: Compare A with the immediate byte
+
+def _cp_n_ix(self):
+    return None
+
+
 def execute(self):
     opcode = self.memory.read8(self.pc)
     self.inc_pc(increment=1)
 
-    match opcode:
-        case 0xCB:
-            return index_ix_bits.execute(self)
+    for entry in OPCODES:
+        if _matches_opcode(opcode, entry):
+            if opcode == 0x01:
+                return _ld_bc_nn_ix(self)
+            if opcode == 0x11:
+                return _ld_de_nn_ix(self)
+            if opcode == 0x18:
+                return _jr_e_ix(self)
+            if opcode == 0x21:
+                return _ld_ix_nn(self)
+            if opcode == 0x22:
+                return _ld_nn_ix(self)
+            if opcode == 0x23:
+                return _inc_ix(self)
+            if opcode == 0x29:
+                return _add_ix_bc(self)
+            if opcode == 0x2A:
+                return _ld_ix_nn_mem(self)
+            if opcode == 0x2B:
+                return _dec_ix(self)
+            if opcode == 0x31:
+                return _ld_sp_nn_ix(self)
+            if opcode == 0x39:
+                return _add_ix_sp(self)
+            if opcode == 0x3A:
+                return _ld_a_nn_ix(self)
+            if opcode == 0x46:
+                return _ld_b_ix_d(self)
+            if opcode == 0x4E:
+                return _ld_c_ix_d(self)
+            if opcode == 0x56:
+                return _ld_d_ix_d(self)
+            if opcode == 0x5E:
+                return _ld_e_ix_d(self)
+            if opcode == 0x66:
+                return _ld_h_ix_d(self)
+            if opcode == 0x6E:
+                return _ld_l_ix_d(self)
+            if 0x70 <= opcode <= 0x75:
+                return _ld_ix_d_r(self)
+            if opcode == 0x77:
+                return _ld_ix_d_a(self)
+            if opcode == 0x7E:
+                return _ld_a_ix_d(self)
+            if opcode == 0xCB:
+                return _dd_cb_prefix(self)
+            if opcode == 0xE1:
+                return _pop_ix(self)
+            if opcode == 0xE5:
+                return _push_ix(self)
+            if opcode == 0xE6:
+                return _and_n_ix(self)
+            if opcode == 0xEE:
+                return _xor_n_ix(self)
+            if opcode == 0xF6:
+                return _or_n_ix(self)
+            if opcode == 0xFE:
+                return _cp_n_ix(self)
 
-        # AND n
-        case 0xE6:
-            return logic.execute(self, opcode)
-
-        # OR n
-        case 0xF6:
-            return logic.execute(self, opcode)
-
-        # XOR n
-        case 0xEE:
-            return logic.execute(self, opcode)
-
-        # CP n
-        case 0xFE:
-            return compare.execute(self, opcode)
-
-        # JR e
-        case 0x18:
-            return jumps.execute(self, opcode)
-
-        # LD A,(nn)
-        case 0x3A:
-            return load.execute(self, opcode)
-
-        # LD BC,nn
-        # Read the next 16-bit immediate value into BC
-        case 0x01:
-            # -----
-            # Opcode logic:
-            value = self.load16_register(self.set_bc)
-            opcode_t_states = 10
-            # -----
-
-            self.log_opcode(
-                opcode=opcode,
-                asm="LD BC,nn",
-                prefix="",
-                opcode_t_states=opcode_t_states,
-                message=f"Loaded {value:04X} into BC",
+            raise NotImplementedError(
+                f"{__name__}: {entry['opcode']} {entry['mnemonic']} ({entry['description']}) is not implemented"
             )
 
-            return opcode_t_states
-
-        # LD DE,nn
-        # Read the next 16-bit immediate value into DE
-        case 0x11:
-            # -----
-            # Opcode logic:
-            value = self.load16_register(self.set_de)
-            opcode_t_states = 10
-            # -----
-
-            self.log_opcode(
-                opcode=opcode,
-                asm="LD DE,nn",
-                prefix="",
-                opcode_t_states=opcode_t_states,
-                message=f"Loaded {value:04X} into DE",
-            )
-
-            return opcode_t_states
-
-        # LD HL,nn
-        # Read the next 16-bit immediate value into HL
-        # DD 21 is really LD IX,nn, but this case matches first
-        case 0x21:
-            # -----
-            # Opcode logic:
-            value = self.load16_register(self.set_hl)
-            opcode_t_states = 10
-            # -----
-
-            self.log_opcode(
-                opcode=opcode,
-                asm="LD HL,nn",
-                prefix="",
-                opcode_t_states=opcode_t_states,
-                message=f"Loaded {value:04X} into HL",
-            )
-
-            return opcode_t_states
-
-        # LD (nn),IX
-        case 0x22:
-            # -----
-            # Opcode logic:
-
-            address = self.store_register_pair(self.ix)
-
-            opcode_t_states = 20
-
-            # -----
-
-            self.log_opcode(
-                opcode=opcode,
-                asm="LD (nn),IX",
-                prefix="DD",
-                opcode_t_states=opcode_t_states,
-                message=(f"Stored IX ({self.ix:04X}) into memory at {address:04X}"),
-            )
-
-        # LD IX,(nn)
-        case 0x2A:
-            # -----
-            # Opcode logic:
-
-            value, address = self.load_register_pair(self.set_ix)
-
-            opcode_t_states = 20
-
-            # -----
-
-            self.log_opcode(
-                opcode=opcode,
-                asm="LD IX,(nn)",
-                prefix="DD",
-                opcode_t_states=opcode_t_states,
-                message=(f"Loaded {value:04X} from memory at {address:04X} into IX"),
-            )
-
-        # LD SP,nn
-        # Read the next 16-bit immediate value into SP
-        case 0x31:
-            # -----
-            # Opcode logic:
-            value = self.load16_register(self.set_sp)
-            opcode_t_states = 10
-            # -----
-
-            self.log_opcode(
-                opcode=opcode,
-                asm="LD SP,nn",
-                prefix="",
-                opcode_t_states=opcode_t_states,
-                message=f"Loaded {value:04X} into SP",
-            )
-
-            return opcode_t_states
-
-        # LD IX,nn
-        # Read the next 16-bit immediate value into IX
-        # Unreachable: DD 21 is matched by LD HL,nn above
-        case 0x21:
-            # -----
-            # Opcode logic:
-            value = self.load16_register(self.set_ix)
-            opcode_t_states = 14
-            # -----
-
-            self.log_opcode(
-                opcode=opcode,
-                asm="LD IX,nn",
-                prefix="DD",
-                opcode_t_states=opcode_t_states,
-                message=f"Loaded {value:04X} into IX",
-            )
-
-            return opcode_t_states
-
-        # LD IY,nn
-        # Read the next 16-bit immediate value into IY
-        # Unreachable: this is FD 21, not a DD opcode
-        case 0x21:
-            # -----
-            # Opcode logic:
-            value = self.load16_register(self.set_iy)
-            opcode_t_states = 14
-            # -----
-
-            self.log_opcode(
-                opcode=opcode,
-                asm="LD IY,nn",
-                prefix="FD",
-                opcode_t_states=opcode_t_states,
-                message=f"Loaded {value:04X} into IY",
-            )
-
-            return opcode_t_states
-
-        # LD r,(IX+d)
-        case 0x46 | 0x4E | 0x56 | 0x5E | 0x66 | 0x6E | 0x7E:
-            opcode_t_states = 16
-
-            register_names = [
-                "B",
-                "C",
-                "D",
-                "E",
-                "H",
-                "L",
-                "(HL)",  # This is impossible but here for spacing
-                "A",
-            ]
-
-            displacement = self.memory.read8(self.pc)
-            self.inc_pc()
-
-            register = (opcode >> 3) & 0x07
-
-            value = self.load_register_from_ix_displacement(displacement, register)
-
-            signed_displacement = (
-                displacement if displacement < 0x80 else displacement - 0x100
-            )
-
-            self.log_opcode(
-                opcode=opcode,
-                asm=f"LD {register_names[register]},(IX+d)",
-                prefix="DD",
-                opcode_t_states=opcode_t_states,
-                message=(
-                    f"Loaded {value:02X} from "
-                    f"(IX+{signed_displacement:02X}) into "
-                    f"{register_names[register]}"
-                ),
-            )
-
-            return opcode_t_states
-
-        # LD (IX+d),r
-        case 0x70 | 0x71 | 0x72 | 0x73 | 0x74 | 0x75 | 0x77:
-            opcode_t_states = 19
-
-            register_names = ["B", "C", "D", "E", "H", "L", "(HL)", "A"]
-
-            displacement = self.memory.read8(self.pc)
-            self.inc_pc()
-
-            register = opcode & 0x07
-
-            value = self.store_register_to_ix_displacement(displacement, register)
-
-            signed_displacement = (
-                displacement if displacement < 0x80 else displacement - 0x100
-            )
-
-            self.log_opcode(
-                opcode=opcode,
-                asm=f"LD (IX+d),{register_names[register]}",
-                prefix="DD",
-                opcode_t_states=opcode_t_states,
-                message=(
-                    f"Stored {value:02X} from "
-                    f"{register_names[register]} into "
-                    f"(IX+{signed_displacement:02X})"
-                ),
-            )
-
-            return opcode_t_states
-
-        # PUSH IX
-        case 0xE5:
-            # -----
-            # Opcode logic:
-            value = self.push_register_pair(self.ix)
-
-            opcode_t_states = 15
-            # -----
-
-            self.log_opcode(
-                opcode=opcode,
-                asm="PUSH IX",
-                prefix="DD",
-                opcode_t_states=opcode_t_states,
-                message=f"Pushed {value:04X}",
-                implemented=True,
-            )
-
-            return opcode_t_states
-
-        # POP IX
-        case 0xE1:
-            # -----
-            # Opcode logic:
-            value = self.pop_register_pair(self.set_ix)
-
-            opcode_t_states = 14
-            # -----
-
-            self.log_opcode(
-                opcode=opcode,
-                asm="POP IX",
-                prefix="DD",
-                opcode_t_states=opcode_t_states,
-                message=f"Popped {value:04X}",
-                implemented=True,
-            )
-
-            return opcode_t_states
-
-        # INC IX
-        case 0x23:
-            # -----
-            # Opcode logic:
-            value = self.increment_register_pair(lambda: self.ix, self.set_ix)
-
-            opcode_t_states = 10
-            # -----
-
-            self.log_opcode(
-                opcode=opcode,
-                asm="INC IX",
-                prefix="DD",
-                opcode_t_states=opcode_t_states,
-                message=f"Incremented IX to {value:04X}",
-                implemented=True,
-            )
-
-            return opcode_t_states
-
-        case _:
-            self.opcode_not_implemented(f"DD {opcode:02X}", "Unknown mnemonic")
-
-    return None
+    raise NotImplementedError(f"{__name__}: opcode 0x{opcode:02X} is not defined in the DD-prefixed instruction table")

@@ -1,56 +1,43 @@
-# NOTE: The opcode table below is agent-generated. The code in this file is not.
-# Stub = placeholder that raises via log_opcode(implemented=False).
-#
-# | Opcode | Mnemonic | Status      | Notes                                                 |
-# |--------|----------|-------------|-------------------------------------------------------|
-# | F3     | DI       | Implemented |                                                       |
-# | FB     | EI       | Implemented |                                                       |
+OPCODES = [
+    {"opcode": "0xF3", "mnemonic": "DI", "description": "Disable maskable interrupts"},
+    {"opcode": "0xFB", "mnemonic": "EI", "description": "Enable maskable interrupts after the next instruction"},
+]
 
+
+def _matches_opcode(opcode, entry):
+    value = entry["opcode"]
+    if "-" in value:
+        start, end = value.split("-", 1)
+        return int(start, 16) <= opcode <= int(end, 16)
+    return opcode == int(value, 16)
+
+
+# Opcode: 0xF3
+# Mnemonic: DI
+# Description: Disable maskable interrupts
+
+def _di(self):
+    return None
+
+
+# Opcode: 0xFB
+# Mnemonic: EI
+# Description: Enable maskable interrupts after the next instruction
+
+def _ei(self):
+    return None
 
 
 def execute(self, opcode):
-    match opcode:
-        # DI
-        # Disable interrupts
-        case 0xF3:
-            opcode_t_states = 4
+    for entry in OPCODES:
+        if _matches_opcode(opcode, entry):
+            if opcode == 0xF3:
+                return _di(self)
+            if opcode == 0xFB:
+                return _ei(self)
 
-            # -----
-            # Opcode logic:
-            self.iff1 = False
-            self.iff2 = False
-            self.ei_pending = False
-            # -----
-
-            self.log_opcode(
-                opcode=opcode,
-                asm="DI",
-                prefix="",
-                opcode_t_states=opcode_t_states,
-                message=f"Disabled interrupts",
-                implemented=True,
-            )
-            return opcode_t_states
-
-        # EI
-        # Enable interrupts after the next instruction
-        case 0xFB:
-            opcode_t_states = 4
-
-            # -----
-            # Opcode logic:
-            self.ei_pending = True
-            # -----
-
-            self.log_opcode(
-                opcode=opcode,
-                asm="EI",
-                prefix="",
-                opcode_t_states=opcode_t_states,
-                message="Interrupts enabled (after next instruction)",
-                implemented=True,
+            raise NotImplementedError(
+                f"{__name__}: {entry['opcode']} {entry['mnemonic']} ({entry['description']}) is not implemented"
             )
 
-            return opcode_t_states
-
-    return None
+    raise NotImplementedError(f"{__name__}: opcode 0x{opcode:02X} is not defined in the interrupt table")

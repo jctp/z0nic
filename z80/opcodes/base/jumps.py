@@ -1,287 +1,197 @@
-from logger import logger
+OPCODES = [
+    {"opcode": "0x10", "mnemonic": "DJNZ e", "description": "Decrement B and jump relative if B is not zero"},
+    {"opcode": "0x18", "mnemonic": "JR e", "description": "Jump relative by signed displacement"},
+    {"opcode": "0x20", "mnemonic": "JR NZ,e", "description": "Jump relative if Z is reset"},
+    {"opcode": "0x28", "mnemonic": "JR Z,e", "description": "Jump relative if Z is set"},
+    {"opcode": "0x30", "mnemonic": "JR NC,e", "description": "Jump relative if C is reset"},
+    {"opcode": "0x38", "mnemonic": "JR C,e", "description": "Jump relative if C is set"},
+    {"opcode": "0xC2", "mnemonic": "JP NZ,nn", "description": "Jump to nn if Z is reset"},
+    {"opcode": "0xC3", "mnemonic": "JP nn", "description": "Jump directly to nn"},
+    {"opcode": "0xCA", "mnemonic": "JP Z,nn", "description": "Jump to nn if Z is set"},
+    {"opcode": "0xD2", "mnemonic": "JP NC,nn", "description": "Jump to nn if C is reset"},
+    {"opcode": "0xDA", "mnemonic": "JP C,nn", "description": "Jump to nn if C is set"},
+    {"opcode": "0xE2", "mnemonic": "JP PO,nn", "description": "Jump to nn if parity is odd"},
+    {"opcode": "0xE9", "mnemonic": "JP (HL)", "description": "Jump to the address contained in HL"},
+    {"opcode": "0xEA", "mnemonic": "JP PE,nn", "description": "Jump to nn if parity is even"},
+    {"opcode": "0xF2", "mnemonic": "JP P,nn", "description": "Jump to nn if sign is positive"},
+    {"opcode": "0xFA", "mnemonic": "JP M,nn", "description": "Jump to nn if sign is negative"},
+]
 
-# NOTE: The opcode table below is agent-generated. The code in this file is not.
-# Stub = placeholder that raises via log_opcode(implemented=False).
-#
-# | Opcode | Mnemonic | Status      | Notes |
-# |--------|----------|-------------|-------|
-# | 10     | DJNZ e   | Implemented |       |
-# | 18     | JR e     | Implemented |       |
-# | 20     | JR NZ,e  | Implemented |       |
-# | 28     | JR Z,e   | Implemented |       |
-# | 30     | JR NC,e  | Stub        |       |
-# | 38     | JR C,e   | Implemented |       |
-# | C2     | JP NZ,nn | Stub        |       |
-# | C3     | JP nn    | Implemented |       |
-# | CA     | JP Z,nn  | Stub        |       |
-# | D2     | JP NC,nn | Stub        |       |
-# | DA     | JP C,nn  | Stub        |       |
-# | E2     | JP PO,nn | Stub        |       |
-# | E9     | JP (HL)  | Stub        |       |
-# | EA     | JP PE,nn | Stub        |       |
-# | F2     | JP P,nn  | Stub        |       |
-# | FA     | JP M,nn  | Stub        |       |
+
+def _matches_opcode(opcode, entry):
+    value = entry["opcode"]
+    if "-" in value:
+        start, end = value.split("-", 1)
+        return int(start, 16) <= opcode <= int(end, 16)
+    return opcode == int(value, 16)
+
+
+# Opcode: 0x10
+# Mnemonic: DJNZ e
+# Description: Decrement B and jump relative if B is not zero
+
+def _djnz_e(self):
+    return None
+
+
+# Opcode: 0x18
+# Mnemonic: JR e
+# Description: Jump relative by signed displacement
+
+def _jr_e(self):
+    return None
+
+
+# Opcode: 0x20
+# Mnemonic: JR NZ,e
+# Description: Jump relative if Z is reset
+
+def _jr_nz_e(self):
+    return None
+
+
+# Opcode: 0x28
+# Mnemonic: JR Z,e
+# Description: Jump relative if Z is set
+
+def _jr_z_e(self):
+    return None
+
+
+# Opcode: 0x30
+# Mnemonic: JR NC,e
+# Description: Jump relative if C is reset
+
+def _jr_nc_e(self):
+    return None
+
+
+# Opcode: 0x38
+# Mnemonic: JR C,e
+# Description: Jump relative if C is set
+
+def _jr_c_e(self):
+    return None
+
+
+# Opcode: 0xC2
+# Mnemonic: JP NZ,nn
+# Description: Jump to nn if Z is reset
+
+def _jp_nz_nn(self):
+    return None
+
+
+# Opcode: 0xC3
+# Mnemonic: JP nn
+# Description: Jump directly to nn
+
+def _jp_nn(self):
+    return None
+
+
+# Opcode: 0xCA
+# Mnemonic: JP Z,nn
+# Description: Jump to nn if Z is set
+
+def _jp_z_nn(self):
+    return None
+
+
+# Opcode: 0xD2
+# Mnemonic: JP NC,nn
+# Description: Jump to nn if C is reset
+
+def _jp_nc_nn(self):
+    return None
+
+
+# Opcode: 0xDA
+# Mnemonic: JP C,nn
+# Description: Jump to nn if C is set
+
+def _jp_c_nn(self):
+    return None
+
+
+# Opcode: 0xE2
+# Mnemonic: JP PO,nn
+# Description: Jump to nn if parity is odd
+
+def _jp_po_nn(self):
+    return None
+
+
+# Opcode: 0xE9
+# Mnemonic: JP (HL)
+# Description: Jump to the address contained in HL
+
+def _jp_hl(self):
+    return None
+
+
+# Opcode: 0xEA
+# Mnemonic: JP PE,nn
+# Description: Jump to nn if parity is even
+
+def _jp_pe_nn(self):
+    return None
+
+
+# Opcode: 0xF2
+# Mnemonic: JP P,nn
+# Description: Jump to nn if sign is positive
+
+def _jp_p_nn(self):
+    return None
+
+
+# Opcode: 0xFA
+# Mnemonic: JP M,nn
+# Description: Jump to nn if sign is negative
+
+def _jp_m_nn(self):
+    return None
 
 
 def execute(self, opcode):
-    match opcode:
-        # JP nn
-        # Jump directly to nn
-        case 0xC3:
-            opcode_t_states = 10
+    for entry in OPCODES:
+        if _matches_opcode(opcode, entry):
+            if opcode == 0x10:
+                return _djnz_e(self)
+            if opcode == 0x18:
+                return _jr_e(self)
+            if opcode == 0x20:
+                return _jr_nz_e(self)
+            if opcode == 0x28:
+                return _jr_z_e(self)
+            if opcode == 0x30:
+                return _jr_nc_e(self)
+            if opcode == 0x38:
+                return _jr_c_e(self)
+            if opcode == 0xC2:
+                return _jp_nz_nn(self)
+            if opcode == 0xC3:
+                return _jp_nn(self)
+            if opcode == 0xCA:
+                return _jp_z_nn(self)
+            if opcode == 0xD2:
+                return _jp_nc_nn(self)
+            if opcode == 0xDA:
+                return _jp_c_nn(self)
+            if opcode == 0xE2:
+                return _jp_po_nn(self)
+            if opcode == 0xE9:
+                return _jp_hl(self)
+            if opcode == 0xEA:
+                return _jp_pe_nn(self)
+            if opcode == 0xF2:
+                return _jp_p_nn(self)
+            if opcode == 0xFA:
+                return _jp_m_nn(self)
 
-            source_address = self.pc
-
-            # -----
-            # Opcode logic:
-            # Low byte of 2-byte opcode
-            low = self.memory.read8(self.pc)
-            self.inc_pc(increment=1)
-            # High byte
-            high = self.memory.read8(self.pc)
-            self.pc = (high << 8) | low  # Takes two bytes, combines into one 16b addr
-            # -----
-
-            dest_address = self.pc
-
-            logger.info(
-                f"JP nn: {source_address:04X} -> {dest_address:04X}"
+            raise NotImplementedError(
+                f"{__name__}: {entry['opcode']} {entry['mnemonic']} ({entry['description']}) is not implemented"
             )
 
-            self.log_opcode(
-                opcode=opcode,
-                asm="JP nn",
-                prefix="",
-                opcode_t_states=opcode_t_states,
-                message=f"Jumped directly from {source_address:04X} to {dest_address:04X}",
-                implemented=True,
-            )
-            return opcode_t_states
-
-        # JR e
-        # Jump by offset e
-        case 0x18:
-            opcode_t_states = 12  # TODO: Check correct
-
-            source_address = self.pc
-
-            # -----
-            # Opcode logic:
-            offset = self.memory.read8(self.pc)
-            self.inc_pc(increment=1)
-            # Convert an unsigned byte into a signed byte
-            if offset & 0x80:
-                offset -= 0x100
-            self.pc = (self.pc + offset) & 0xFFFF
-            # -----
-
-            dest_address = self.pc
-
-            logger.info(
-                f"JR e: {source_address:04X} -> {dest_address:04X}"
-            )
-
-            self.log_opcode(
-                opcode=opcode,
-                asm="JR e",
-                prefix="",
-                opcode_t_states=opcode_t_states,
-                message=f"Jumped by offset {offset} from {source_address} to {dest_address}",
-                implemented=True,
-            )
-            return opcode_t_states
-
-        # JR C,e
-        case 0x38:
-            source_address = self.pc
-
-            # -----
-            # Opcode logic:
-            offset = self.memory.read8(self.pc)
-            self.inc_pc(increment=1)
-            if offset & 0x80:
-                offset -= 0x100
-            if self.flag_c:
-                self.pc = (self.pc + offset) & 0xFFFF
-                opcode_t_states = 12
-            else:
-                opcode_t_states = 7
-            dest_address = self.pc
-            # -----
-
-            logger.info(
-                f"JR C, e: {source_address:04X} -> {dest_address:04X}"
-            )
-
-            self.log_opcode(
-                opcode=opcode,
-                asm="JR C,e",
-                prefix="",
-                opcode_t_states=opcode_t_states,
-                message=(
-                    f"C={int(self.flag_c)} "
-                    f"jumped from "
-                    f"{source_address:04X} "
-                    f"to {dest_address:04X}"
-                ),
-                implemented=True,
-            )
-
-            return opcode_t_states
-
-        # DJNZ e
-        # Decrement B and jump relative if B is not zero
-        case 0x10:
-            opcode_t_states = 8
-
-            # -----
-            # Opcode logic:
-            source_address = self.pc
-            offset = self.memory.read8(self.pc)
-            self.inc_pc(increment=1)
-            self.b = (self.b - 1) & 0xFF
-            if self.b != 0:
-                if offset & 0x80:
-                    offset -= 0x100
-                self.pc = (self.pc + offset) & 0xFFFF
-                opcode_t_states = 13
-            dest_address = self.pc
-            # -----
-
-            self.log_opcode(
-                opcode=opcode,
-                asm="DJNZ e",
-                prefix="",
-                opcode_t_states=opcode_t_states,
-                message=(
-                    f"B={self.b:02X} "
-                    f"C={self.c:02X} "
-                    f"jumped from {source_address:04X} "
-                    f"to {dest_address:04X}"
-                ),
-                implemented=True,
-            )
-
-            return opcode_t_states
-
-        # JR NZ,e
-        # Jump by offset e if condition is true
-        case 0x20:
-
-            before_pc = self.pc
-
-            offset_e = self.memory.read8(self.pc)
-            self.inc_pc(1)
-
-            # Convert offset to signed 8-bit int
-            if offset_e >= 0x80:
-                offset_e -= 0x100
-                
-            if self.flag_z == 0: # This is NZ
-                self.pc = (self.pc + offset_e) & 0xFFFF
-                opcode_t_states = 12
-            else:
-                opcode_t_states = 7
-
-            after_pc = self.pc
-
-            self.log_opcode(
-                opcode=opcode,
-                asm=f"JR NZ,e",
-                prefix="",
-                opcode_t_states=opcode_t_states,
-                message=f"Jumped from {before_pc:04X} to {after_pc:04X}",
-                implemented=True,
-            )
-
-            return opcode_t_states
-
-        # JR Z,e
-        # Jump by offset e if condition is true
-        case 0x28:
-
-            before_pc = self.pc
-
-            offset_e = self.memory.read8(self.pc)
-            self.inc_pc(1)
-
-            # Convert offset to signed 8-bit int
-            if offset_e >= 0x80:
-                offset_e -= 0x100
-                
-            if self.flag_z == 1: # This is Z
-                self.pc = (self.pc + offset_e) & 0xFFFF
-                opcode_t_states = 12
-            else:
-                opcode_t_states = 7
-
-            after_pc = self.pc
-
-            self.log_opcode(
-                opcode=opcode,
-                asm=f"JR Z,e",
-                prefix="",
-                opcode_t_states=opcode_t_states,
-                message=f"Jumped from {before_pc:04X} to {after_pc:04X}",
-                implemented=True,
-            )
-
-            return opcode_t_states
-        # JR NC,e
-        # Jump by offset e if condition is true
-        case 0x30:
-            opcode_t_states = 7
-
-            case 
-
-            self.log_opcode(
-                opcode=opcode,
-                asm=f"JR NC,e",
-                prefix="",
-                opcode_t_states=opcode_t_states,
-                message="Not implemented",
-                implemented=False,
-            )
-
-            return opcode_t_states
-
-
-        # JP cc,nn
-        # Jump to nn if condition cc is true
-        case 0xC2 | 0xCA | 0xD2 | 0xDA | 0xE2 | 0xEA | 0xF2 | 0xFA:
-            opcode_t_states = 10
-            # TODO: Implement
-
-            condition = ("NZ", "Z", "NC", "C", "PO", "PE", "P", "M")[
-                (opcode >> 3) & 0x07
-            ]
-
-            self.log_opcode(
-                opcode=opcode,
-                asm=f"JP {condition},nn",
-                prefix="",
-                opcode_t_states=opcode_t_states,
-                message="Not implemented",
-                implemented=False,
-            )
-
-            return opcode_t_states
-
-        # JP (HL)
-        # Jump to the address in HL
-        case 0xE9:
-            opcode_t_states = 4
-            # TODO: Implement
-
-            self.log_opcode(
-                opcode=opcode,
-                asm="JP (HL)",
-                prefix="",
-                opcode_t_states=opcode_t_states,
-                message="Not implemented",
-                implemented=False,
-            )
-
-            return opcode_t_states
-
-    return None
+    raise NotImplementedError(f"{__name__}: opcode 0x{opcode:02X} is not defined in the jump table")

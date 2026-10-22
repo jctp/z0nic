@@ -1,281 +1,263 @@
-# NOTE: The opcode table below is agent-generated. The code in this file is not.
-# Stub = placeholder that raises via log_opcode(implemented=False).
-#
-# | Opcode                     | Mnemonic              | Status      | Notes                   |
-# |----------------------------|-----------------------|-------------|-------------------------|
-# | 01, 11, 21                 | LD rr,nn (BC, DE, HL) | Implemented |                         |
-# | 31                         | LD SP,nn              | Implemented | Uses SP, not AF         |
-# | 02, 12                     | LD (BC),A / LD (DE),A | Implemented |                         |
-# | 0A, 1A                     | LD A,(BC) / LD A,(DE) | Implemented |                         |
-# | 06, 0E, 16, 1E, 26, 2E, 3E | LD r,n                | Implemented |                         |
-# | 22                         | LD (nn),HL            | Implemented |                         |
-# | 2A                         | LD HL,(nn)            | Implemented |                         |
-# | 32                         | LD (nn),A             | Implemented |                         |
-# | 36                         | LD (HL),n             | Stub        |                         |
-# | 3A                         | LD A,(nn)             | Stub        |                         |
-# | 40-75, 77-7F               | LD r,r                | Stub        | 76 is HALT (control.py) |
-# | F9                         | LD SP,HL              | Implemented |                         |
+OPCODES = [
+    {"opcode": "0x01", "mnemonic": "LD BC,nn", "description": "Load immediate 16-bit value into BC"},
+    {"opcode": "0x02", "mnemonic": "LD (BC),A", "description": "Store A into memory at BC"},
+    {"opcode": "0x06", "mnemonic": "LD B,n", "description": "Load immediate byte into B"},
+    {"opcode": "0x0A", "mnemonic": "LD A,(BC)", "description": "Load A from memory at BC"},
+    {"opcode": "0x0E", "mnemonic": "LD C,n", "description": "Load immediate byte into C"},
+    {"opcode": "0x11", "mnemonic": "LD DE,nn", "description": "Load immediate 16-bit value into DE"},
+    {"opcode": "0x12", "mnemonic": "LD (DE),A", "description": "Store A into memory at DE"},
+    {"opcode": "0x16", "mnemonic": "LD D,n", "description": "Load immediate byte into D"},
+    {"opcode": "0x1A", "mnemonic": "LD A,(DE)", "description": "Load A from memory at DE"},
+    {"opcode": "0x1E", "mnemonic": "LD E,n", "description": "Load immediate byte into E"},
+    {"opcode": "0x21", "mnemonic": "LD HL,nn", "description": "Load immediate 16-bit value into HL"},
+    {"opcode": "0x22", "mnemonic": "LD (nn),HL", "description": "Store HL to absolute memory address"},
+    {"opcode": "0x26", "mnemonic": "LD H,n", "description": "Load immediate byte into H"},
+    {"opcode": "0x2A", "mnemonic": "LD HL,(nn)", "description": "Load HL from absolute memory address"},
+    {"opcode": "0x2E", "mnemonic": "LD L,n", "description": "Load immediate byte into L"},
+    {"opcode": "0x31", "mnemonic": "LD SP,nn", "description": "Load immediate 16-bit value into SP"},
+    {"opcode": "0x32", "mnemonic": "LD (nn),A", "description": "Store A to absolute memory address"},
+    {"opcode": "0x36", "mnemonic": "LD (HL),n", "description": "Store immediate byte to memory at HL"},
+    {"opcode": "0x3A", "mnemonic": "LD A,(nn)", "description": "Load A from absolute memory address"},
+    {"opcode": "0x3E", "mnemonic": "LD A,n", "description": "Load immediate byte into A"},
+    {"opcode": "0x40-0x7F", "mnemonic": "LD r,r", "description": "Load register to register"},
+    {"opcode": "0xF9", "mnemonic": "LD SP,HL", "description": "Load HL into SP"},
+]
+
+
+def _matches_opcode(opcode, entry):
+    value = entry["opcode"]
+    if "-" in value:
+        start, end = value.split("-", 1)
+        return int(start, 16) <= opcode <= int(end, 16)
+    return opcode == int(value, 16)
+
+
+# Opcode: 0x01
+# Mnemonic: LD BC,nn
+# Description: Load immediate 16-bit value into BC
+
+def _ld_bc_nn(self):
+    return None
+
+
+# Opcode: 0x02
+# Mnemonic: LD (BC),A
+# Description: Store A into memory at BC
+
+def _ld_bc_a(self):
+    return None
+
+
+# Opcode: 0x06
+# Mnemonic: LD B,n
+# Description: Load immediate byte into B
+
+def _ld_b_n(self):
+    return None
+
+
+# Opcode: 0x0A
+# Mnemonic: LD A,(BC)
+# Description: Load A from memory at BC
+
+def _ld_a_bc(self):
+    return None
+
+
+# Opcode: 0x0E
+# Mnemonic: LD C,n
+# Description: Load immediate byte into C
+
+def _ld_c_n(self):
+    return None
+
+
+# Opcode: 0x11
+# Mnemonic: LD DE,nn
+# Description: Load immediate 16-bit value into DE
+
+def _ld_de_nn(self):
+    return None
+
+
+# Opcode: 0x12
+# Mnemonic: LD (DE),A
+# Description: Store A into memory at DE
+
+def _ld_de_a(self):
+    return None
+
+
+# Opcode: 0x16
+# Mnemonic: LD D,n
+# Description: Load immediate byte into D
+
+def _ld_d_n(self):
+    return None
+
+
+# Opcode: 0x1A
+# Mnemonic: LD A,(DE)
+# Description: Load A from memory at DE
+
+def _ld_a_de(self):
+    return None
+
+
+# Opcode: 0x1E
+# Mnemonic: LD E,n
+# Description: Load immediate byte into E
+
+def _ld_e_n(self):
+    return None
+
+
+# Opcode: 0x21
+# Mnemonic: LD HL,nn
+# Description: Load immediate 16-bit value into HL
+
+def _ld_hl_nn(self):
+    return None
+
+
+# Opcode: 0x22
+# Mnemonic: LD (nn),HL
+# Description: Store HL to absolute memory address
+
+def _ld_hl_addr(self):
+    return None
+
+
+# Opcode: 0x26
+# Mnemonic: LD H,n
+# Description: Load immediate byte into H
+
+def _ld_h_n(self):
+    return None
+
+
+# Opcode: 0x2A
+# Mnemonic: LD HL,(nn)
+# Description: Load HL from absolute memory address
+
+def _ld_hl_a(self):
+    return None
+
+
+# Opcode: 0x2E
+# Mnemonic: LD L,n
+# Description: Load immediate byte into L
+
+def _ld_l_n(self):
+    return None
+
+
+# Opcode: 0x31
+# Mnemonic: LD SP,nn
+# Description: Load immediate 16-bit value into SP
+
+def _ld_sp_nn(self):
+    return None
+
+
+# Opcode: 0x32
+# Mnemonic: LD (nn),A
+# Description: Store A to absolute memory address
+
+def _ld_nn_a(self):
+    return None
+
+
+# Opcode: 0x36
+# Mnemonic: LD (HL),n
+# Description: Store immediate byte to memory at HL
+
+def _ld_hl_n(self):
+    return None
+
+
+# Opcode: 0x3A
+# Mnemonic: LD A,(nn)
+# Description: Load A from absolute memory address
+
+def _ld_a_nn(self):
+    return None
+
+
+# Opcode: 0x3E
+# Mnemonic: LD A,n
+# Description: Load immediate byte into A
+
+def _ld_a_n(self):
+    return None
+
+
+# Opcode: 0x40-0x7F
+# Mnemonic: LD r,r
+# Description: Load register to register
+
+def _ld_r_r(self):
+    return None
+
+
+# Opcode: 0xF9
+# Mnemonic: LD SP,HL
+# Description: Load HL into SP
+
+def _ld_sp_hl(self):
+    return None
 
 
 def execute(self, opcode):
-    # LD r,n
-    # 8-bit loads
-    if opcode in (
-        0x06,
-        0x0E,
-        0x16,
-        0x1E,
-        0x26,
-        0x2E,
-        0x3E,
-    ):
-        # -----
-        # Opcode logic:
-        dest = (opcode >> 3) & 0x07
-        value = self.memory.read8(self.pc)
-        self.inc_pc(increment=1)
-        self.set_register(dest, value)
-        # -----
+    for entry in OPCODES:
+        if _matches_opcode(opcode, entry):
+            if opcode == 0x01:
+                return _ld_bc_nn(self)
+            if opcode == 0x02:
+                return _ld_bc_a(self)
+            if opcode == 0x06:
+                return _ld_b_n(self)
+            if opcode == 0x0A:
+                return _ld_a_bc(self)
+            if opcode == 0x0E:
+                return _ld_c_n(self)
+            if opcode == 0x11:
+                return _ld_de_nn(self)
+            if opcode == 0x12:
+                return _ld_de_a(self)
+            if opcode == 0x16:
+                return _ld_d_n(self)
+            if opcode == 0x1A:
+                return _ld_a_de(self)
+            if opcode == 0x1E:
+                return _ld_e_n(self)
+            if opcode == 0x21:
+                return _ld_hl_nn(self)
+            if opcode == 0x22:
+                return _ld_hl_addr(self)
+            if opcode == 0x26:
+                return _ld_h_n(self)
+            if opcode == 0x2A:
+                return _ld_hl_a(self)
+            if opcode == 0x2E:
+                return _ld_l_n(self)
+            if opcode == 0x31:
+                return _ld_sp_nn(self)
+            if opcode == 0x32:
+                return _ld_nn_a(self)
+            if opcode == 0x36:
+                return _ld_hl_n(self)
+            if opcode == 0x3A:
+                return _ld_a_nn(self)
+            if opcode == 0x3E:
+                return _ld_a_n(self)
+            if 0x40 <= opcode <= 0x7F and opcode != 0x76:
+                return _ld_r_r(self)
+            if opcode == 0xF9:
+                return _ld_sp_hl(self)
 
-        opcode_t_states = 7
-
-        self.log_opcode(
-            opcode=opcode,
-            asm="LD r,n",
-            prefix="",
-            opcode_t_states=opcode_t_states,
-            message=f"Value {value:02X} loaded to register {dest:02X}",
-            implemented=True,
-        )
-        return opcode_t_states
-
-    # LD rr,nn
-    # 16-bit loads
-    if opcode in (0x01, 0x11, 0x21, 0x31):
-        opcode_t_states = 10
-
-        # -----
-        # Opcode logic:
-        low = self.memory.read8(self.pc)
-        self.inc_pc(increment=1)
-        high = self.memory.read8(self.pc)
-        self.inc_pc(increment=1)
-        value = (high << 8) | low
-        dest = (opcode >> 4) & 0x03
-        self.set_register_pair(dest, value)
-        # -----
-
-        self.log_opcode(
-            opcode=opcode,
-            asm="LD rr,nn",
-            prefix="",
-            opcode_t_states=opcode_t_states,
-            message=f"Loaded {value:04X} into {dest:02X}",
-            implemented=True,
-        )
-
-        return opcode_t_states
-
-    # LD (BC),A / LD (DE),A
-    if opcode in (0x02, 0x12):
-        opcode_t_states = 7
-
-        # -----
-        # Opcode logic:
-        pair = (opcode >> 4) & 0x01
-        if pair == 0:
-            address = (self.b << 8) | self.c
-        else:
-            address = (self.d << 8) | self.e
-        self.memory.write8(address, self.a)
-        # -----
-
-        self.log_opcode(
-            opcode=opcode,
-            asm="LD rr,A",
-            prefix="",
-            opcode_t_states=opcode_t_states,
-            message=f"Loaded {pair:04X} into {address:04X}",
-            implemented=True,
-        )
-
-        return opcode_t_states
-
-    # LD A,(rr)
-    if opcode in (0x0A, 0x1A):
-        opcode_t_states = 7
-
-        # -----
-        # Opcode logic:
-        pair = (opcode >> 4) & 0x01
-
-        if pair == 0:
-            address = (self.b << 8) | self.c
-            pair_name = "BC"
-        else:
-            address = (self.d << 8) | self.e
-            pair_name = "DE"
-
-        self.a = self.memory.read8(address)
-        # -----
-
-        self.log_opcode(
-            opcode=opcode,
-            asm="LD A,(rr)",
-            prefix="",
-            opcode_t_states=opcode_t_states,
-            message=f"Loaded {self.a:02X} from ({pair_name}) at {address:04X} into A",
-            implemented=True,
-        )
-
-        return opcode_t_states
-
-    # LD r,r
-    # 40-7F, except 76 which is HALT
-    if 0x40 <= opcode <= 0x7F and opcode != 0x76:
-        opcode_t_states = (
-            7 if (opcode & 0x07) == 6 or ((opcode >> 3) & 0x07) == 6 else 4
-        )
-        # TODO: Implement
-
-        self.log_opcode(
-            opcode=opcode,
-            asm="LD r,r",
-            prefix="",
-            opcode_t_states=opcode_t_states,
-            message="Not implemented",
-            implemented=False,
-        )
-
-        return opcode_t_states
-
-    match opcode:
-        # LD (nn),HL
-        case 0x22:
-            # -----
-            # Opcode logic:
-
-            address = self.store_register_pair(self.get_hl())
-
-            opcode_t_states = 16
-
-            # -----
-
-            self.log_opcode(
-                opcode=opcode,
-                asm="LD (nn),HL",
-                prefix="",
-                opcode_t_states=opcode_t_states,
-                message=(
-                    f"Stored HL ({self.get_hl():04X}) into memory at {address:04X}"
-                ),
+            raise NotImplementedError(
+                f"{__name__}: {entry['opcode']} {entry['mnemonic']} ({entry['description']}) is not implemented"
             )
 
-            return opcode_t_states
-
-        # LD HL,(nn)
-        case 0x2A:
-            # -----
-            # Opcode logic:
-
-            value, address = self.load_register_pair(self.set_hl)
-
-            opcode_t_states = 16
-
-            # -----
-
-            self.log_opcode(
-                opcode=opcode,
-                asm="LD HL,(nn)",
-                prefix="",
-                opcode_t_states=opcode_t_states,
-                message=(f"Loaded {value:04X} from memory at {address:04X} into HL"),
-            )
-
-            return opcode_t_states
-
-        # LD (HL),n
-        # Store immediate byte n at the address in HL
-        case 0x36:
-            opcode_t_states = 10
-            # TODO: Implement
-
-            self.log_opcode(
-                opcode=opcode,
-                asm="LD (HL),n",
-                prefix="",
-                opcode_t_states=opcode_t_states,
-                message="Not implemented",
-                implemented=False,
-            )
-
-            return opcode_t_states
-
-        # LD A,(nn)
-        # Load A from the address nn
-        case 0x3A:
-            opcode_t_states = 13
-            # TODO: Implement
-
-            self.log_opcode(
-                opcode=opcode,
-                asm="LD A,(nn)",
-                prefix="",
-                opcode_t_states=opcode_t_states,
-                message="Not implemented",
-                implemented=False,
-            )
-
-            return opcode_t_states
-
-        # LD (nn),A
-        case 0x32:
-            opcode_t_states = 13
-
-            # -----
-            # Opcode logic:
-            low = self.memory.read8(self.pc)
-            self.inc_pc(increment=1)
-            high = self.memory.read8(self.pc)
-            self.inc_pc(increment=1)
-            address = (high << 8) | low
-            self.memory.write8(address, self.a)
-            # -----
-
-            self.log_opcode(
-                opcode=opcode,
-                asm="LD (nn),A",
-                prefix="",
-                opcode_t_states=opcode_t_states,
-                message=f"Stored A ({self.a:02X}) at {address:04X}",
-                implemented=True,
-            )
-
-            return opcode_t_states
-
-        # LD SP, HL
-        # Contents of register pair HL are loaded into Stack Pointer SP
-        case 0xF9:
-            opcode_t_states = 6
-
-            # -----
-            # Opcode logic:
-            hl = (self.h << 8) | self.l
-            self.sp = hl
-            # -----
-
-            self.log_opcode(
-                opcode=opcode,
-                asm="LD SP, HL",
-                prefix="",
-                opcode_t_states=opcode_t_states,
-                message=f"Loaded HL ({hl:04X}) into SP",
-                implemented=True,
-            )
-
-            return opcode_t_states
-
-        case _:
-            pass
-
-    return None
+    raise NotImplementedError(f"{__name__}: opcode 0x{opcode:02X} is not defined in the load table")

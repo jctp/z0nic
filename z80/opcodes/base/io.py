@@ -1,58 +1,43 @@
-# NOTE: The opcode table below is agent-generated. The code in this file is not.
-# Stub = placeholder that raises via log_opcode(implemented=False).
-#
-# | Opcode | Mnemonic  | Status      | Notes |
-# |--------|-----------|-------------|-------|
-# | DB     | IN A,(n)  | Implemented |       |
-# | D3     | OUT (n),A | Implemented |       |
+OPCODES = [
+    {"opcode": "0xD3", "mnemonic": "OUT (n),A", "description": "Write A to the I/O port at the immediate address"},
+    {"opcode": "0xDB", "mnemonic": "IN A,(n)", "description": "Read the I/O port at the immediate address into A"},
+]
+
+
+def _matches_opcode(opcode, entry):
+    value = entry["opcode"]
+    if "-" in value:
+        start, end = value.split("-", 1)
+        return int(start, 16) <= opcode <= int(end, 16)
+    return opcode == int(value, 16)
+
+
+# Opcode: 0xD3
+# Mnemonic: OUT (n),A
+# Description: Write A to the I/O port at the immediate address
+
+def _out_n_a(self):
+    return None
+
+
+# Opcode: 0xDB
+# Mnemonic: IN A,(n)
+# Description: Read the I/O port at the immediate address into A
+
+def _in_a_n(self):
+    return None
 
 
 def execute(self, opcode):
-    match opcode:
-        # IN A, (n)
-        # Loads one byte from the data bus at port n into the accumulator a
-        case 0xDB:
-            opcode_t_states = 11
+    for entry in OPCODES:
+        if _matches_opcode(opcode, entry):
+            if opcode == 0xD3:
+                return _out_n_a(self)
+            if opcode == 0xDB:
+                return _in_a_n(self)
 
-            # -----
-            # Opcode logic:
-            # Put contents of IO address port_number into a
-            port_number = self.memory.read8(self.pc)
-            self.inc_pc(increment=1)
-            self.a = self.io.read(port_number)
-            # -----
-
-            self.log_opcode(
-                opcode=opcode,
-                asm="IN A",
-                prefix="",
-                opcode_t_states=opcode_t_states,
-                message=f"Read value {self.a:02x} from {port_number:02X}",
-                implemented=True,
+            raise NotImplementedError(
+                f"{__name__}: {entry['opcode']} {entry['mnemonic']} ({entry['description']}) is not implemented"
             )
-            return opcode_t_states
 
-        # OUT (n), A
-        # Places byte from the accumulator onto the given address
-        case 0xD3:
-            opcode_t_states = 11  # TODO: Check correct
-
-            # -----
-            # Opcode logic:
-            # Write contents of a to port_number
-            port_number = self.memory.read8(self.pc)
-            self.inc_pc(increment=1)
-            self.io.write(port_number, self.a)
-            # -----
-
-            self.log_opcode(
-                opcode=opcode,
-                asm="OUT A",
-                prefix="",
-                opcode_t_states=opcode_t_states,
-                message=f"Wrote value {self.a:02X} to {port_number:02X}",
-                implemented=True,
-            )
-            return opcode_t_states
-
-    return None
+    raise NotImplementedError(f"{__name__}: opcode 0x{opcode:02X} is not defined in the I/O table")

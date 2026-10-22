@@ -1,44 +1,43 @@
-# NOTE: The opcode table below is agent-generated. The code in this file is not.
-# Stub = placeholder that raises via log_opcode(implemented=False).
-#
-# | Opcode | Mnemonic | Status      | Notes |
-# |--------|----------|-------------|-------|
-# | 00     | NOP      | Implemented |       |
-# | 76     | HALT     | Stub        |       |
+OPCODES = [
+    {"opcode": "0x00", "mnemonic": "NOP", "description": "No operation"},
+    {"opcode": "0x76", "mnemonic": "HALT", "description": "Stop the CPU until an interrupt occurs"},
+]
+
+
+def _matches_opcode(opcode, entry):
+    value = entry["opcode"]
+    if "-" in value:
+        start, end = value.split("-", 1)
+        return int(start, 16) <= opcode <= int(end, 16)
+    return opcode == int(value, 16)
+
+
+# Opcode: 0x00
+# Mnemonic: NOP
+# Description: No operation
+
+def _nop(self):
+    return None
+
+
+# Opcode: 0x76
+# Mnemonic: HALT
+# Description: Stop the CPU until an interrupt occurs
+
+def _halt(self):
+    return None
 
 
 def execute(self, opcode):
-    match opcode:
-        # NOP
-        # No operation
-        case 0x00:
-            opcode_t_states = 1
-            self.log_opcode(
-                opcode=opcode,
-                asm="NOP",
-                prefix="",
-                opcode_t_states=opcode_t_states,
-                message=f"No operation",
-                implemented=True,
+    for entry in OPCODES:
+        if _matches_opcode(opcode, entry):
+            if opcode == 0x00:
+                return _nop(self)
+            if opcode == 0x76:
+                return _halt(self)
+
+            raise NotImplementedError(
+                f"{__name__}: {entry['opcode']} {entry['mnemonic']} ({entry['description']}) is not implemented"
             )
-            return opcode_t_states
 
-        # HALT
-        # Suspend the CPU until an interrupt occurs
-        case 0x76:
-            opcode_t_states = 4
-            # TODO: Implement
-            self.log_opcode(
-                opcode=opcode,
-                asm="HALT",
-                prefix="",
-                opcode_t_states=opcode_t_states,
-                message="Not implemented",
-                implemented=False,
-            )
-            return opcode_t_states
-
-        case _:
-            pass
-
-    return None
+    raise NotImplementedError(f"{__name__}: opcode 0x{opcode:02X} is not defined in the control table")
