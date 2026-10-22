@@ -225,6 +225,8 @@ __marimo__/
 .vscode/
 debug/*
 z80/__pycache__
+z80/opcodes/__pycache__
+z80/structure/__pycache__
 .DS_Store
 **/.DS_Store
 vram.txt
