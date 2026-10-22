@@ -7,12 +7,11 @@ cart = Cartridge()
 cart.load("sonic1sms.sms")
 
 sms_memory = Memory(cart)
-sms_io = Input_Output()
+sms_io = None
 z80 = Z80(
     memory=sms_memory,
     io=None,
-    clock_hz=1000,  # Real CPU is 3.58 Mhz
-    exception_on_non_implemented=True
+    clock_hz=1000  # Real CPU is 3.58 Mhz
 )
 
 while True:

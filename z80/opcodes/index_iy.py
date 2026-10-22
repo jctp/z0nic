@@ -264,8 +264,8 @@ def _cp_n_iy(self):
 
 
 def execute(self):
-    opcode = self.memory.read8(self.pc)
-    self.inc_pc(increment=1)
+    opcode = self.memory.read8(self.PC)
+    self.PC.inc(by=1)
 
     for entry in OPCODES:
         if _matches_opcode(opcode, entry):

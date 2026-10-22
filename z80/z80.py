@@ -13,20 +13,12 @@ class Z80:
         self,
         memory,
         io,
-        clock_hz,
-        exception_on_non_implemented,
-        register_check,
-        heartbeat_seconds=False,
-        opcode_trace=None,
+        clock_hz
     ):
         self.setup()
         self.memory = memory
         self.io = io
         self.clock_hz = clock_hz
-        self.exception_on_non_implemented = exception_on_non_implemented
-        self.register_check = register_check
-        self.heartbeat_seconds = heartbeat_seconds
-        self.opcode_trace = opcode_trace
 
     # endregion
     # region Components
@@ -343,12 +335,8 @@ class Z80:
     # region Step
 
     def step(self):
-        opcode = self.memory.read8(self.PC.get())
+        opcode = self.memory.read8(self.PC)
         self.PC.inc()
-
-        if self.opcode_trace is not None:
-            self.opcode_trace.append((self.PC.get(), opcode))
-
         return dispatcher.execute(self, opcode)
 
     # endregion
