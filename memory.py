@@ -32,6 +32,8 @@ class Memory:
         # RAM
         self.ram = bytearray(0x2000)
 
+        logger.info("Memory setup complete!")
+
     @staticmethod
     def _normalize_address(address):
         if hasattr(address, "get"):

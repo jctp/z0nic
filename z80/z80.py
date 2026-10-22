@@ -346,6 +346,8 @@ class Z80:
         # EI delay; it runs the cycle AFTER
         self.EI_delay = 0
 
+        logger.info("Z80 setup complete!")
+
     # endregion
     # region Jump Helpers
 
@@ -368,18 +370,24 @@ class Z80:
         opcode = self.memory.read8(self.PC.get())
         print(f"PC={self.PC.get():04X} opcode=0x{opcode:02X}")
         self.PC.inc()
+
         try:
-            return dispatcher.execute(self, opcode)
+            t_states = dispatcher.execute(self, opcode)
+
+            # Handle delayed EI
+            if self.EI_delay > 0:
+                self.EI_delay -= 1
+
+                if self.EI_delay == 0:
+                    self.IFF1 = True
+                    self.IFF2 = True
+
+            return t_states
+            
         except NotImplementedError:
             print(f"STOP at PC={self.PC.get():04X} on unimplemented opcode 0x{opcode:02X}")
             raise
 
-        # Handle delayed EI
-        if self.EI_delay > 0:
-            self.EI_delay -= 1
 
-            if self.EI_delay == 0:
-                self.IFF1 = True
-                self.IFF2 = True
         
         # endregion

@@ -1,13 +1,18 @@
+from system import SegaMasterSystem
+
 from memory import Memory
 from cartridge import Cartridge
 from input_output import Input_Output
-
 from z80.z80 import Z80
 
-cart = Cartridge()
-cart.load("sonic1sms.sms")
+from logger import logger
 
-sms_memory = Memory(cart)
+sms_cartridge = Cartridge()
+sms_cartridge.load("sonic1sms.sms")
+
+sms_memory = Memory(
+    cartridge=sms_cartridge
+    )
 sms_io = Input_Output()
 z80 = Z80(
     memory=sms_memory,
@@ -15,5 +20,12 @@ z80 = Z80(
     clock_hz=1000  # Real CPU is 3.58 Mhz
 )
 
-while True:
-    z80.step()
+console = SegaMasterSystem(
+    cpu=z80,
+    cartridge=sms_cartridge,
+    io=sms_io,
+    memory=sms_memory,
+    logger=logger
+)
+
+console.run()

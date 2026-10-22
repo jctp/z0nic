@@ -51,11 +51,6 @@ def _jr_nz_e(self):
     displacement_e = self.memory.read8(self.PC.get())
     self.PC.inc(by=1)
 
-    print(
-        f"JR NZ: Z={self.F.zero} "
-        f"offset={displacement_e:02X}"
-    )
-
     if not self.F.zero:
         self.jump_relative(displacement_e)
         return 12

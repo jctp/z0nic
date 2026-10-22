@@ -39,11 +39,6 @@ def _cp_n(self):
     self.F.add_sub = True
     self.F.carry = (a < value)
 
-    print(
-        f"CP A={a:02X} n={value:02X} "
-        f"result={result:02X} Z={self.F.zero}"
-    )
-
     return 7
 
 def execute(self, opcode):

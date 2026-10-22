@@ -21,6 +21,11 @@ class VDP:
 
         self.code = 0
 
+        # Timing
+        self.cycles = 0
+        self.scanline = 0
+        self.frame = 0
+
     def dump_vram(self, filename="vram.txt"):
         with open(filename, "w") as f:
             for address in range(0, 0x4000, 16):
@@ -120,3 +125,18 @@ class VDP:
                 self.dump_vram()
 
             return
+
+    def tick(self, cycles):
+        self.cycles += cycles
+
+        # Columns
+        while self.cycles >= 228:
+            self.cycles -= 228
+
+            # Rows (Scanlines)
+            self.scanline += 1
+            if self.scanline >= 262:
+                self.scanline = 0
+
+                # Frames
+                self.frame += 1
