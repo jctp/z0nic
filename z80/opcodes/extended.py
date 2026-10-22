@@ -264,7 +264,8 @@ def _ld_nn_de(self):
 # Description: Set interrupt mode 1
 
 def _im_2(self):
-    return None
+    self.IM = 1
+    return 8
 
 
 # Opcode: 0x57
@@ -589,7 +590,7 @@ def _otdr(self):
 
 def execute(self, opcode):
     prefix = opcode
-    opcode = self.memory.read8(self.PC)
+    opcode = self.memory.read8(self.PC.get())
     self.PC.inc(by=1)
 
     for entry in OPCODES:

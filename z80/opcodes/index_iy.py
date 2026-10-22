@@ -265,7 +265,7 @@ def _cp_n_iy(self):
 
 def execute(self, opcode):
     prefix = opcode
-    opcode = self.memory.read8(self.PC)
+    opcode = self.memory.read8(self.PC.get())
     self.PC.inc(by=1)
 
     for entry in OPCODES:

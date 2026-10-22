@@ -8,6 +8,8 @@ class Input_Output:
 
         # Generic port storage for unimplemented devices
         self.ports = [0xFF] * 256
+        
+        self.ports[0x7E] = 0xB0 # TESTING
 
     def read(self, port):
         port &= 0xFF

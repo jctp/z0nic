@@ -22,10 +22,20 @@ def _out_n_a(self):
 
 # Opcode: 0xDB
 # Mnemonic: IN A,(n)
-# Description: Read the I/O port at the immediate address into A
+# Description: Read a byte from I/O port n into A
 
 def _in_a_n(self):
-    return None
+
+    port_low = self.memory.read8(self.PC.get())
+    self.PC.inc()
+
+    port = (self.A.get() << 8) | port_low
+
+    value = self.io.read(port)
+
+    self.A.set(value)
+
+    return 11
 
 
 def execute(self, opcode):

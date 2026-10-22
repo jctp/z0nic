@@ -32,8 +32,14 @@ class Memory:
         # RAM
         self.ram = bytearray(0x2000)
 
+    @staticmethod
+    def _normalize_address(address):
+        if hasattr(address, "get"):
+            return address.get()
+        return int(address)
+
     def read8(self, address_register):
-        address = address_register.get()
+        address = self._normalize_address(address_register)
 
         # Bank 0, the first 1KB is never paged
         if address < 0x0400:
@@ -71,12 +77,12 @@ class Memory:
             return self.ram[address & 0x1FFF]
 
     def cart_ram_offset(self, address):
-        address = address.get()
+        address = self._normalize_address(address)
         bank = (self.ram_control >> 2) & 0x01
         return bank * 0x4000 + (address - 0x8000)
 
     def write8(self, address, value):
-        address = address.get()
+        address = self._normalize_address(address)
         value &= 0xFF
 
         # Cartridge RAM

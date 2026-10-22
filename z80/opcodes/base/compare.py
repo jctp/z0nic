@@ -22,11 +22,29 @@ def _cp_r(self):
 
 # Opcode: 0xFE
 # Mnemonic: CP n
-# Description: Compare A with the immediate byte
+# Description: Compare A with immediate byte
 
 def _cp_n(self):
-    return None
 
+    value = self.memory.read8(self.PC.get())
+    self.PC.inc()
+
+    a = self.A.get()
+
+    result = (a - value) & 0xFF
+
+    # Flags
+    self.F.sign = (result & 0x80) != 0
+    self.F.zero = (result == 0)
+    self.F.add_sub = True
+    self.F.carry = (a < value)
+
+    print(
+        f"CP A={a:02X} n={value:02X} "
+        f"result={result:02X} Z={self.F.zero}"
+    )
+
+    return 7
 
 def execute(self, opcode):
     for entry in OPCODES:

@@ -2,6 +2,7 @@ from logger import logger
 import datetime
 import time
 
+from input_output import Input_Output
 from z80.opcodes import dispatcher
 
 # endregion
@@ -13,7 +14,7 @@ class Z80:
         self,
         memory,
         io,
-        clock_hz
+        clock_hz=1000
     ):
         self.setup()
         self.memory = memory
@@ -346,10 +347,25 @@ class Z80:
         self.EI_delay = 0
 
     # endregion
+    # region Jump Helpers
+
+    def jump_absolute(self, target):
+        self.PC.set(target & 0xFFFF)
+
+    def jump_relative(self, offset):
+
+        # Convert an unsights 8-bit to a signed one
+        # if the top bit is set, take away 256 to give the correct value
+        if offset & 0x80:
+            offset -=0x100
+
+        self.PC.set((self.PC.get() + offset) & 0xFFFF)
+
+    # endregion
     # region Step
 
     def step(self):
-        opcode = self.memory.read8(self.PC)
+        opcode = self.memory.read8(self.PC.get())
         print(f"PC={self.PC.get():04X} opcode=0x{opcode:02X}")
         self.PC.inc()
         try:

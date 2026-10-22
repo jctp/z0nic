@@ -19,7 +19,7 @@ def _require_implemented(handler, self, opcode):
     prefix_byte = opcode
     second_byte = None
     if handler.__module__ in ("z80.opcodes.extended", "z80.opcodes.index_ix", "z80.opcodes.index_iy"):
-        second_byte = self.memory.read8(self.PC)
+        second_byte = self.memory.read8(self.PC.get())
 
     result = handler(self, opcode)
     if result is None:
