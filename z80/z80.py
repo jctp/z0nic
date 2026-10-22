@@ -19,6 +19,7 @@ class Z80:
         self.memory = memory
         self.io = io
         self.clock_hz = clock_hz
+        self.reset()
 
     # endregion
     # region Components
@@ -245,6 +246,10 @@ class Z80:
     # endregion
     # region Z80 Setup
 
+    def reset(self):
+        self.PC.set(0x0000)
+        self.SP.set(0xDFF0)
+
     def setup(self):
 
         # Main Registers
@@ -330,13 +335,35 @@ class Z80:
             "HL_alt": self.HL_alt,
         }
 
+        # Interrupt flip-flops
+        self.IFF1 = False
+        self.IFF2 = False
+
+        # Interrupt mode
+        self.IM = 0
+
+        # EI delay; it runs the cycle AFTER
+        self.EI_delay = 0
 
     # endregion
     # region Step
 
     def step(self):
         opcode = self.memory.read8(self.PC)
+        print(f"PC={self.PC.get():04X} opcode=0x{opcode:02X}")
         self.PC.inc()
-        return dispatcher.execute(self, opcode)
+        try:
+            return dispatcher.execute(self, opcode)
+        except NotImplementedError:
+            print(f"STOP at PC={self.PC.get():04X} on unimplemented opcode 0x{opcode:02X}")
+            raise
 
-    # endregion
+        # Handle delayed EI
+        if self.EI_delay > 0:
+            self.EI_delay -= 1
+
+            if self.EI_delay == 0:
+                self.IFF1 = True
+                self.IFF2 = True
+        
+        # endregion

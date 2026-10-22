@@ -15,12 +15,28 @@ from z80.opcodes import index_ix
 from z80.opcodes import index_iy
 
 
+def _require_implemented(handler, self, opcode):
+    prefix_byte = opcode
+    second_byte = None
+    if handler.__module__ in ("z80.opcodes.extended", "z80.opcodes.index_ix", "z80.opcodes.index_iy"):
+        second_byte = self.memory.read8(self.PC)
+
+    result = handler(self, opcode)
+    if result is None:
+        if second_byte is not None:
+            raise NotImplementedError(
+                f"{handler.__module__}: opcode {prefix_byte:02X} {second_byte:02X} is not implemented"
+            )
+        raise NotImplementedError(f"{handler.__module__}: opcode 0x{opcode:02X} is not implemented")
+    return result
+
+
 def execute(self, opcode):
     if opcode in (0x00, 0x76):
-        return control.execute(self, opcode)
+        return _require_implemented(control.execute, self, opcode)
 
     if opcode in (0x07, 0x08, 0x0F, 0x17, 0x1F, 0x27, 0x2F, 0x37, 0x3F, 0xD9, 0xE3, 0xEB):
-        return bit_operations.execute(self, opcode)
+        return _require_implemented(bit_operations.execute, self, opcode)
 
     if opcode in (
         0x03,
@@ -88,16 +104,16 @@ def execute(self, opcode):
         0xD6,
         0xDE,
     ) or (0x80 <= opcode <= 0x9F):
-        return arithmetic.execute(self, opcode)
+        return _require_implemented(arithmetic.execute, self, opcode)
 
     if opcode in (0xB8, 0xB9, 0xBA, 0xBB, 0xBC, 0xBD, 0xBE, 0xBF, 0xFE):
-        return compare.execute(self, opcode)
+        return _require_implemented(compare.execute, self, opcode)
 
     if opcode in (0xF3, 0xFB):
-        return interrupts.execute(self, opcode)
+        return _require_implemented(interrupts.execute, self, opcode)
 
     if opcode in (0xD3, 0xDB):
-        return io.execute(self, opcode)
+        return _require_implemented(io.execute, self, opcode)
 
     if opcode in (
         0x10,
@@ -117,7 +133,7 @@ def execute(self, opcode):
         0xF2,
         0xFA,
     ):
-        return jumps.execute(self, opcode)
+        return _require_implemented(jumps.execute, self, opcode)
 
     if opcode in (
         0x01,
@@ -205,13 +221,13 @@ def execute(self, opcode):
         0x7F,
         0xF9,
     ) or (0x40 <= opcode <= 0x7F and opcode != 0x76):
-        return load.execute(self, opcode)
+        return _require_implemented(load.execute, self, opcode)
 
     if opcode in (0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7, 0xA8, 0xA9, 0xAA, 0xAB, 0xAC, 0xAD, 0xAE, 0xAF, 0xB0, 0xB1, 0xB2, 0xB3, 0xB4, 0xB5, 0xB6, 0xB7, 0xE6, 0xEE, 0xF6):
-        return logic.execute(self, opcode)
+        return _require_implemented(logic.execute, self, opcode)
 
     if opcode in (0xC1, 0xC5, 0xD1, 0xD5, 0xE1, 0xE5, 0xF1, 0xF5):
-        return stack.execute(self, opcode)
+        return _require_implemented(stack.execute, self, opcode)
 
     if opcode in (
         0xC0,
@@ -241,18 +257,18 @@ def execute(self, opcode):
         0xFC,
         0xFF,
     ):
-        return subroutines.execute(self, opcode)
+        return _require_implemented(subroutines.execute, self, opcode)
 
     if opcode == 0xCB:
-        return bit_operations.execute(self, opcode)
+        return _require_implemented(bit_operations.execute, self, opcode)
 
     if opcode == 0xED:
-        return extended.execute(self)
+        return _require_implemented(extended.execute, self, opcode)
 
     if opcode == 0xDD:
-        return index_ix.execute(self)
+        return _require_implemented(index_ix.execute, self, opcode)
 
     if opcode == 0xFD:
-        return index_iy.execute(self)
+        return _require_implemented(index_iy.execute, self, opcode)
 
     return self.opcode_not_implemented(opcode, "Unknown mnemonic")

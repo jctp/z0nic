@@ -587,7 +587,8 @@ def _otdr(self):
     return None
 
 
-def execute(self):
+def execute(self, opcode):
+    prefix = opcode
     opcode = self.memory.read8(self.PC)
     self.PC.inc(by=1)
 
@@ -715,7 +716,9 @@ def execute(self):
                 return _otdr(self)
 
             raise NotImplementedError(
-                f"{__name__}: {entry['opcode']} {entry['mnemonic']} ({entry['description']}) is not implemented"
+                f"{__name__}: {prefix:02X} {opcode:02X} {entry['mnemonic']} ({entry['description']}) is not implemented"
             )
 
-    raise NotImplementedError(f"{__name__}: opcode 0x{opcode:02X} is not defined in the ED-prefixed instruction table")
+    raise NotImplementedError(
+        f"{__name__}: {prefix:02X} {opcode:02X} is not defined in the ED-prefixed instruction table"
+    )

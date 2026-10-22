@@ -17,15 +17,18 @@ def _matches_opcode(opcode, entry):
 # Description: Disable maskable interrupts
 
 def _di(self):
-    return None
-
+    self.IFF1 = False
+    self.IFF2 = False
+    self.EI_delay = 0
+    return 4
 
 # Opcode: 0xFB
 # Mnemonic: EI
 # Description: Enable maskable interrupts after the next instruction
 
 def _ei(self):
-    return None
+    self.EI_delay = 2
+    return 4
 
 
 def execute(self, opcode):
