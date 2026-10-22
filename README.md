@@ -11,7 +11,7 @@ Toy Sega Master System emulator in Python, built to understand the Z80. Currentl
 I have no idea, it's nowhere close to being able to run a commercial game.
 
 ### Is it complete?
-Absolutely not. In fact, it was getting messy enough that I ripped out the entire Z80 implementation to replace it with an object-oriented version with far more helpers for 
+Absolutely not. In fact, it was getting messy enough that I ripped out the entire Z80 implementation to replace it with an object-oriented version with "micro-operation" helpers for building up opcode behaviour. This set back progress, but made life easier.
 
 ### Is it vibe-coded?
 No, this is a learning project so vibe-coding the whole thing would be pointless. I did use AI to help teach me things; my only emulator before this is a CHIP-8 interpreter and a the infinitely patient "experienced teacher" model works for me.
