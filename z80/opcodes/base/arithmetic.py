@@ -311,8 +311,13 @@ def _adc_a_r(self):
 # Description: Subtract the selected register from A
 
 
-def _sub_r(self):
-    return None
+def _sub_r(self, opcode):
+    lhs = self.A.get()
+    rhs = self.read_from_opcode_r(opcode)
+    result = self.alu_sub(lhs, rhs)
+
+    self.A.set(result)
+    return 4
 
 
 # Opcode: 0x98-0x9F
@@ -398,7 +403,7 @@ def execute(self, opcode):
             if opcode in range(0x88, 0x90):
                 return _adc_a_r(self)
             if opcode in range(0x90, 0x98):
-                return _sub_r(self)
+                return _sub_r(self, opcode)
             if opcode in range(0x98, 0xA0):
                 return _sbc_a_r(self)
             if opcode == 0xC6:
