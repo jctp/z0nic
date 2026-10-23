@@ -100,23 +100,15 @@ class Memory:
 
         # Sega mapper registers, these also land in WRAM so they read back
         if address == 0xFFFC:
-            logger.debug(f"MAPPER: ram control {self.ram_control:02X} -> {value:02X}")
-
             self.ram_control = value
 
         elif address == 0xFFFD:
-            logger.debug(f"MAPPER: bank0 {self.bank0:02X} -> {value:02X}")
-
             self.bank0 = value
 
         elif address == 0xFFFE:
-            logger.debug(f"MAPPER: bank1 {self.bank1:02X} -> {value:02X}")
-
             self.bank1 = value
 
         elif address == 0xFFFF:
-            logger.debug(f"MAPPER: bank2 {self.bank2:02X} -> {value:02X}")
-
             self.bank2 = value
 
         # Work RAM and its mirror

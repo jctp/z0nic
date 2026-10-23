@@ -18,7 +18,11 @@ from z80.opcodes import index_iy
 def _require_implemented(handler, self, opcode):
     prefix_byte = opcode
     second_byte = None
-    if handler.__module__ in ("z80.opcodes.extended", "z80.opcodes.index_ix", "z80.opcodes.index_iy"):
+    if handler.__module__ in (
+        "z80.opcodes.extended",
+        "z80.opcodes.index_ix",
+        "z80.opcodes.index_iy",
+    ):
         second_byte = self.memory.read8(self.PC.get())
 
     result = handler(self, opcode)
@@ -27,7 +31,9 @@ def _require_implemented(handler, self, opcode):
             raise NotImplementedError(
                 f"{handler.__module__}: opcode {prefix_byte:02X} {second_byte:02X} is not implemented"
             )
-        raise NotImplementedError(f"{handler.__module__}: opcode 0x{opcode:02X} is not implemented")
+        raise NotImplementedError(
+            f"{handler.__module__}: opcode 0x{opcode:02X} is not implemented"
+        )
     return result
 
 
@@ -35,7 +41,20 @@ def execute(self, opcode):
     if opcode in (0x00, 0x76):
         return _require_implemented(control.execute, self, opcode)
 
-    if opcode in (0x07, 0x08, 0x0F, 0x17, 0x1F, 0x27, 0x2F, 0x37, 0x3F, 0xD9, 0xE3, 0xEB):
+    if opcode in (
+        0x07,
+        0x08,
+        0x0F,
+        0x17,
+        0x1F,
+        0x27,
+        0x2F,
+        0x37,
+        0x3F,
+        0xD9,
+        0xE3,
+        0xEB,
+    ):
         return _require_implemented(bit_operations.execute, self, opcode)
 
     if opcode in (
@@ -223,7 +242,35 @@ def execute(self, opcode):
     ) or (0x40 <= opcode <= 0x7F and opcode != 0x76):
         return _require_implemented(load.execute, self, opcode)
 
-    if opcode in (0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7, 0xA8, 0xA9, 0xAA, 0xAB, 0xAC, 0xAD, 0xAE, 0xAF, 0xB0, 0xB1, 0xB2, 0xB3, 0xB4, 0xB5, 0xB6, 0xB7, 0xE6, 0xEE, 0xF6):
+    if opcode in (
+        0xA0,
+        0xA1,
+        0xA2,
+        0xA3,
+        0xA4,
+        0xA5,
+        0xA6,
+        0xA7,
+        0xA8,
+        0xA9,
+        0xAA,
+        0xAB,
+        0xAC,
+        0xAD,
+        0xAE,
+        0xAF,
+        0xB0,
+        0xB1,
+        0xB2,
+        0xB3,
+        0xB4,
+        0xB5,
+        0xB6,
+        0xB7,
+        0xE6,
+        0xEE,
+        0xF6,
+    ):
         return _require_implemented(logic.execute, self, opcode)
 
     if opcode in (0xC1, 0xC5, 0xD1, 0xD5, 0xE1, 0xE5, 0xF1, 0xF5):

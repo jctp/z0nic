@@ -1,11 +1,27 @@
 OPCODES = [
-    {"opcode": "0xC1", "mnemonic": "POP BC", "description": "Pop the top of the stack into BC"},
+    {
+        "opcode": "0xC1",
+        "mnemonic": "POP BC",
+        "description": "Pop the top of the stack into BC",
+    },
     {"opcode": "0xC5", "mnemonic": "PUSH BC", "description": "Push BC onto the stack"},
-    {"opcode": "0xD1", "mnemonic": "POP DE", "description": "Pop the top of the stack into DE"},
+    {
+        "opcode": "0xD1",
+        "mnemonic": "POP DE",
+        "description": "Pop the top of the stack into DE",
+    },
     {"opcode": "0xD5", "mnemonic": "PUSH DE", "description": "Push DE onto the stack"},
-    {"opcode": "0xE1", "mnemonic": "POP HL", "description": "Pop the top of the stack into HL"},
+    {
+        "opcode": "0xE1",
+        "mnemonic": "POP HL",
+        "description": "Pop the top of the stack into HL",
+    },
     {"opcode": "0xE5", "mnemonic": "PUSH HL", "description": "Push HL onto the stack"},
-    {"opcode": "0xF1", "mnemonic": "POP AF", "description": "Pop the top of the stack into AF"},
+    {
+        "opcode": "0xF1",
+        "mnemonic": "POP AF",
+        "description": "Pop the top of the stack into AF",
+    },
     {"opcode": "0xF5", "mnemonic": "PUSH AF", "description": "Push AF onto the stack"},
 ]
 
@@ -22,6 +38,7 @@ def _matches_opcode(opcode, entry):
 # Mnemonic: POP BC
 # Description: Pop the top of the stack into BC
 
+
 def _pop_bc(self):
     return None
 
@@ -29,6 +46,7 @@ def _pop_bc(self):
 # Opcode: 0xC5
 # Mnemonic: PUSH BC
 # Description: Push BC onto the stack
+
 
 def _push_bc(self):
     return None
@@ -38,6 +56,7 @@ def _push_bc(self):
 # Mnemonic: POP DE
 # Description: Pop the top of the stack into DE
 
+
 def _pop_de(self):
     return None
 
@@ -45,6 +64,7 @@ def _pop_de(self):
 # Opcode: 0xD5
 # Mnemonic: PUSH DE
 # Description: Push DE onto the stack
+
 
 def _push_de(self):
     return None
@@ -54,6 +74,7 @@ def _push_de(self):
 # Mnemonic: POP HL
 # Description: Pop the top of the stack into HL
 
+
 def _pop_hl(self):
     return None
 
@@ -61,6 +82,7 @@ def _pop_hl(self):
 # Opcode: 0xE5
 # Mnemonic: PUSH HL
 # Description: Push HL onto the stack
+
 
 def _push_hl(self):
     return None
@@ -70,6 +92,7 @@ def _push_hl(self):
 # Mnemonic: POP AF
 # Description: Pop the top of the stack into AF
 
+
 def _pop_af(self):
     return None
 
@@ -77,6 +100,7 @@ def _pop_af(self):
 # Opcode: 0xF5
 # Mnemonic: PUSH AF
 # Description: Push AF onto the stack
+
 
 def _push_af(self):
     return None
@@ -106,4 +130,6 @@ def execute(self, opcode):
                 f"{__name__}: {entry['opcode']} {entry['mnemonic']} ({entry['description']}) is not implemented"
             )
 
-    raise NotImplementedError(f"{__name__}: opcode 0x{opcode:02X} is not defined in the stack table")
+    raise NotImplementedError(
+        f"{__name__}: opcode 0x{opcode:02X} is not defined in the stack table"
+    )

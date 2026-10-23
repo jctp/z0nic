@@ -3,28 +3,27 @@
 from logger import logger
 
 from z80.opcodes import dispatcher
+from z80.structure.flag_setters import FlagSetters
 from z80.structure.registers import (
     Register8Bit,
     Register8BitPair,
     Register16Bit,
-    RegisterFlags
+    RegisterFlags,
 )
+from z80.structure.uops import UOps
 
 # endregion
 # region Z80 CPU
 
-class Z80:
-    def __init__(
-        self,
-        memory,
-        io,
-        clock_hz=1000
-    ):
+
+class Z80(FlagSetters, UOps):
+    def __init__(self, memory, io, clock_hz=1000, log_opcodes=False):
         self.setup()
         self.memory = memory
         self.io = io
         self.clock_hz = clock_hz
         self.reset()
+        self.log_opcodes = log_opcodes
 
     # endregion
     # region Z80 Setup
@@ -36,7 +35,7 @@ class Z80:
     def setup(self):
 
         # Main Registers
-        
+
         self.A = Register8Bit()
         self.F = RegisterFlags()
         self.AF = Register8BitPair(self.A, self.F)
@@ -128,7 +127,7 @@ class Z80:
             lambda: self.E.get(),
             lambda: self.H.get(),
             lambda: self.L.get(),
-            lambda: self.memory.read(self.HL.get()),
+            lambda: self.memory.read8(self.HL.get()),
             lambda: self.A.get(),
         ]
 
@@ -139,7 +138,7 @@ class Z80:
             lambda v: self.E.set(v),
             lambda v: self.H.set(v),
             lambda v: self.L.set(v),
-            lambda v: self.memory.write(self.HL.get(), v),
+            lambda v: self.memory.write8(self.HL.get(), v),
             lambda v: self.A.set(v),
         ]
 
@@ -159,171 +158,19 @@ class Z80:
         logger.info("Z80 setup complete!")
 
     # endregion
-    # region Read uOps
-    def read_byte(self):
-        pass
-
-    def read_word(self):
-        pass
-
-    # endregion
-    # region Jump uOps
-
-    def jump_absolute(self, target):
-        self.PC.set(target & 0xFFFF)
-
-    def jump_relative(self, offset):
-        offset = self.signed_byte(offset)
-        self.PC.set((self.PC.get() + offset) & 0xFFFF)
-
-    # endregion
-    # region Push uOps
-
-    def push_byte(self):
-        pass
-
-    def push_word(self):
-        pass
-
-    # endregion
-    # region Pop uOps
-
-    def pop_byte(self):
-        pass
-
-    def pop_word(self):
-        pass
-
-    # endregion
-    # region Subroutine uOps
-
-    def call(self):
-        pass
-
-    def ret(self):
-        pass
-
-    # endregion
-    # region ALU Arithmetic uOps
-
-    def alu_add(self):
-        pass
-
-    def alu_adc(self):
-        pass
-
-    def alu_sub(self):
-        pass
-
-    def alu_sbc(self):
-        pass
-
-    def alu_cp(self):
-        pass
-
-    # endregion
-    # region ALU Logic uOps
-
-    def alu_and(self):
-        pass
-
-    def alu_or(self):
-        pass
-
-    def alu_xor(self):
-        pass
-
-    # endregion
-    # region Bitwise uOps
-
-    def bit(self):
-        pass
-
-    def set_(self):
-        pass
-
-    def res(self):
-        pass
-
-    # endregion
-    # region Shift/Rotate uOps
-
-    def rlc(self):
-        pass
-
-    def rrc(self):
-        pass
-
-    def rl(self):
-        pass
-
-    def rr(self):
-        pass
-
-    def sla(self):
-        pass
-
-    def sra(self):
-        pass
-
-    def srl(self):
-        pass
-
-    # endregion
-    # region Byte Handling
-
-    def byte_validity_check(self, byte, error_message):
-        if 0 <= byte <= 255:
-            return
-        else:
-            raise ValueError(f"{byte:02X} is not a valid byte (octet): {error_message}")
-
-    def word_validity_check(self, word, error_message):
-        if 0 <= word <= 65535:
-            return
-        else:
-            raise ValueError(f"{word:04X} is not a valid word: {error_message}")
-
-    def signed_byte(self, value):
-        if value & 0x80:
-            return value - 0x100
-        return value
-
-    def ingest_next_byte(self):
-        next_byte = self.memory.read8(self.PC.get())
-        self.PC.inc()
-        return next_byte
-
-    def construct_word(self, lo_byte, hi_byte):
-        self.byte_validity_check(lo_byte, "Word constructor lo byte")
-        self.byte_validity_check(hi_byte, "Word constructor hi byte")
-        word = ((hi_byte << 8) | lo_byte) & 0xFFFF
-        return word
-
-    def split_word(self, word):
-        hi_byte = (word >> 8) & 0xFF
-        lo_byte  = word & 0xFF
-        self.byte_validity_check(hi_byte, "Word splitter hi byte")
-        self.byte_validity_check(lo_byte, "Word splitter lo byte")
-        return hi_byte, lo_byte
-
-    def ingest_next_word(self):
-        lo_byte = self.ingest_next_byte()
-        hi_byte = self.ingest_next_byte()
-        return self.construct_word(lo_byte, hi_byte)
-
-    # endregion
     # Fields
-    
+
+    # R
+
     # Get the last three bits from an opcode , r, to feed into the lookup table
     def get_r(self, opcode):
         return opcode & 0b111
 
     def read_from_r(self, r):
-        return self.read_3bit(r)
+        return self.read_3bit[r]()
 
     def write_to_r(self, r, value):
-        self.write_3bit(r, value)
+        self.write_3bit[r](value)
 
     def read_from_opcode_r(self, opcode):
         r = self.get_r(opcode)
@@ -331,20 +178,42 @@ class Z80:
 
     def write_to_opcode_r(self, opcode, value):
         r = self.get_r(opcode)
-        self.write_3bit(r, value)
+        self.write_to_r(r, value)
+
+    # Y
+
+    def get_y(self, opcode):
+        return (opcode >> 3) & 0b111
+
+    def read_from_y(self, y):
+        return self.read_3bit[y]()
+
+    def write_to_y(self, y, value):
+        self.write_3bit[y](value)
+
+    def read_from_opcode_y(self, opcode):
+        y = self.get_y(opcode)
+        return self.read_from_y(y)
+
+    def write_to_opcode_y(self, opcode, value):
+        y = self.get_y(opcode)
+        self.write_to_y(y, value)
 
     # endregion
     # region Interrupt Handling
-    
+
     def interrupt(self):
         logger.debug("Interrupt fired! Did nothing yet...")
-    
+
     # endregion
     # region CPU Stepping
 
     def step(self):
         opcode = self.memory.read8(self.PC.get())
-        print(f"PC={self.PC.get():04X} opcode=0x{opcode:02X}")
+
+        if self.log_opcodes:
+            print(f"PC={self.PC.get():04X} opcode=0x{opcode:02X}")
+        
         self.PC.inc()
 
         try:
@@ -365,11 +234,33 @@ class Z80:
                 self.interrupt()
 
             return t_states
-            
-        except NotImplementedError:
-            print(f"STOP at PC={self.PC.get():04X} on unimplemented opcode 0x{opcode:02X}")
-            raise
 
+        except NotImplementedError as exc:
+            description = str(exc)
+            if "opcode " in description:
+                description = description.split("opcode ", 1)[1]
+                description = description.replace(" is not implemented", "")
+                description = description.replace("0x", "")
+            else:
+                description = f"0x{opcode:02X}"
 
-        
+            RED     = "\033[31m"
+            ORANGE  = "\033[38;5;208m"
+            YELLOW  = "\033[33m"
+            GREEN   = "\033[32m"
+            CYAN    = "\033[36m"
+            BLUE    = "\033[34m"
+            MAGENTA = "\033[35m"
+            WHITE   = "\033[37m"
+            RESET   = "\033[0m"
+
+            BOLD    = "\033[1m"
+            BLINK   = "\033[5m"
+
+            print(f"{RED}={RESET}" * 80)
+            print(f"{BOLD}{BLINK}{RED}Hi, there! I'm a bug!{RESET}")
+            print(f"My name is: {RED}STOP{RESET} at PC={self.PC.get():04X} on unimplemented Z80 opcode: {GREEN}{description}{RESET}")
+            print(f"{RED}={RESET}" * 80)
+            raise SystemExit(1)
+
         # endregion

@@ -8,8 +8,8 @@ class Register8Bit:
     def __repr__(self):
         return f"Register8Bit (0x{self.contents:02X})"
 
-    def set(self, value: int=0):
-        self.contents = (value & 0xFF)
+    def set(self, value: int = 0):
+        self.contents = value & 0xFF
 
     def get(self):
         return self.contents
@@ -24,19 +24,15 @@ class Register8Bit:
         self.contents = (self.contents << by) & 0xFF
 
     def shift_right(self, by=1):
-        self.contents = (self.contents >> by)
+        self.contents = self.contents >> by
 
     def rotate_left(self, by=1):
         by %= 8
-        self.contents = (
-            (self.contents << by) | (self.contents >> (8 - by))
-        ) & 0xFF
+        self.contents = ((self.contents << by) | (self.contents >> (8 - by))) & 0xFF
 
     def rotate_right(self, by=1):
         by %= 8
-        self.contents = (
-            (self.contents >> by) | (self.contents << (8 - by))
-        ) & 0xFF
+        self.contents = ((self.contents >> by) | (self.contents << (8 - by))) & 0xFF
 
     def get_bit(self, bit):
         if not 0 <= bit <= 7:
@@ -46,7 +42,7 @@ class Register8Bit:
     def set_bit(self, bit):
         if not 0 <= bit <= 7:
             raise ValueError("Bit must be between 0 and 7.")
-        self.contents |= (1 << bit)
+        self.contents |= 1 << bit
 
     def clear_bit(self, bit):
         if not 0 <= bit <= 7:
@@ -56,7 +52,8 @@ class Register8Bit:
     def toggle_bit(self, bit):
         if not 0 <= bit <= 7:
             raise ValueError("Bit must be between 0 and 7")
-        self.contents ^= (1 << bit)
+        self.contents ^= 1 << bit
+
 
 class Register8BitPair:
     def __init__(self, hi_reg, lo_reg):
@@ -83,6 +80,7 @@ class Register8BitPair:
     def dec(self, by=1):
         self.set(self.get() - by)
 
+
 class Register16Bit:
     def __init__(self):
         self.contents = 0
@@ -93,8 +91,8 @@ class Register16Bit:
     def __repr__(self):
         return f"Register16Bit (0x{self.contents:04X})"
 
-    def set(self, value: int=0):
-        self.contents = (value & 0xFFFF)
+    def set(self, value: int = 0):
+        self.contents = value & 0xFFFF
 
     def get(self):
         return self.contents
@@ -105,35 +103,17 @@ class Register16Bit:
     def dec(self, by=1):
         self.contents = (self.contents - by) & 0xFFFF
 
+
 class RegisterFlags(Register8Bit):
+    FLAG_BITS = {"S": 7, "Z": 6, "X": 5, "H": 4, "Y": 3, "PV": 2, "N": 1, "C": 0}
 
-    FLAG_BITS = {
-        "S": 7,
-        "Z": 6,
-        "X": 5,
-        "H": 4,
-        "Y": 3,
-        "PV": 2,
-        "N": 1,
-        "C": 0
-    }
-
-    BIT_FLAGS = {
-        7: "S",
-        6: "Z",
-        5: "X",
-        4: "H",
-        3: "Y",
-        2: "PV",
-        1: "N",
-        0: "C"
-    }
+    BIT_FLAGS = {7: "S", 6: "Z", 5: "X", 4: "H", 3: "Y", 2: "PV", 1: "N", 0: "C"}
 
     def __init__(self):
-        super().__init__() # Inherit from Register8Bit
+        super().__init__()  # Inherit from Register8Bit
 
     def set_flag(self, flag, value):
-        
+
         if flag not in self.FLAG_BITS:
             raise ValueError(f"Unknown flag: {flag}")
 

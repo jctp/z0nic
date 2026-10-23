@@ -19,7 +19,7 @@ class Input_Output:
         # H counter
         if port == 0x7F:
             return self.vdp._get_h_counter()
-        
+
         # VDP
         if port in (0xBE, 0xBF):
             value = self.vdp.read(port)

@@ -1,5 +1,6 @@
 from logger import logger
 
+
 class VDP:
     def __init__(self):
 
@@ -35,7 +36,7 @@ class VDP:
     def read(self, port):
         if port == 0xBF:
             return self._read_status()
-        
+
         if port == 0xBE:
             return self._read_data()
 
@@ -55,7 +56,7 @@ class VDP:
         return self.scanline & 0xFF
 
     def _get_h_counter(self):
-        return 0 # TODO: Implement
+        return 0  # TODO: Implement
 
     def tick(self, cycles):
         self.cycles += cycles

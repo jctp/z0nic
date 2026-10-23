@@ -1,101 +1,353 @@
 OPCODES = [
-    {"opcode": "0x40", "mnemonic": "IN B,(C)", "description": "Input a byte from port C into B"},
+    {
+        "opcode": "0x40",
+        "mnemonic": "IN B,(C)",
+        "description": "Input a byte from port C into B",
+    },
     {"opcode": "0x41", "mnemonic": "OUT (C),B", "description": "Output B to port C"},
-    {"opcode": "0x42", "mnemonic": "SBC HL,BC", "description": "Subtract BC from HL with carry"},
-    {"opcode": "0x43", "mnemonic": "LD (nn),BC", "description": "Store BC at absolute address nn"},
+    {
+        "opcode": "0x42",
+        "mnemonic": "SBC HL,BC",
+        "description": "Subtract BC from HL with carry",
+    },
+    {
+        "opcode": "0x43",
+        "mnemonic": "LD (nn),BC",
+        "description": "Store BC at absolute address nn",
+    },
     {"opcode": "0x44", "mnemonic": "NEG", "description": "Negate accumulator"},
-    {"opcode": "0x45", "mnemonic": "RETN", "description": "Return from non-maskable interrupt"},
+    {
+        "opcode": "0x45",
+        "mnemonic": "RETN",
+        "description": "Return from non-maskable interrupt",
+    },
     {"opcode": "0x46", "mnemonic": "IM 0", "description": "Set interrupt mode 0"},
     {"opcode": "0x47", "mnemonic": "LD I,A", "description": "Load I with A"},
-    {"opcode": "0x48", "mnemonic": "IN C,(C)", "description": "Input a byte from port C into C"},
+    {
+        "opcode": "0x48",
+        "mnemonic": "IN C,(C)",
+        "description": "Input a byte from port C into C",
+    },
     {"opcode": "0x49", "mnemonic": "OUT (C),C", "description": "Output C to port C"},
-    {"opcode": "0x4A", "mnemonic": "ADC HL,BC", "description": "Add BC to HL with carry"},
-    {"opcode": "0x4B", "mnemonic": "LD BC,(nn)", "description": "Load BC from absolute address nn"},
-    {"opcode": "0x4C", "mnemonic": "stub: ED 4C", "description": "Placeholder for unimplemented ED opcode"},
+    {
+        "opcode": "0x4A",
+        "mnemonic": "ADC HL,BC",
+        "description": "Add BC to HL with carry",
+    },
+    {
+        "opcode": "0x4B",
+        "mnemonic": "LD BC,(nn)",
+        "description": "Load BC from absolute address nn",
+    },
+    {
+        "opcode": "0x4C",
+        "mnemonic": "stub: ED 4C",
+        "description": "Placeholder for unimplemented ED opcode",
+    },
     {"opcode": "0x4D", "mnemonic": "RETI", "description": "Return from interrupt"},
-    {"opcode": "0x4E", "mnemonic": "IM 0/1", "description": "Placeholder for interrupt mode selector"},
+    {
+        "opcode": "0x4E",
+        "mnemonic": "IM 0/1",
+        "description": "Placeholder for interrupt mode selector",
+    },
     {"opcode": "0x4F", "mnemonic": "LD R,A", "description": "Load R with A"},
-    {"opcode": "0x50", "mnemonic": "IN D,(C)", "description": "Input a byte from port C into D"},
+    {
+        "opcode": "0x50",
+        "mnemonic": "IN D,(C)",
+        "description": "Input a byte from port C into D",
+    },
     {"opcode": "0x51", "mnemonic": "OUT (C),D", "description": "Output D to port C"},
-    {"opcode": "0x52", "mnemonic": "SBC HL,DE", "description": "Subtract DE from HL with carry"},
-    {"opcode": "0x53", "mnemonic": "LD (nn),DE", "description": "Store DE at absolute address nn"},
-    {"opcode": "0x54", "mnemonic": "stub: ED 54", "description": "Placeholder for unimplemented ED opcode"},
-    {"opcode": "0x55", "mnemonic": "stub: ED 55", "description": "Placeholder for unimplemented ED opcode"},
+    {
+        "opcode": "0x52",
+        "mnemonic": "SBC HL,DE",
+        "description": "Subtract DE from HL with carry",
+    },
+    {
+        "opcode": "0x53",
+        "mnemonic": "LD (nn),DE",
+        "description": "Store DE at absolute address nn",
+    },
+    {
+        "opcode": "0x54",
+        "mnemonic": "stub: ED 54",
+        "description": "Placeholder for unimplemented ED opcode",
+    },
+    {
+        "opcode": "0x55",
+        "mnemonic": "stub: ED 55",
+        "description": "Placeholder for unimplemented ED opcode",
+    },
     {"opcode": "0x56", "mnemonic": "IM 1", "description": "Set interrupt mode 1"},
     {"opcode": "0x57", "mnemonic": "LD A,I", "description": "Load A with I"},
-    {"opcode": "0x58", "mnemonic": "IN E,(C)", "description": "Input a byte from port C into E"},
+    {
+        "opcode": "0x58",
+        "mnemonic": "IN E,(C)",
+        "description": "Input a byte from port C into E",
+    },
     {"opcode": "0x59", "mnemonic": "OUT (C),E", "description": "Output E to port C"},
-    {"opcode": "0x5A", "mnemonic": "ADC HL,DE", "description": "Add DE to HL with carry"},
-    {"opcode": "0x5B", "mnemonic": "LD DE,(nn)", "description": "Load DE from absolute address nn"},
-    {"opcode": "0x5C", "mnemonic": "stub: ED 5C", "description": "Placeholder for unimplemented ED opcode"},
-    {"opcode": "0x5D", "mnemonic": "stub: ED 5D", "description": "Placeholder for unimplemented ED opcode"},
+    {
+        "opcode": "0x5A",
+        "mnemonic": "ADC HL,DE",
+        "description": "Add DE to HL with carry",
+    },
+    {
+        "opcode": "0x5B",
+        "mnemonic": "LD DE,(nn)",
+        "description": "Load DE from absolute address nn",
+    },
+    {
+        "opcode": "0x5C",
+        "mnemonic": "stub: ED 5C",
+        "description": "Placeholder for unimplemented ED opcode",
+    },
+    {
+        "opcode": "0x5D",
+        "mnemonic": "stub: ED 5D",
+        "description": "Placeholder for unimplemented ED opcode",
+    },
     {"opcode": "0x5E", "mnemonic": "IM 2", "description": "Set interrupt mode 2"},
     {"opcode": "0x5F", "mnemonic": "LD A,R", "description": "Load A with R"},
-    {"opcode": "0x60", "mnemonic": "IN H,(C)", "description": "Input a byte from port C into H"},
+    {
+        "opcode": "0x60",
+        "mnemonic": "IN H,(C)",
+        "description": "Input a byte from port C into H",
+    },
     {"opcode": "0x61", "mnemonic": "OUT (C),H", "description": "Output H to port C"},
-    {"opcode": "0x62", "mnemonic": "SBC HL,HL", "description": "Subtract HL from HL with carry"},
-    {"opcode": "0x63", "mnemonic": "LD (nn),HL", "description": "Store HL at absolute address nn"},
-    {"opcode": "0x64", "mnemonic": "stub: ED 64", "description": "Placeholder for unimplemented ED opcode"},
-    {"opcode": "0x65", "mnemonic": "stub: ED 65", "description": "Placeholder for unimplemented ED opcode"},
-    {"opcode": "0x66", "mnemonic": "stub: ED 66", "description": "Placeholder for unimplemented ED opcode"},
-    {"opcode": "0x67", "mnemonic": "RRD", "description": "Rotate right digit in A and memory"},
-    {"opcode": "0x68", "mnemonic": "IN L,(C)", "description": "Input a byte from port C into L"},
+    {
+        "opcode": "0x62",
+        "mnemonic": "SBC HL,HL",
+        "description": "Subtract HL from HL with carry",
+    },
+    {
+        "opcode": "0x63",
+        "mnemonic": "LD (nn),HL",
+        "description": "Store HL at absolute address nn",
+    },
+    {
+        "opcode": "0x64",
+        "mnemonic": "stub: ED 64",
+        "description": "Placeholder for unimplemented ED opcode",
+    },
+    {
+        "opcode": "0x65",
+        "mnemonic": "stub: ED 65",
+        "description": "Placeholder for unimplemented ED opcode",
+    },
+    {
+        "opcode": "0x66",
+        "mnemonic": "stub: ED 66",
+        "description": "Placeholder for unimplemented ED opcode",
+    },
+    {
+        "opcode": "0x67",
+        "mnemonic": "RRD",
+        "description": "Rotate right digit in A and memory",
+    },
+    {
+        "opcode": "0x68",
+        "mnemonic": "IN L,(C)",
+        "description": "Input a byte from port C into L",
+    },
     {"opcode": "0x69", "mnemonic": "OUT (C),L", "description": "Output L to port C"},
-    {"opcode": "0x6A", "mnemonic": "ADC HL,HL", "description": "Add HL to HL with carry"},
-    {"opcode": "0x6B", "mnemonic": "LD HL,(nn)", "description": "Load HL from absolute address nn"},
-    {"opcode": "0x6C", "mnemonic": "stub: ED 6C", "description": "Placeholder for unimplemented ED opcode"},
-    {"opcode": "0x6D", "mnemonic": "stub: ED 6D", "description": "Placeholder for unimplemented ED opcode"},
-    {"opcode": "0x6E", "mnemonic": "stub: ED 6E", "description": "Placeholder for unimplemented ED opcode"},
-    {"opcode": "0x6F", "mnemonic": "RLD", "description": "Rotate left digit in A and memory"},
+    {
+        "opcode": "0x6A",
+        "mnemonic": "ADC HL,HL",
+        "description": "Add HL to HL with carry",
+    },
+    {
+        "opcode": "0x6B",
+        "mnemonic": "LD HL,(nn)",
+        "description": "Load HL from absolute address nn",
+    },
+    {
+        "opcode": "0x6C",
+        "mnemonic": "stub: ED 6C",
+        "description": "Placeholder for unimplemented ED opcode",
+    },
+    {
+        "opcode": "0x6D",
+        "mnemonic": "stub: ED 6D",
+        "description": "Placeholder for unimplemented ED opcode",
+    },
+    {
+        "opcode": "0x6E",
+        "mnemonic": "stub: ED 6E",
+        "description": "Placeholder for unimplemented ED opcode",
+    },
+    {
+        "opcode": "0x6F",
+        "mnemonic": "RLD",
+        "description": "Rotate left digit in A and memory",
+    },
     {"opcode": "0x70", "mnemonic": "IN F,(C)", "description": "Reserved input form"},
     {"opcode": "0x71", "mnemonic": "OUT (C),0", "description": "Reserved output form"},
-    {"opcode": "0x72", "mnemonic": "SBC HL,SP", "description": "Subtract SP from HL with carry"},
-    {"opcode": "0x73", "mnemonic": "LD (nn),SP", "description": "Store SP at absolute address nn"},
-    {"opcode": "0x74", "mnemonic": "stub: ED 74", "description": "Placeholder for unimplemented ED opcode"},
-    {"opcode": "0x75", "mnemonic": "stub: ED 75", "description": "Placeholder for unimplemented ED opcode"},
-    {"opcode": "0x76", "mnemonic": "stub: ED 76", "description": "Placeholder for unimplemented ED opcode"},
-    {"opcode": "0x77", "mnemonic": "stub: ED 77", "description": "Placeholder for unimplemented ED opcode"},
-    {"opcode": "0x78", "mnemonic": "IN A,(C)", "description": "Input a byte from port C into A"},
+    {
+        "opcode": "0x72",
+        "mnemonic": "SBC HL,SP",
+        "description": "Subtract SP from HL with carry",
+    },
+    {
+        "opcode": "0x73",
+        "mnemonic": "LD (nn),SP",
+        "description": "Store SP at absolute address nn",
+    },
+    {
+        "opcode": "0x74",
+        "mnemonic": "stub: ED 74",
+        "description": "Placeholder for unimplemented ED opcode",
+    },
+    {
+        "opcode": "0x75",
+        "mnemonic": "stub: ED 75",
+        "description": "Placeholder for unimplemented ED opcode",
+    },
+    {
+        "opcode": "0x76",
+        "mnemonic": "stub: ED 76",
+        "description": "Placeholder for unimplemented ED opcode",
+    },
+    {
+        "opcode": "0x77",
+        "mnemonic": "stub: ED 77",
+        "description": "Placeholder for unimplemented ED opcode",
+    },
+    {
+        "opcode": "0x78",
+        "mnemonic": "IN A,(C)",
+        "description": "Input a byte from port C into A",
+    },
     {"opcode": "0x79", "mnemonic": "OUT (C),A", "description": "Output A to port C"},
-    {"opcode": "0x7A", "mnemonic": "ADC HL,SP", "description": "Add SP to HL with carry"},
-    {"opcode": "0x7B", "mnemonic": "LD SP,(nn)", "description": "Load SP from absolute address nn"},
-    {"opcode": "0x7C", "mnemonic": "stub: ED 7C", "description": "Placeholder for unimplemented ED opcode"},
-    {"opcode": "0x7D", "mnemonic": "stub: ED 7D", "description": "Placeholder for unimplemented ED opcode"},
-    {"opcode": "0x7E", "mnemonic": "stub: ED 7E", "description": "Placeholder for unimplemented ED opcode"},
-    {"opcode": "0x7F", "mnemonic": "stub: ED 7F", "description": "Placeholder for unimplemented ED opcode"},
+    {
+        "opcode": "0x7A",
+        "mnemonic": "ADC HL,SP",
+        "description": "Add SP to HL with carry",
+    },
+    {
+        "opcode": "0x7B",
+        "mnemonic": "LD SP,(nn)",
+        "description": "Load SP from absolute address nn",
+    },
+    {
+        "opcode": "0x7C",
+        "mnemonic": "stub: ED 7C",
+        "description": "Placeholder for unimplemented ED opcode",
+    },
+    {
+        "opcode": "0x7D",
+        "mnemonic": "stub: ED 7D",
+        "description": "Placeholder for unimplemented ED opcode",
+    },
+    {
+        "opcode": "0x7E",
+        "mnemonic": "stub: ED 7E",
+        "description": "Placeholder for unimplemented ED opcode",
+    },
+    {
+        "opcode": "0x7F",
+        "mnemonic": "stub: ED 7F",
+        "description": "Placeholder for unimplemented ED opcode",
+    },
     {"opcode": "0xA0", "mnemonic": "LDI", "description": "Load and increment"},
     {"opcode": "0xA1", "mnemonic": "CPI", "description": "Compare and increment"},
     {"opcode": "0xA2", "mnemonic": "INI", "description": "Input and increment"},
     {"opcode": "0xA3", "mnemonic": "OUTI", "description": "Output and increment"},
-    {"opcode": "0xA4", "mnemonic": "stub: ED A4", "description": "Placeholder for unimplemented ED opcode"},
-    {"opcode": "0xA5", "mnemonic": "stub: ED A5", "description": "Placeholder for unimplemented ED opcode"},
-    {"opcode": "0xA6", "mnemonic": "stub: ED A6", "description": "Placeholder for unimplemented ED opcode"},
-    {"opcode": "0xA7", "mnemonic": "stub: ED A7", "description": "Placeholder for unimplemented ED opcode"},
+    {
+        "opcode": "0xA4",
+        "mnemonic": "stub: ED A4",
+        "description": "Placeholder for unimplemented ED opcode",
+    },
+    {
+        "opcode": "0xA5",
+        "mnemonic": "stub: ED A5",
+        "description": "Placeholder for unimplemented ED opcode",
+    },
+    {
+        "opcode": "0xA6",
+        "mnemonic": "stub: ED A6",
+        "description": "Placeholder for unimplemented ED opcode",
+    },
+    {
+        "opcode": "0xA7",
+        "mnemonic": "stub: ED A7",
+        "description": "Placeholder for unimplemented ED opcode",
+    },
     {"opcode": "0xA8", "mnemonic": "LDD", "description": "Load and decrement"},
     {"opcode": "0xA9", "mnemonic": "CPD", "description": "Compare and decrement"},
     {"opcode": "0xAA", "mnemonic": "IND", "description": "Input and decrement"},
     {"opcode": "0xAB", "mnemonic": "OUTD", "description": "Output and decrement"},
-    {"opcode": "0xAC", "mnemonic": "stub: ED AC", "description": "Placeholder for unimplemented ED opcode"},
-    {"opcode": "0xAD", "mnemonic": "stub: ED AD", "description": "Placeholder for unimplemented ED opcode"},
-    {"opcode": "0xAE", "mnemonic": "stub: ED AE", "description": "Placeholder for unimplemented ED opcode"},
-    {"opcode": "0xAF", "mnemonic": "stub: ED AF", "description": "Placeholder for unimplemented ED opcode"},
+    {
+        "opcode": "0xAC",
+        "mnemonic": "stub: ED AC",
+        "description": "Placeholder for unimplemented ED opcode",
+    },
+    {
+        "opcode": "0xAD",
+        "mnemonic": "stub: ED AD",
+        "description": "Placeholder for unimplemented ED opcode",
+    },
+    {
+        "opcode": "0xAE",
+        "mnemonic": "stub: ED AE",
+        "description": "Placeholder for unimplemented ED opcode",
+    },
+    {
+        "opcode": "0xAF",
+        "mnemonic": "stub: ED AF",
+        "description": "Placeholder for unimplemented ED opcode",
+    },
     {"opcode": "0xB0", "mnemonic": "LDIR", "description": "Load, increment, repeat"},
     {"opcode": "0xB1", "mnemonic": "CPIR", "description": "Compare, increment, repeat"},
     {"opcode": "0xB2", "mnemonic": "INIR", "description": "Input, increment, repeat"},
     {"opcode": "0xB3", "mnemonic": "OTIR", "description": "Output, increment, repeat"},
-    {"opcode": "0xB4", "mnemonic": "stub: ED B4", "description": "Placeholder for unimplemented ED opcode"},
-    {"opcode": "0xB5", "mnemonic": "stub: ED B5", "description": "Placeholder for unimplemented ED opcode"},
-    {"opcode": "0xB6", "mnemonic": "stub: ED B6", "description": "Placeholder for unimplemented ED opcode"},
-    {"opcode": "0xB7", "mnemonic": "stub: ED B7", "description": "Placeholder for unimplemented ED opcode"},
+    {
+        "opcode": "0xB4",
+        "mnemonic": "stub: ED B4",
+        "description": "Placeholder for unimplemented ED opcode",
+    },
+    {
+        "opcode": "0xB5",
+        "mnemonic": "stub: ED B5",
+        "description": "Placeholder for unimplemented ED opcode",
+    },
+    {
+        "opcode": "0xB6",
+        "mnemonic": "stub: ED B6",
+        "description": "Placeholder for unimplemented ED opcode",
+    },
+    {
+        "opcode": "0xB7",
+        "mnemonic": "stub: ED B7",
+        "description": "Placeholder for unimplemented ED opcode",
+    },
     {"opcode": "0xB8", "mnemonic": "LDDR", "description": "Load, decrement, repeat"},
     {"opcode": "0xB9", "mnemonic": "CPDR", "description": "Compare, decrement, repeat"},
     {"opcode": "0xBA", "mnemonic": "INDR", "description": "Input, decrement, repeat"},
     {"opcode": "0xBB", "mnemonic": "OTDR", "description": "Output, decrement, repeat"},
-    {"opcode": "0xBC", "mnemonic": "stub: ED BC", "description": "Placeholder for unimplemented ED opcode"},
-    {"opcode": "0xBD", "mnemonic": "stub: ED BD", "description": "Placeholder for unimplemented ED opcode"},
-    {"opcode": "0xBE", "mnemonic": "stub: ED BE", "description": "Placeholder for unimplemented ED opcode"},
-    {"opcode": "0xBF", "mnemonic": "stub: ED BF", "description": "Placeholder for unimplemented ED opcode"},
-    {"opcode": "0xED", "mnemonic": "ED prefix", "description": "Prefix for the extended instruction table"},
+    {
+        "opcode": "0xBC",
+        "mnemonic": "stub: ED BC",
+        "description": "Placeholder for unimplemented ED opcode",
+    },
+    {
+        "opcode": "0xBD",
+        "mnemonic": "stub: ED BD",
+        "description": "Placeholder for unimplemented ED opcode",
+    },
+    {
+        "opcode": "0xBE",
+        "mnemonic": "stub: ED BE",
+        "description": "Placeholder for unimplemented ED opcode",
+    },
+    {
+        "opcode": "0xBF",
+        "mnemonic": "stub: ED BF",
+        "description": "Placeholder for unimplemented ED opcode",
+    },
+    {
+        "opcode": "0xED",
+        "mnemonic": "ED prefix",
+        "description": "Prefix for the extended instruction table",
+    },
 ]
 
 
@@ -111,6 +363,7 @@ def _matches_opcode(opcode, entry):
 # Mnemonic: IN B,(C)
 # Description: Input a byte from port C into B
 
+
 def _in_b_c(self):
     return None
 
@@ -118,6 +371,7 @@ def _in_b_c(self):
 # Opcode: 0x41
 # Mnemonic: OUT (C),B
 # Description: Output B to port C
+
 
 def _out_c_b(self):
     return None
@@ -127,6 +381,7 @@ def _out_c_b(self):
 # Mnemonic: SBC HL,BC
 # Description: Subtract BC from HL with carry
 
+
 def _sbc_hl_bc(self):
     return None
 
@@ -134,6 +389,7 @@ def _sbc_hl_bc(self):
 # Opcode: 0x43
 # Mnemonic: LD (nn),BC
 # Description: Store BC at absolute address nn
+
 
 def _ld_nn_bc(self):
     return None
@@ -143,6 +399,7 @@ def _ld_nn_bc(self):
 # Mnemonic: NEG
 # Description: Negate accumulator
 
+
 def _neg(self):
     return None
 
@@ -150,6 +407,7 @@ def _neg(self):
 # Opcode: 0x45
 # Mnemonic: RETN
 # Description: Return from non-maskable interrupt
+
 
 def _retn(self):
     return None
@@ -159,6 +417,7 @@ def _retn(self):
 # Mnemonic: IM 0
 # Description: Set interrupt mode 0
 
+
 def _im_0(self):
     return None
 
@@ -166,6 +425,7 @@ def _im_0(self):
 # Opcode: 0x47
 # Mnemonic: LD I,A
 # Description: Load I with A
+
 
 def _ld_i_a(self):
     return None
@@ -175,6 +435,7 @@ def _ld_i_a(self):
 # Mnemonic: IN C,(C)
 # Description: Input a byte from port C into C
 
+
 def _in_c_c(self):
     return None
 
@@ -182,6 +443,7 @@ def _in_c_c(self):
 # Opcode: 0x49
 # Mnemonic: OUT (C),C
 # Description: Output C to port C
+
 
 def _out_c_c(self):
     return None
@@ -191,6 +453,7 @@ def _out_c_c(self):
 # Mnemonic: ADC HL,BC
 # Description: Add BC to HL with carry
 
+
 def _adc_hl_bc(self):
     return None
 
@@ -198,6 +461,7 @@ def _adc_hl_bc(self):
 # Opcode: 0x4B
 # Mnemonic: LD BC,(nn)
 # Description: Load BC from absolute address nn
+
 
 def _ld_bc_nn(self):
     return None
@@ -207,6 +471,7 @@ def _ld_bc_nn(self):
 # Mnemonic: RETI
 # Description: Return from interrupt
 
+
 def _reti(self):
     return None
 
@@ -214,6 +479,7 @@ def _reti(self):
 # Opcode: 0x4E
 # Mnemonic: IM 0/1
 # Description: Placeholder for interrupt mode selector
+
 
 def _im_1(self):
     return None
@@ -223,6 +489,7 @@ def _im_1(self):
 # Mnemonic: LD R,A
 # Description: Load R with A
 
+
 def _ld_r_a(self):
     return None
 
@@ -230,6 +497,7 @@ def _ld_r_a(self):
 # Opcode: 0x50
 # Mnemonic: IN D,(C)
 # Description: Input a byte from port C into D
+
 
 def _in_d_c(self):
     return None
@@ -239,6 +507,7 @@ def _in_d_c(self):
 # Mnemonic: OUT (C),D
 # Description: Output D to port C
 
+
 def _out_c_d(self):
     return None
 
@@ -246,6 +515,7 @@ def _out_c_d(self):
 # Opcode: 0x52
 # Mnemonic: SBC HL,DE
 # Description: Subtract DE from HL with carry
+
 
 def _sbc_hl_de(self):
     return None
@@ -255,6 +525,7 @@ def _sbc_hl_de(self):
 # Mnemonic: LD (nn),DE
 # Description: Store DE at absolute address nn
 
+
 def _ld_nn_de(self):
     return None
 
@@ -262,6 +533,7 @@ def _ld_nn_de(self):
 # Opcode: 0x56
 # Mnemonic: IM 1
 # Description: Set interrupt mode 1
+
 
 def _im_2(self):
     self.IM = 1
@@ -272,6 +544,7 @@ def _im_2(self):
 # Mnemonic: LD A,I
 # Description: Load A with I
 
+
 def _ld_a_i(self):
     return None
 
@@ -279,6 +552,7 @@ def _ld_a_i(self):
 # Opcode: 0x58
 # Mnemonic: IN E,(C)
 # Description: Input a byte from port C into E
+
 
 def _in_e_c(self):
     return None
@@ -288,6 +562,7 @@ def _in_e_c(self):
 # Mnemonic: OUT (C),E
 # Description: Output E to port C
 
+
 def _out_c_e(self):
     return None
 
@@ -295,6 +570,7 @@ def _out_c_e(self):
 # Opcode: 0x5A
 # Mnemonic: ADC HL,DE
 # Description: Add DE to HL with carry
+
 
 def _adc_hl_de(self):
     return None
@@ -304,6 +580,7 @@ def _adc_hl_de(self):
 # Mnemonic: LD DE,(nn)
 # Description: Load DE from absolute address nn
 
+
 def _ld_de_nn(self):
     return None
 
@@ -311,6 +588,7 @@ def _ld_de_nn(self):
 # Opcode: 0x5F
 # Mnemonic: LD A,R
 # Description: Load A with R
+
 
 def _ld_a_r(self):
     return None
@@ -320,6 +598,7 @@ def _ld_a_r(self):
 # Mnemonic: IN H,(C)
 # Description: Input a byte from port C into H
 
+
 def _in_h_c(self):
     return None
 
@@ -327,6 +606,7 @@ def _in_h_c(self):
 # Opcode: 0x61
 # Mnemonic: OUT (C),H
 # Description: Output H to port C
+
 
 def _out_c_h(self):
     return None
@@ -336,6 +616,7 @@ def _out_c_h(self):
 # Mnemonic: SBC HL,HL
 # Description: Subtract HL from HL with carry
 
+
 def _sbc_hl_hl(self):
     return None
 
@@ -343,6 +624,7 @@ def _sbc_hl_hl(self):
 # Opcode: 0x63
 # Mnemonic: LD (nn),HL
 # Description: Store HL at absolute address nn
+
 
 def _ld_nn_hl(self):
     return None
@@ -352,6 +634,7 @@ def _ld_nn_hl(self):
 # Mnemonic: RRD
 # Description: Rotate right digit in A and memory
 
+
 def _rrd(self):
     return None
 
@@ -359,6 +642,7 @@ def _rrd(self):
 # Opcode: 0x68
 # Mnemonic: IN L,(C)
 # Description: Input a byte from port C into L
+
 
 def _in_l_c(self):
     return None
@@ -368,6 +652,7 @@ def _in_l_c(self):
 # Mnemonic: OUT (C),L
 # Description: Output L to port C
 
+
 def _out_c_l(self):
     return None
 
@@ -375,6 +660,7 @@ def _out_c_l(self):
 # Opcode: 0x6A
 # Mnemonic: ADC HL,HL
 # Description: Add HL to HL with carry
+
 
 def _adc_hl_hl(self):
     return None
@@ -384,6 +670,7 @@ def _adc_hl_hl(self):
 # Mnemonic: LD HL,(nn)
 # Description: Load HL from absolute address nn
 
+
 def _ld_hl_nn(self):
     return None
 
@@ -391,6 +678,7 @@ def _ld_hl_nn(self):
 # Opcode: 0x6F
 # Mnemonic: RLD
 # Description: Rotate left digit in A and memory
+
 
 def _rld(self):
     return None
@@ -400,6 +688,7 @@ def _rld(self):
 # Mnemonic: IN F,(C)
 # Description: Reserved input form
 
+
 def _in_f_c(self):
     return None
 
@@ -407,6 +696,7 @@ def _in_f_c(self):
 # Opcode: 0x71
 # Mnemonic: OUT (C),0
 # Description: Reserved output form
+
 
 def _out_c_zero(self):
     return None
@@ -416,6 +706,7 @@ def _out_c_zero(self):
 # Mnemonic: SBC HL,SP
 # Description: Subtract SP from HL with carry
 
+
 def _sbc_hl_sp(self):
     return None
 
@@ -423,6 +714,7 @@ def _sbc_hl_sp(self):
 # Opcode: 0x73
 # Mnemonic: LD (nn),SP
 # Description: Store SP at absolute address nn
+
 
 def _ld_nn_sp(self):
     return None
@@ -432,6 +724,7 @@ def _ld_nn_sp(self):
 # Mnemonic: IN A,(C)
 # Description: Input a byte from port C into A
 
+
 def _in_a_c(self):
     return None
 
@@ -439,6 +732,7 @@ def _in_a_c(self):
 # Opcode: 0x79
 # Mnemonic: OUT (C),A
 # Description: Output A to port C
+
 
 def _out_c_a(self):
     return None
@@ -448,6 +742,7 @@ def _out_c_a(self):
 # Mnemonic: ADC HL,SP
 # Description: Add SP to HL with carry
 
+
 def _adc_hl_sp(self):
     return None
 
@@ -455,6 +750,7 @@ def _adc_hl_sp(self):
 # Opcode: 0x7B
 # Mnemonic: LD SP,(nn)
 # Description: Load SP from absolute address nn
+
 
 def _ld_sp_nn(self):
     return None
@@ -464,6 +760,7 @@ def _ld_sp_nn(self):
 # Mnemonic: LDI
 # Description: Load and increment
 
+
 def _ldi(self):
     return None
 
@@ -471,6 +768,7 @@ def _ldi(self):
 # Opcode: 0xA1
 # Mnemonic: CPI
 # Description: Compare and increment
+
 
 def _cpi(self):
     return None
@@ -480,6 +778,7 @@ def _cpi(self):
 # Mnemonic: INI
 # Description: Input and increment
 
+
 def _ini(self):
     return None
 
@@ -487,6 +786,7 @@ def _ini(self):
 # Opcode: 0xA3
 # Mnemonic: OUTI
 # Description: Output and increment
+
 
 def _outi(self):
     return None
@@ -496,6 +796,7 @@ def _outi(self):
 # Mnemonic: LDD
 # Description: Load and decrement
 
+
 def _ldd(self):
     return None
 
@@ -503,6 +804,7 @@ def _ldd(self):
 # Opcode: 0xA9
 # Mnemonic: CPD
 # Description: Compare and decrement
+
 
 def _cpd(self):
     return None
@@ -512,6 +814,7 @@ def _cpd(self):
 # Mnemonic: IND
 # Description: Input and decrement
 
+
 def _ind(self):
     return None
 
@@ -519,6 +822,7 @@ def _ind(self):
 # Opcode: 0xAB
 # Mnemonic: OUTD
 # Description: Output and decrement
+
 
 def _outd(self):
     return None
@@ -528,6 +832,7 @@ def _outd(self):
 # Mnemonic: LDIR
 # Description: Load, increment, repeat
 
+
 def _ldir(self):
     return None
 
@@ -535,6 +840,7 @@ def _ldir(self):
 # Opcode: 0xB1
 # Mnemonic: CPIR
 # Description: Compare, increment, repeat
+
 
 def _cpir(self):
     return None
@@ -544,6 +850,7 @@ def _cpir(self):
 # Mnemonic: INIR
 # Description: Input, increment, repeat
 
+
 def _inir(self):
     return None
 
@@ -551,6 +858,7 @@ def _inir(self):
 # Opcode: 0xB3
 # Mnemonic: OTIR
 # Description: Output, increment, repeat
+
 
 def _otir(self):
     return None
@@ -560,6 +868,7 @@ def _otir(self):
 # Mnemonic: LDDR
 # Description: Load, decrement, repeat
 
+
 def _lddr(self):
     return None
 
@@ -567,6 +876,7 @@ def _lddr(self):
 # Opcode: 0xB9
 # Mnemonic: CPDR
 # Description: Compare, decrement, repeat
+
 
 def _cpdr(self):
     return None
@@ -576,6 +886,7 @@ def _cpdr(self):
 # Mnemonic: INDR
 # Description: Input, decrement, repeat
 
+
 def _indr(self):
     return None
 
@@ -583,6 +894,7 @@ def _indr(self):
 # Opcode: 0xBB
 # Mnemonic: OTDR
 # Description: Output, decrement, repeat
+
 
 def _otdr(self):
     return None

@@ -1,6 +1,10 @@
 OPCODES = [
     {"opcode": "0xF3", "mnemonic": "DI", "description": "Disable maskable interrupts"},
-    {"opcode": "0xFB", "mnemonic": "EI", "description": "Enable maskable interrupts after the next instruction"},
+    {
+        "opcode": "0xFB",
+        "mnemonic": "EI",
+        "description": "Enable maskable interrupts after the next instruction",
+    },
 ]
 
 
@@ -16,15 +20,18 @@ def _matches_opcode(opcode, entry):
 # Mnemonic: DI
 # Description: Disable maskable interrupts
 
+
 def _di(self):
     self.IFF1 = False
     self.IFF2 = False
     self.EI_delay = 0
     return 4
 
+
 # Opcode: 0xFB
 # Mnemonic: EI
 # Description: Enable maskable interrupts after the next instruction
+
 
 def _ei(self):
     self.EI_delay = 2
@@ -43,4 +50,6 @@ def execute(self, opcode):
                 f"{__name__}: {entry['opcode']} {entry['mnemonic']} ({entry['description']}) is not implemented"
             )
 
-    raise NotImplementedError(f"{__name__}: opcode 0x{opcode:02X} is not defined in the interrupt table")
+    raise NotImplementedError(
+        f"{__name__}: opcode 0x{opcode:02X} is not defined in the interrupt table"
+    )

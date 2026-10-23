@@ -1,8 +1,24 @@
 OPCODES = [
-    {"opcode": "0x00-0x3F", "mnemonic": "RLC/RRC/RL/RR/SLA/SRA/SLL/SRL (IX+d)", "description": "Indexed rotate/shift operation"},
-    {"opcode": "0x40-0x7F", "mnemonic": "BIT b,(IX+d)", "description": "Test a bit in the indexed memory byte"},
-    {"opcode": "0x80-0xBF", "mnemonic": "RES b,(IX+d)", "description": "Reset a bit in the indexed memory byte"},
-    {"opcode": "0xC0-0xFF", "mnemonic": "SET b,(IX+d)", "description": "Set a bit in the indexed memory byte"},
+    {
+        "opcode": "0x00-0x3F",
+        "mnemonic": "RLC/RRC/RL/RR/SLA/SRA/SLL/SRL (IX+d)",
+        "description": "Indexed rotate/shift operation",
+    },
+    {
+        "opcode": "0x40-0x7F",
+        "mnemonic": "BIT b,(IX+d)",
+        "description": "Test a bit in the indexed memory byte",
+    },
+    {
+        "opcode": "0x80-0xBF",
+        "mnemonic": "RES b,(IX+d)",
+        "description": "Reset a bit in the indexed memory byte",
+    },
+    {
+        "opcode": "0xC0-0xFF",
+        "mnemonic": "SET b,(IX+d)",
+        "description": "Set a bit in the indexed memory byte",
+    },
 ]
 
 
@@ -18,6 +34,7 @@ def _matches_opcode(opcode, entry):
 # Mnemonic: RLC/RRC/RL/RR/SLA/SRA/SLL/SRL (IX+d)
 # Description: Indexed rotate/shift operation
 
+
 def _rlc_rrc_rl_rr_sla_sra_sll_srl_ix_d(self):
     return None
 
@@ -25,6 +42,7 @@ def _rlc_rrc_rl_rr_sla_sra_sll_srl_ix_d(self):
 # Opcode: 0x40-0x7F
 # Mnemonic: BIT b,(IX+d)
 # Description: Test a bit in the indexed memory byte
+
 
 def _bit_b_ix_d(self):
     return None
@@ -34,6 +52,7 @@ def _bit_b_ix_d(self):
 # Mnemonic: RES b,(IX+d)
 # Description: Reset a bit in the indexed memory byte
 
+
 def _res_b_ix_d(self):
     return None
 
@@ -41,6 +60,7 @@ def _res_b_ix_d(self):
 # Opcode: 0xC0-0xFF
 # Mnemonic: SET b,(IX+d)
 # Description: Set a bit in the indexed memory byte
+
 
 def _set_b_ix_d(self):
     return None
@@ -64,4 +84,6 @@ def execute(self):
                 f"{__name__}: {entry['opcode']} {entry['mnemonic']} ({entry['description']}) is not implemented"
             )
 
-    raise NotImplementedError(f"{__name__}: opcode 0x{opcode:02X} is not defined in the DD CB table")
+    raise NotImplementedError(
+        f"{__name__}: opcode 0x{opcode:02X} is not defined in the DD CB table"
+    )

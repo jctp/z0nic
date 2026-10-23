@@ -1,6 +1,14 @@
 OPCODES = [
-    {"opcode": "0xB8-0xBF", "mnemonic": "CP r", "description": "Compare A with the selected register"},
-    {"opcode": "0xFE", "mnemonic": "CP n", "description": "Compare A with the immediate byte"},
+    {
+        "opcode": "0xB8-0xBF",
+        "mnemonic": "CP r",
+        "description": "Compare A with the selected register",
+    },
+    {
+        "opcode": "0xFE",
+        "mnemonic": "CP n",
+        "description": "Compare A with the immediate byte",
+    },
 ]
 
 
@@ -16,6 +24,7 @@ def _matches_opcode(opcode, entry):
 # Mnemonic: CP r
 # Description: Compare A with the selected register
 
+
 def _cp_r(self):
     return None
 
@@ -24,20 +33,16 @@ def _cp_r(self):
 # Mnemonic: CP n
 # Description: Compare A with immediate byte
 
-def _cp_n(self):
 
+def _cp_n(self):
     value = self.ingest_next_byte()
     a = self.A.get()
-
     result = (a - value) & 0xFF
 
-    # Flags
-    self.F.sign = (result & 0x80) != 0
-    self.F.zero = (result == 0)
-    self.F.add_sub = True
-    self.F.carry = (a < value)
+    self.set_subtraction_flags(a, value, result)
 
     return 7
+
 
 def execute(self, opcode):
     for entry in OPCODES:
@@ -51,4 +56,6 @@ def execute(self, opcode):
                 f"{__name__}: {entry['opcode']} {entry['mnemonic']} ({entry['description']}) is not implemented"
             )
 
-    raise NotImplementedError(f"{__name__}: opcode 0x{opcode:02X} is not defined in the compare table")
+    raise NotImplementedError(
+        f"{__name__}: opcode 0x{opcode:02X} is not defined in the compare table"
+    )

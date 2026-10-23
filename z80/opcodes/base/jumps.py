@@ -1,20 +1,72 @@
 OPCODES = [
-    {"opcode": "0x10", "mnemonic": "DJNZ e", "description": "Decrement B and jump relative if B is not zero"},
-    {"opcode": "0x18", "mnemonic": "JR e", "description": "Jump relative by signed displacement"},
-    {"opcode": "0x20", "mnemonic": "JR NZ,e", "description": "Jump relative if Z is reset"},
-    {"opcode": "0x28", "mnemonic": "JR Z,e", "description": "Jump relative if Z is set"},
-    {"opcode": "0x30", "mnemonic": "JR NC,e", "description": "Jump relative if C is reset"},
-    {"opcode": "0x38", "mnemonic": "JR C,e", "description": "Jump relative if C is set"},
-    {"opcode": "0xC2", "mnemonic": "JP NZ,nn", "description": "Jump to nn if Z is reset"},
+    {
+        "opcode": "0x10",
+        "mnemonic": "DJNZ e",
+        "description": "Decrement B and jump relative if B is not zero",
+    },
+    {
+        "opcode": "0x18",
+        "mnemonic": "JR e",
+        "description": "Jump relative by signed displacement",
+    },
+    {
+        "opcode": "0x20",
+        "mnemonic": "JR NZ,e",
+        "description": "Jump relative if Z is reset",
+    },
+    {
+        "opcode": "0x28",
+        "mnemonic": "JR Z,e",
+        "description": "Jump relative if Z is set",
+    },
+    {
+        "opcode": "0x30",
+        "mnemonic": "JR NC,e",
+        "description": "Jump relative if C is reset",
+    },
+    {
+        "opcode": "0x38",
+        "mnemonic": "JR C,e",
+        "description": "Jump relative if C is set",
+    },
+    {
+        "opcode": "0xC2",
+        "mnemonic": "JP NZ,nn",
+        "description": "Jump to nn if Z is reset",
+    },
     {"opcode": "0xC3", "mnemonic": "JP nn", "description": "Jump directly to nn"},
     {"opcode": "0xCA", "mnemonic": "JP Z,nn", "description": "Jump to nn if Z is set"},
-    {"opcode": "0xD2", "mnemonic": "JP NC,nn", "description": "Jump to nn if C is reset"},
+    {
+        "opcode": "0xD2",
+        "mnemonic": "JP NC,nn",
+        "description": "Jump to nn if C is reset",
+    },
     {"opcode": "0xDA", "mnemonic": "JP C,nn", "description": "Jump to nn if C is set"},
-    {"opcode": "0xE2", "mnemonic": "JP PO,nn", "description": "Jump to nn if parity is odd"},
-    {"opcode": "0xE9", "mnemonic": "JP (HL)", "description": "Jump to the address contained in HL"},
-    {"opcode": "0xEA", "mnemonic": "JP PE,nn", "description": "Jump to nn if parity is even"},
-    {"opcode": "0xF2", "mnemonic": "JP P,nn", "description": "Jump to nn if sign is positive"},
-    {"opcode": "0xFA", "mnemonic": "JP M,nn", "description": "Jump to nn if sign is negative"},
+    {
+        "opcode": "0xE2",
+        "mnemonic": "JP PO,nn",
+        "description": "Jump to nn if parity is odd",
+    },
+    {
+        "opcode": "0xE9",
+        "mnemonic": "JP (HL)",
+        "description": "Jump to the address contained in HL",
+    },
+    {
+        "opcode": "0xEA",
+        "mnemonic": "JP PE,nn",
+        "description": "Jump to nn if parity is even",
+    },
+    {
+        "opcode": "0xF2",
+        "mnemonic": "JP P,nn",
+        "description": "Jump to nn if sign is positive",
+    },
+    {
+        "opcode": "0xFA",
+        "mnemonic": "JP M,nn",
+        "description": "Jump to nn if sign is negative",
+    },
 ]
 
 
@@ -30,6 +82,7 @@ def _matches_opcode(opcode, entry):
 # Mnemonic: DJNZ e
 # Description: Decrement B and jump relative if B is not zero
 
+
 def _djnz_e(self):
     return None
 
@@ -38,6 +91,7 @@ def _djnz_e(self):
 # Mnemonic: JR e
 # Description: Jump relative by signed displacement
 
+
 def _jr_e(self):
     return None
 
@@ -45,6 +99,7 @@ def _jr_e(self):
 # Opcode: 0x20
 # Mnemonic: JR NZ,e
 # Description: Jump relative if Z is reset
+
 
 def _jr_nz_e(self):
 
@@ -61,6 +116,7 @@ def _jr_nz_e(self):
 # Mnemonic: JR Z,e
 # Description: Jump relative if Z is set
 
+
 def _jr_z_e(self):
     displacement_e = self.ingest_next_byte()
 
@@ -71,10 +127,10 @@ def _jr_z_e(self):
         return 7
 
 
-
 # Opcode: 0x30
 # Mnemonic: JR NC,e
 # Description: Jump relative if C is reset
+
 
 def _jr_nc_e(self):
     return None
@@ -84,6 +140,7 @@ def _jr_nc_e(self):
 # Mnemonic: JR C,e
 # Description: Jump relative if C is set
 
+
 def _jr_c_e(self):
     return None
 
@@ -92,6 +149,7 @@ def _jr_c_e(self):
 # Mnemonic: JP NZ,nn
 # Description: Jump to nn if Z is reset
 
+
 def _jp_nz_nn(self):
     return None
 
@@ -99,6 +157,7 @@ def _jp_nz_nn(self):
 # Opcode: 0xC3
 # Mnemonic: JP nn
 # Description: Jump directly to nn
+
 
 def _jp_nn(self):
     nn = self.ingest_next_word()
@@ -110,6 +169,7 @@ def _jp_nn(self):
 # Mnemonic: JP Z,nn
 # Description: Jump to nn if Z is set
 
+
 def _jp_z_nn(self):
     return None
 
@@ -117,6 +177,7 @@ def _jp_z_nn(self):
 # Opcode: 0xD2
 # Mnemonic: JP NC,nn
 # Description: Jump to nn if C is reset
+
 
 def _jp_nc_nn(self):
     return None
@@ -126,6 +187,7 @@ def _jp_nc_nn(self):
 # Mnemonic: JP C,nn
 # Description: Jump to nn if C is set
 
+
 def _jp_c_nn(self):
     return None
 
@@ -133,6 +195,7 @@ def _jp_c_nn(self):
 # Opcode: 0xE2
 # Mnemonic: JP PO,nn
 # Description: Jump to nn if parity is odd
+
 
 def _jp_po_nn(self):
     return None
@@ -142,6 +205,7 @@ def _jp_po_nn(self):
 # Mnemonic: JP (HL)
 # Description: Jump to the address contained in HL
 
+
 def _jp_hl(self):
     return None
 
@@ -149,6 +213,7 @@ def _jp_hl(self):
 # Opcode: 0xEA
 # Mnemonic: JP PE,nn
 # Description: Jump to nn if parity is even
+
 
 def _jp_pe_nn(self):
     return None
@@ -158,6 +223,7 @@ def _jp_pe_nn(self):
 # Mnemonic: JP P,nn
 # Description: Jump to nn if sign is positive
 
+
 def _jp_p_nn(self):
     return None
 
@@ -165,6 +231,7 @@ def _jp_p_nn(self):
 # Opcode: 0xFA
 # Mnemonic: JP M,nn
 # Description: Jump to nn if sign is negative
+
 
 def _jp_m_nn(self):
     return None
@@ -210,4 +277,6 @@ def execute(self, opcode):
                 f"{__name__}: {entry['opcode']} {entry['mnemonic']} ({entry['description']}) is not implemented"
             )
 
-    raise NotImplementedError(f"{__name__}: opcode 0x{opcode:02X} is not defined in the jump table")
+    raise NotImplementedError(
+        f"{__name__}: opcode 0x{opcode:02X} is not defined in the jump table"
+    )

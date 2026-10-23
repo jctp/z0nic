@@ -1,6 +1,10 @@
 OPCODES = [
     {"opcode": "0x00", "mnemonic": "NOP", "description": "No operation"},
-    {"opcode": "0x76", "mnemonic": "HALT", "description": "Stop the CPU until an interrupt occurs"},
+    {
+        "opcode": "0x76",
+        "mnemonic": "HALT",
+        "description": "Stop the CPU until an interrupt occurs",
+    },
 ]
 
 
@@ -16,6 +20,7 @@ def _matches_opcode(opcode, entry):
 # Mnemonic: NOP
 # Description: No operation
 
+
 def _nop(self):
     return 4
 
@@ -23,6 +28,7 @@ def _nop(self):
 # Opcode: 0x76
 # Mnemonic: HALT
 # Description: Stop the CPU until an interrupt occurs
+
 
 def _halt(self):
     return None
@@ -40,4 +46,6 @@ def execute(self, opcode):
                 f"{__name__}: {entry['opcode']} {entry['mnemonic']} ({entry['description']}) is not implemented"
             )
 
-    raise NotImplementedError(f"{__name__}: opcode 0x{opcode:02X} is not defined in the control table")
+    raise NotImplementedError(
+        f"{__name__}: opcode 0x{opcode:02X} is not defined in the control table"
+    )

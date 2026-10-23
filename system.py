@@ -1,10 +1,11 @@
 import os
 
+
 class SegaMasterSystem:
     def __init__(self, cpu, cartridge, io, memory, logger):
 
         self.splash_screen()
-        
+
         self.cpu = cpu
         self.cartridge = cartridge
         self.io = io
@@ -25,15 +26,30 @@ class SegaMasterSystem:
             os.system("clear")
 
         clear_screen()
-        print("-" * 80)
-        print(" _______  _______  __    _  ___   _______")
-        print("|       ||  _    ||  |  | ||   | |       |")
-        print("|____   || | |   ||   |_| ||   | |       |")
-        print(" ____|  || | |   ||       ||   | |       |")
-        print("| ______|| |_|   ||  _    ||   | |      _|")
-        print("| |_____ |       || | |   ||   | |     |_ ")
-        print("|_______||_______||_|  |__||___| |_______| v0.???")
+
+        RED     = "\033[31m"
+        ORANGE  = "\033[38;5;208m"
+        YELLOW  = "\033[33m"
+        GREEN   = "\033[32m"
+        CYAN    = "\033[36m"
+        BLUE    = "\033[34m"
+        MAGENTA = "\033[35m"
+        WHITE   = "\033[37m"
+        RESET   = "\033[0m"
+
+        print(f"{BLUE}-{RESET}" * 80)
+
+        print(f"{RED    } _______  _______  __    _  ___   _______  {RESET}")
+        print(f"{ORANGE }|       ||  _    ||  |  | ||   | |       | {RESET}")
+        print(f"{YELLOW }|____   || | |   ||   |_| ||   | |       | {RESET}")
+        print(f"{GREEN  } ____|  || | |   ||       ||   | |       | {RESET}")
+        print(f"{CYAN   }| ______|| |_|   ||  _    ||   | |      _| {RESET}")
+        print(f"{BLUE   }| |_____ |       || | |   ||   | |     |_  {RESET}")
+        print(f"{MAGENTA}|_______||_______||_|  |__||___| |_______| {WHITE}v0.0.1{RESET}")
+        
         print("")
-        print("-" * 80)
-        print("PRE-PRE-PRE-ALPHA")
-        print("-" * 80)
+        print(f"{BLUE}-{RESET}" * 80)
+        print("\"Doesn't crash immediately!\"")
+        print(f"{BLUE}-{RESET}" * 80)
+        print(f"{MAGENTA}(C) {GREEN}James Plant 2026{WHITE} - {RED}MIT Licence{RESET}")
+        print(f"{BLUE}-{RESET}" * 80)
