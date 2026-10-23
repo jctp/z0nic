@@ -99,8 +99,12 @@ def _matches_opcode(opcode, entry):
 # Description: Rotate left circular through carry
 
 
-def _rlc_r(self):
-    return None
+def _rlc_r(self, opcode):
+    r = opcode & 0b111
+    value = self.read_from_r(r)
+    result = self.rlc(value)
+    self.write_to_r(r, result)
+    return 8
 
 
 # Opcode: 0x08-0x0F
@@ -108,8 +112,12 @@ def _rlc_r(self):
 # Description: Rotate right circular through carry
 
 
-def _rrc_r(self):
-    return None
+def _rrc_r(self, opcode):
+    r = opcode & 0b111
+    value = self.read_from_r(r)
+    result = self.rrc(value)
+    self.write_to_r(r, result)
+    return 8
 
 
 # Opcode: 0x10-0x17
@@ -117,8 +125,12 @@ def _rrc_r(self):
 # Description: Rotate left through carry
 
 
-def _rl_r(self):
-    return None
+def _rl_r(self, opcode):
+    r = opcode & 0b111
+    value = self.read_from_r(r)
+    result = self.rl(value)
+    self.write_to_r(r, result)
+    return 8
 
 
 # Opcode: 0x18-0x1F
@@ -126,8 +138,12 @@ def _rl_r(self):
 # Description: Rotate right through carry
 
 
-def _rr_r(self):
-    return None
+def _rr_r(self, opcode):
+    r = opcode & 0b111
+    value = self.read_from_r(r)
+    result = self.rr(value)
+    self.write_to_r(r, result)
+    return 8
 
 
 # Opcode: 0x20-0x27
@@ -135,8 +151,12 @@ def _rr_r(self):
 # Description: Shift left arithmetic
 
 
-def _sla_r(self):
-    return None
+def _sla_r(self, opcode):
+    r = opcode & 0b111
+    value = self.read_from_r(r)
+    result = self.sla(value)
+    self.write_to_r(r, result)
+    return 8
 
 
 # Opcode: 0x28-0x2F
@@ -144,8 +164,12 @@ def _sla_r(self):
 # Description: Shift right arithmetic
 
 
-def _sra_r(self):
-    return None
+def _sra_r(self, opcode):
+    r = opcode & 0b111
+    value = self.read_from_r(r)
+    result = self.sra(value)
+    self.write_to_r(r, result)
+    return 8
 
 
 # Opcode: 0x30-0x37
@@ -153,8 +177,14 @@ def _sra_r(self):
 # Description: Shift left logical
 
 
-def _sll_r(self):
-    return None
+def _sll_r(self, opcode):
+    r = opcode & 0b111
+    value = self.read_from_r(r)
+    result = (value << 1) & 0xFF
+    self.F.carry = bool((value >> 7) & 1)
+    self.set_logic_flags(result)
+    self.write_to_r(r, result)
+    return 8
 
 
 # Opcode: 0x38-0x3F
@@ -162,8 +192,12 @@ def _sll_r(self):
 # Description: Shift right logical
 
 
-def _srl_r(self):
-    return None
+def _srl_r(self, opcode):
+    r = opcode & 0b111
+    value = self.read_from_r(r)
+    result = self.srl(value)
+    self.write_to_r(r, result)
+    return 8
 
 
 # Opcode: 0x40-0x7F
@@ -171,8 +205,12 @@ def _srl_r(self):
 # Description: Test a bit in the selected register or memory byte
 
 
-def _bit_b_r(self):
-    return None
+def _bit_b_r(self, opcode):
+    bit = (opcode >> 3) & 0b111
+    r = opcode & 0b111
+    value = self.read_from_r(r)
+    self.bit(bit, value)
+    return 8
 
 
 # Opcode: 0x80-0xBF
@@ -180,8 +218,13 @@ def _bit_b_r(self):
 # Description: Reset a bit in the selected register or memory byte
 
 
-def _res_b_r(self):
-    return None
+def _res_b_r(self, opcode):
+    bit = (opcode >> 3) & 0b111
+    r = opcode & 0b111
+    value = self.read_from_r(r)
+    result = self.res(bit, value)
+    self.write_to_r(r, result)
+    return 8
 
 
 # Opcode: 0xC0-0xFF
@@ -189,8 +232,13 @@ def _res_b_r(self):
 # Description: Set a bit in the selected register or memory byte
 
 
-def _set_b_r(self):
-    return None
+def _set_b_r(self, opcode):
+    bit = (opcode >> 3) & 0b111
+    r = opcode & 0b111
+    value = self.read_from_r(r)
+    result = self.set_(bit, value)
+    self.write_to_r(r, result)
+    return 8
 
 
 # Opcode: 0x07
@@ -199,7 +247,11 @@ def _set_b_r(self):
 
 
 def _rlca(self):
-    return None
+    value = self.A.get()
+    result = self.rlc(value)
+    self.A.set(result)
+    self.F.zero = False
+    return 4
 
 
 # Opcode: 0x08
@@ -208,7 +260,11 @@ def _rlca(self):
 
 
 def _ex_af_af_prime(self):
-    return None
+    af = self.AF.get()
+    af_alt = self.AF_alt.get()
+    self.AF.set(af_alt)
+    self.AF_alt.set(af)
+    return 4
 
 
 # Opcode: 0x0F
@@ -217,7 +273,11 @@ def _ex_af_af_prime(self):
 
 
 def _rrca(self):
-    return None
+    value = self.A.get()
+    result = self.rrc(value)
+    self.A.set(result)
+    self.F.zero = False
+    return 4
 
 
 # Opcode: 0x17
@@ -226,7 +286,16 @@ def _rrca(self):
 
 
 def _rla(self):
-    return None
+    value = self.A.get()
+    carry_in = int(self.F.carry)
+    result = ((value << 1) | carry_in) & 0xFF
+    self.F.carry = bool((value >> 7) & 1)
+    self.set_logic_flags(result)
+    self.F.zero = False
+    self.F.add_sub = False
+    self.F.half_carry = False
+    self.A.set(result)
+    return 4
 
 
 # Opcode: 0x1F
@@ -235,7 +304,16 @@ def _rla(self):
 
 
 def _rra(self):
-    return None
+    value = self.A.get()
+    carry_in = int(self.F.carry)
+    result = ((value >> 1) | (carry_in << 7)) & 0xFF
+    self.F.carry = bool(value & 1)
+    self.set_logic_flags(result)
+    self.F.zero = False
+    self.F.add_sub = False
+    self.F.half_carry = False
+    self.A.set(result)
+    return 4
 
 
 # Opcode: 0x27
@@ -253,7 +331,12 @@ def _daa(self):
 
 
 def _cpl(self):
-    return None
+    value = (~self.A.get()) & 0xFF
+    self.A.set(value)
+    self.set_logic_flags(value)
+    self.F.add_sub = True
+    self.F.half_carry = True
+    return 4
 
 
 # Opcode: 0x37
@@ -262,7 +345,10 @@ def _cpl(self):
 
 
 def _scf(self):
-    return None
+    self.F.carry = True
+    self.F.add_sub = False
+    self.F.half_carry = False
+    return 4
 
 
 # Opcode: 0x3F
@@ -271,7 +357,11 @@ def _scf(self):
 
 
 def _ccf(self):
-    return None
+    old_carry = bool(self.F.carry)
+    self.F.carry = not old_carry
+    self.F.add_sub = False
+    self.F.half_carry = old_carry
+    return 4
 
 
 # Opcode: 0xCB
@@ -289,7 +379,16 @@ def _cb_prefix(self):
 
 
 def _exx(self):
-    return None
+    bc = self.BC.get()
+    de = self.DE.get()
+    hl = self.HL.get()
+    self.BC.set(self.BC_alt.get())
+    self.DE.set(self.DE_alt.get())
+    self.HL.set(self.HL_alt.get())
+    self.BC_alt.set(bc)
+    self.DE_alt.set(de)
+    self.HL_alt.set(hl)
+    return 4
 
 
 # Opcode: 0xE3
@@ -298,7 +397,13 @@ def _exx(self):
 
 
 def _ex_sp_hl(self):
-    return None
+    addr = self.SP.get()
+    mem_lo = self.memory.read8(addr)
+    mem_hi = self.memory.read8((addr + 1) & 0xFFFF)
+    self.memory.write8(addr, self.L.get())
+    self.memory.write8((addr + 1) & 0xFFFF, self.H.get())
+    self.HL.set((mem_hi << 8) | mem_lo)
+    return 19
 
 
 # Opcode: 0xEB
@@ -307,34 +412,27 @@ def _ex_sp_hl(self):
 
 
 def _ex_de_hl(self):
-    return None
+    temp = self.DE.get()
+    self.DE.set(self.HL.get())
+    self.HL.set(temp)
+    return 4
 
 
 def execute(self, opcode):
+    prefix = opcode
+    if opcode == 0xCB:
+        opcode = self.ingest_next_byte()
+
     for entry in OPCODES:
         if _matches_opcode(opcode, entry):
-            if 0x00 <= opcode <= 0x07:
-                return _rlc_r(self)
-            if 0x08 <= opcode <= 0x0F:
-                return _rrc_r(self)
-            if 0x10 <= opcode <= 0x17:
-                return _rl_r(self)
-            if 0x18 <= opcode <= 0x1F:
-                return _rr_r(self)
-            if 0x20 <= opcode <= 0x27:
-                return _sla_r(self)
-            if 0x28 <= opcode <= 0x2F:
-                return _sra_r(self)
-            if 0x30 <= opcode <= 0x37:
-                return _sll_r(self)
-            if 0x38 <= opcode <= 0x3F:
-                return _srl_r(self)
-            if 0x40 <= opcode <= 0x7F:
-                return _bit_b_r(self)
-            if 0x80 <= opcode <= 0xBF:
-                return _res_b_r(self)
-            if 0xC0 <= opcode <= 0xFF:
-                return _set_b_r(self)
+            if opcode == 0xCB:
+                return _cb_prefix(self)
+            if opcode == 0xD9:
+                return _exx(self)
+            if opcode == 0xE3:
+                return _ex_sp_hl(self)
+            if opcode == 0xEB:
+                return _ex_de_hl(self)
             if opcode == 0x07:
                 return _rlca(self)
             if opcode == 0x08:
@@ -353,19 +451,33 @@ def execute(self, opcode):
                 return _scf(self)
             if opcode == 0x3F:
                 return _ccf(self)
-            if opcode == 0xCB:
-                return _cb_prefix(self)
-            if opcode == 0xD9:
-                return _exx(self)
-            if opcode == 0xE3:
-                return _ex_sp_hl(self)
-            if opcode == 0xEB:
-                return _ex_de_hl(self)
+            if 0x00 <= opcode <= 0x07:
+                return _rlc_r(self, opcode)
+            if 0x08 <= opcode <= 0x0F:
+                return _rrc_r(self, opcode)
+            if 0x10 <= opcode <= 0x17:
+                return _rl_r(self, opcode)
+            if 0x18 <= opcode <= 0x1F:
+                return _rr_r(self, opcode)
+            if 0x20 <= opcode <= 0x27:
+                return _sla_r(self, opcode)
+            if 0x28 <= opcode <= 0x2F:
+                return _sra_r(self, opcode)
+            if 0x30 <= opcode <= 0x37:
+                return _sll_r(self, opcode)
+            if 0x38 <= opcode <= 0x3F:
+                return _srl_r(self, opcode)
+            if 0x40 <= opcode <= 0x7F:
+                return _bit_b_r(self, opcode)
+            if 0x80 <= opcode <= 0xBF:
+                return _res_b_r(self, opcode)
+            if 0xC0 <= opcode <= 0xFF:
+                return _set_b_r(self, opcode)
 
             raise NotImplementedError(
-                f"{__name__}: {entry['opcode']} {entry['mnemonic']} ({entry['description']}) is not implemented"
+                f"{__name__}: {prefix:02X} {opcode:02X} {entry['mnemonic']} ({entry['description']}) is not implemented"
             )
 
     raise NotImplementedError(
-        f"{__name__}: opcode 0x{opcode:02X} is not defined in the bit-operation table"
+        f"{__name__}: {prefix:02X} {opcode:02X} is not defined in the bit-operation table"
     )

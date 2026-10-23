@@ -78,6 +78,15 @@ class Memory:
         elif address <= 0xFFFF:
             return self.ram[address & 0x1FFF]
 
+    @staticmethod
+    def construct_word(lo_byte, hi_byte):
+        return ((hi_byte << 8) | lo_byte) & 0xFFFF
+
+    @staticmethod
+    def split_word(value):
+        value &= 0xFFFF
+        return (value >> 8) & 0xFF, value & 0xFF
+
     def read16(self, address):
         lo_byte = self.read8(address)
         hi_byte = self.read8(address + 1)

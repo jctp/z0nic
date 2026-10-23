@@ -84,7 +84,12 @@ def _matches_opcode(opcode, entry):
 
 
 def _djnz_e(self):
-    return None
+    displacement = self.ingest_next_byte()
+    self.B.dec()
+    if self.B.get() != 0:
+        self.jump_relative(displacement)
+        return 13
+    return 8
 
 
 # Opcode: 0x18
@@ -93,7 +98,9 @@ def _djnz_e(self):
 
 
 def _jr_e(self):
-    return None
+    displacement = self.ingest_next_byte()
+    self.jump_relative(displacement)
+    return 12
 
 
 # Opcode: 0x20
@@ -102,14 +109,11 @@ def _jr_e(self):
 
 
 def _jr_nz_e(self):
-
-    displacement_e = self.ingest_next_byte()
-
+    displacement = self.ingest_next_byte()
     if not self.F.zero:
-        self.jump_relative(displacement_e)
+        self.jump_relative(displacement)
         return 12
-    else:
-        return 7
+    return 7
 
 
 # Opcode: 0x28
@@ -118,13 +122,11 @@ def _jr_nz_e(self):
 
 
 def _jr_z_e(self):
-    displacement_e = self.ingest_next_byte()
-
+    displacement = self.ingest_next_byte()
     if self.F.zero:
-        self.jump_relative(displacement_e)
+        self.jump_relative(displacement)
         return 12
-    else:
-        return 7
+    return 7
 
 
 # Opcode: 0x30
@@ -133,7 +135,11 @@ def _jr_z_e(self):
 
 
 def _jr_nc_e(self):
-    return None
+    displacement = self.ingest_next_byte()
+    if not self.F.carry:
+        self.jump_relative(displacement)
+        return 12
+    return 7
 
 
 # Opcode: 0x38
@@ -142,7 +148,11 @@ def _jr_nc_e(self):
 
 
 def _jr_c_e(self):
-    return None
+    displacement = self.ingest_next_byte()
+    if self.F.carry:
+        self.jump_relative(displacement)
+        return 12
+    return 7
 
 
 # Opcode: 0xC2
@@ -151,7 +161,11 @@ def _jr_c_e(self):
 
 
 def _jp_nz_nn(self):
-    return None
+    address = self.ingest_next_word()
+    if not self.F.zero:
+        self.jump_absolute(address)
+        return 16
+    return 10
 
 
 # Opcode: 0xC3
@@ -171,7 +185,11 @@ def _jp_nn(self):
 
 
 def _jp_z_nn(self):
-    return None
+    address = self.ingest_next_word()
+    if self.F.zero:
+        self.jump_absolute(address)
+        return 16
+    return 10
 
 
 # Opcode: 0xD2
@@ -180,7 +198,11 @@ def _jp_z_nn(self):
 
 
 def _jp_nc_nn(self):
-    return None
+    address = self.ingest_next_word()
+    if not self.F.carry:
+        self.jump_absolute(address)
+        return 16
+    return 10
 
 
 # Opcode: 0xDA
@@ -189,7 +211,11 @@ def _jp_nc_nn(self):
 
 
 def _jp_c_nn(self):
-    return None
+    address = self.ingest_next_word()
+    if self.F.carry:
+        self.jump_absolute(address)
+        return 16
+    return 10
 
 
 # Opcode: 0xE2
@@ -198,7 +224,11 @@ def _jp_c_nn(self):
 
 
 def _jp_po_nn(self):
-    return None
+    address = self.ingest_next_word()
+    if not self.F.parity_overflow:
+        self.jump_absolute(address)
+        return 16
+    return 10
 
 
 # Opcode: 0xE9
@@ -207,7 +237,8 @@ def _jp_po_nn(self):
 
 
 def _jp_hl(self):
-    return None
+    self.PC.set(self.HL.get())
+    return 4
 
 
 # Opcode: 0xEA
@@ -216,7 +247,11 @@ def _jp_hl(self):
 
 
 def _jp_pe_nn(self):
-    return None
+    address = self.ingest_next_word()
+    if self.F.parity_overflow:
+        self.jump_absolute(address)
+        return 16
+    return 10
 
 
 # Opcode: 0xF2
@@ -225,7 +260,11 @@ def _jp_pe_nn(self):
 
 
 def _jp_p_nn(self):
-    return None
+    address = self.ingest_next_word()
+    if not self.F.sign:
+        self.jump_absolute(address)
+        return 16
+    return 10
 
 
 # Opcode: 0xFA
@@ -234,7 +273,11 @@ def _jp_p_nn(self):
 
 
 def _jp_m_nn(self):
-    return None
+    address = self.ingest_next_word()
+    if self.F.sign:
+        self.jump_absolute(address)
+        return 16
+    return 10
 
 
 def execute(self, opcode):

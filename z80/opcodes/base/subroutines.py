@@ -110,7 +110,10 @@ def _matches_opcode(opcode, entry):
 
 
 def _ret_nz(self):
-    return None
+    if not self.F.zero:
+        self.ret()
+        return 11
+    return 5
 
 
 # Opcode: 0xC4
@@ -119,7 +122,11 @@ def _ret_nz(self):
 
 
 def _call_nz_nn(self):
-    return None
+    target = self.ingest_next_word()
+    if not self.F.zero:
+        self.call(target)
+        return 17
+    return 10
 
 
 # Opcode: 0xC7
@@ -128,7 +135,8 @@ def _call_nz_nn(self):
 
 
 def _rst_00(self):
-    return None
+    self.call(0x0000)
+    return 11
 
 
 # Opcode: 0xC8
@@ -137,7 +145,10 @@ def _rst_00(self):
 
 
 def _ret_z(self):
-    return None
+    if self.F.zero:
+        self.ret()
+        return 11
+    return 5
 
 
 # Opcode: 0xC9
@@ -146,7 +157,8 @@ def _ret_z(self):
 
 
 def _ret(self):
-    return None
+    self.ret()
+    return 10
 
 
 # Opcode: 0xCC
@@ -155,7 +167,11 @@ def _ret(self):
 
 
 def _call_z_nn(self):
-    return None
+    target = self.ingest_next_word()
+    if self.F.zero:
+        self.call(target)
+        return 17
+    return 10
 
 
 # Opcode: 0xCD
@@ -164,7 +180,9 @@ def _call_z_nn(self):
 
 
 def _call_nn(self):
-    return None
+    target = self.ingest_next_word()
+    self.call(target)
+    return 17
 
 
 # Opcode: 0xCF
@@ -173,7 +191,8 @@ def _call_nn(self):
 
 
 def _rst_08(self):
-    return None
+    self.call(0x0008)
+    return 11
 
 
 # Opcode: 0xD0
@@ -182,7 +201,10 @@ def _rst_08(self):
 
 
 def _ret_nc(self):
-    return None
+    if not self.F.carry:
+        self.ret()
+        return 11
+    return 5
 
 
 # Opcode: 0xD4
@@ -191,7 +213,11 @@ def _ret_nc(self):
 
 
 def _call_nc_nn(self):
-    return None
+    target = self.ingest_next_word()
+    if not self.F.carry:
+        self.call(target)
+        return 17
+    return 10
 
 
 # Opcode: 0xD7
@@ -200,7 +226,8 @@ def _call_nc_nn(self):
 
 
 def _rst_10(self):
-    return None
+    self.call(0x0010)
+    return 11
 
 
 # Opcode: 0xD8
@@ -209,7 +236,10 @@ def _rst_10(self):
 
 
 def _ret_c(self):
-    return None
+    if self.F.carry:
+        self.ret()
+        return 11
+    return 5
 
 
 # Opcode: 0xDC
@@ -218,7 +248,11 @@ def _ret_c(self):
 
 
 def _call_c_nn(self):
-    return None
+    target = self.ingest_next_word()
+    if self.F.carry:
+        self.call(target)
+        return 17
+    return 10
 
 
 # Opcode: 0xDF
@@ -227,7 +261,8 @@ def _call_c_nn(self):
 
 
 def _rst_18(self):
-    return None
+    self.call(0x0018)
+    return 11
 
 
 # Opcode: 0xE0
@@ -236,7 +271,10 @@ def _rst_18(self):
 
 
 def _ret_po(self):
-    return None
+    if not self.F.parity_overflow:
+        self.ret()
+        return 11
+    return 5
 
 
 # Opcode: 0xE4
@@ -245,7 +283,11 @@ def _ret_po(self):
 
 
 def _call_po_nn(self):
-    return None
+    target = self.ingest_next_word()
+    if not self.F.parity_overflow:
+        self.call(target)
+        return 17
+    return 10
 
 
 # Opcode: 0xE7
@@ -254,7 +296,8 @@ def _call_po_nn(self):
 
 
 def _rst_20(self):
-    return None
+    self.call(0x0020)
+    return 11
 
 
 # Opcode: 0xE8
@@ -263,7 +306,10 @@ def _rst_20(self):
 
 
 def _ret_pe(self):
-    return None
+    if self.F.parity_overflow:
+        self.ret()
+        return 11
+    return 5
 
 
 # Opcode: 0xEC
@@ -272,7 +318,11 @@ def _ret_pe(self):
 
 
 def _call_pe_nn(self):
-    return None
+    target = self.ingest_next_word()
+    if self.F.parity_overflow:
+        self.call(target)
+        return 17
+    return 10
 
 
 # Opcode: 0xEF
@@ -281,7 +331,8 @@ def _call_pe_nn(self):
 
 
 def _rst_28(self):
-    return None
+    self.call(0x0028)
+    return 11
 
 
 # Opcode: 0xF0
@@ -290,7 +341,10 @@ def _rst_28(self):
 
 
 def _ret_p(self):
-    return None
+    if not self.F.sign:
+        self.ret()
+        return 11
+    return 5
 
 
 # Opcode: 0xF4
@@ -299,7 +353,11 @@ def _ret_p(self):
 
 
 def _call_p_nn(self):
-    return None
+    target = self.ingest_next_word()
+    if not self.F.sign:
+        self.call(target)
+        return 17
+    return 10
 
 
 # Opcode: 0xF7
@@ -308,7 +366,8 @@ def _call_p_nn(self):
 
 
 def _rst_30(self):
-    return None
+    self.call(0x0030)
+    return 11
 
 
 # Opcode: 0xF8
@@ -317,7 +376,10 @@ def _rst_30(self):
 
 
 def _ret_m(self):
-    return None
+    if self.F.sign:
+        self.ret()
+        return 11
+    return 5
 
 
 # Opcode: 0xFC
@@ -326,7 +388,11 @@ def _ret_m(self):
 
 
 def _call_m_nn(self):
-    return None
+    target = self.ingest_next_word()
+    if self.F.sign:
+        self.call(target)
+        return 17
+    return 10
 
 
 # Opcode: 0xFF
@@ -335,7 +401,8 @@ def _call_m_nn(self):
 
 
 def _rst_38(self):
-    return None
+    self.call(0x0038)
+    return 11
 
 
 def execute(self, opcode):

@@ -31,7 +31,9 @@ def _nop(self):
 
 
 def _halt(self):
-    return None
+    # The emulator uses a simple stop flag in the main loop; the instruction itself is
+    # a valid control operation and consumes the standard four cycles.
+    return 4
 
 
 def execute(self, opcode):

@@ -67,7 +67,8 @@ def _matches_opcode(opcode, entry):
 
 
 def _and_b(self):
-    return None
+    self.A.set(self.alu_and(self.A.get(), self.B.get()))
+    return 4
 
 
 # Opcode: 0xA1
@@ -76,7 +77,8 @@ def _and_b(self):
 
 
 def _and_c(self):
-    return None
+    self.A.set(self.alu_and(self.A.get(), self.C.get()))
+    return 4
 
 
 # Opcode: 0xA2
@@ -85,7 +87,8 @@ def _and_c(self):
 
 
 def _and_d(self):
-    return None
+    self.A.set(self.alu_and(self.A.get(), self.D.get()))
+    return 4
 
 
 # Opcode: 0xA3
@@ -94,7 +97,8 @@ def _and_d(self):
 
 
 def _and_e(self):
-    return None
+    self.A.set(self.alu_and(self.A.get(), self.E.get()))
+    return 4
 
 
 # Opcode: 0xA4
@@ -103,7 +107,8 @@ def _and_e(self):
 
 
 def _and_h(self):
-    return None
+    self.A.set(self.alu_and(self.A.get(), self.H.get()))
+    return 4
 
 
 # Opcode: 0xA5
@@ -112,7 +117,8 @@ def _and_h(self):
 
 
 def _and_l(self):
-    return None
+    self.A.set(self.alu_and(self.A.get(), self.L.get()))
+    return 4
 
 
 # Opcode: 0xA6
@@ -121,7 +127,9 @@ def _and_l(self):
 
 
 def _and_hl(self):
-    return None
+    value = self.memory.read8(self.HL.get())
+    self.A.set(self.alu_and(self.A.get(), value))
+    return 7
 
 
 # Opcode: 0xA7
@@ -130,7 +138,8 @@ def _and_hl(self):
 
 
 def _and_a(self):
-    return None
+    self.A.set(self.alu_and(self.A.get(), self.A.get()))
+    return 4
 
 
 # Opcode: 0xA8
@@ -139,7 +148,8 @@ def _and_a(self):
 
 
 def _xor_b(self):
-    return None
+    self.A.set(self.alu_xor(self.A.get(), self.B.get()))
+    return 4
 
 
 # Opcode: 0xA9
@@ -148,7 +158,8 @@ def _xor_b(self):
 
 
 def _xor_c(self):
-    return None
+    self.A.set(self.alu_xor(self.A.get(), self.C.get()))
+    return 4
 
 
 # Opcode: 0xAA
@@ -157,7 +168,8 @@ def _xor_c(self):
 
 
 def _xor_d(self):
-    return None
+    self.A.set(self.alu_xor(self.A.get(), self.D.get()))
+    return 4
 
 
 # Opcode: 0xAB
@@ -166,7 +178,8 @@ def _xor_d(self):
 
 
 def _xor_e(self):
-    return None
+    self.A.set(self.alu_xor(self.A.get(), self.E.get()))
+    return 4
 
 
 # Opcode: 0xAC
@@ -175,7 +188,8 @@ def _xor_e(self):
 
 
 def _xor_h(self):
-    return None
+    self.A.set(self.alu_xor(self.A.get(), self.H.get()))
+    return 4
 
 
 # Opcode: 0xAD
@@ -184,7 +198,8 @@ def _xor_h(self):
 
 
 def _xor_l(self):
-    return None
+    self.A.set(self.alu_xor(self.A.get(), self.L.get()))
+    return 4
 
 
 # Opcode: 0xAE
@@ -193,7 +208,9 @@ def _xor_l(self):
 
 
 def _xor_hl(self):
-    return None
+    value = self.memory.read8(self.HL.get())
+    self.A.set(self.alu_xor(self.A.get(), value))
+    return 7
 
 
 # Opcode: 0xAF
@@ -202,7 +219,8 @@ def _xor_hl(self):
 
 
 def _xor_a(self):
-    return None
+    self.A.set(self.alu_xor(self.A.get(), self.A.get()))
+    return 4
 
 
 # Opcode: 0xB0
@@ -211,7 +229,8 @@ def _xor_a(self):
 
 
 def _or_b(self):
-    return None
+    self.A.set(self.alu_or(self.A.get(), self.B.get()))
+    return 4
 
 
 # Opcode: 0xB1
@@ -220,7 +239,8 @@ def _or_b(self):
 
 
 def _or_c(self):
-    return None
+    self.A.set(self.alu_or(self.A.get(), self.C.get()))
+    return 4
 
 
 # Opcode: 0xB2
@@ -229,7 +249,8 @@ def _or_c(self):
 
 
 def _or_d(self):
-    return None
+    self.A.set(self.alu_or(self.A.get(), self.D.get()))
+    return 4
 
 
 # Opcode: 0xB3
@@ -238,7 +259,8 @@ def _or_d(self):
 
 
 def _or_e(self):
-    return None
+    self.A.set(self.alu_or(self.A.get(), self.E.get()))
+    return 4
 
 
 # Opcode: 0xB4
@@ -247,7 +269,8 @@ def _or_e(self):
 
 
 def _or_h(self):
-    return None
+    self.A.set(self.alu_or(self.A.get(), self.H.get()))
+    return 4
 
 
 # Opcode: 0xB5
@@ -256,7 +279,8 @@ def _or_h(self):
 
 
 def _or_l(self):
-    return None
+    self.A.set(self.alu_or(self.A.get(), self.L.get()))
+    return 4
 
 
 # Opcode: 0xB6
@@ -265,7 +289,9 @@ def _or_l(self):
 
 
 def _or_hl(self):
-    return None
+    value = self.memory.read8(self.HL.get())
+    self.A.set(self.alu_or(self.A.get(), value))
+    return 7
 
 
 # Opcode: 0xB7
@@ -274,7 +300,8 @@ def _or_hl(self):
 
 
 def _or_a(self):
-    return None
+    self.A.set(self.alu_or(self.A.get(), self.A.get()))
+    return 4
 
 
 # Opcode: 0xE6
@@ -283,7 +310,9 @@ def _or_a(self):
 
 
 def _and_n(self):
-    return None
+    value = self.ingest_next_byte()
+    self.A.set(self.alu_and(self.A.get(), value))
+    return 7
 
 
 # Opcode: 0xEE
@@ -292,7 +321,9 @@ def _and_n(self):
 
 
 def _xor_n(self):
-    return None
+    value = self.ingest_next_byte()
+    self.A.set(self.alu_xor(self.A.get(), value))
+    return 7
 
 
 # Opcode: 0xF6
@@ -301,7 +332,9 @@ def _xor_n(self):
 
 
 def _or_n(self):
-    return None
+    value = self.ingest_next_byte()
+    self.A.set(self.alu_or(self.A.get(), value))
+    return 7
 
 
 def execute(self, opcode):

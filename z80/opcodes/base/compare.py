@@ -25,8 +25,11 @@ def _matches_opcode(opcode, entry):
 # Description: Compare A with the selected register
 
 
-def _cp_r(self):
-    return None
+def _cp_r(self, opcode):
+    value = self.read_from_opcode_r(opcode)
+    result = (self.A.get() - value) & 0xFF
+    self.set_subtraction_flags(self.A.get(), value, result)
+    return 4
 
 
 # Opcode: 0xFE
@@ -48,7 +51,7 @@ def execute(self, opcode):
     for entry in OPCODES:
         if _matches_opcode(opcode, entry):
             if opcode in range(0xB8, 0xC0):
-                return _cp_r(self)
+                return _cp_r(self, opcode)
             if opcode == 0xFE:
                 return _cp_n(self)
 

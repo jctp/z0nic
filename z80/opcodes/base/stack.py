@@ -40,7 +40,8 @@ def _matches_opcode(opcode, entry):
 
 
 def _pop_bc(self):
-    return None
+    self.BC.set(self.pop_word())
+    return 10
 
 
 # Opcode: 0xC5
@@ -49,7 +50,8 @@ def _pop_bc(self):
 
 
 def _push_bc(self):
-    return None
+    self.push_word(self.BC.get())
+    return 11
 
 
 # Opcode: 0xD1
@@ -58,7 +60,8 @@ def _push_bc(self):
 
 
 def _pop_de(self):
-    return None
+    self.DE.set(self.pop_word())
+    return 10
 
 
 # Opcode: 0xD5
@@ -67,7 +70,8 @@ def _pop_de(self):
 
 
 def _push_de(self):
-    return None
+    self.push_word(self.DE.get())
+    return 11
 
 
 # Opcode: 0xE1
@@ -76,7 +80,8 @@ def _push_de(self):
 
 
 def _pop_hl(self):
-    return None
+    self.HL.set(self.pop_word())
+    return 10
 
 
 # Opcode: 0xE5
@@ -85,7 +90,8 @@ def _pop_hl(self):
 
 
 def _push_hl(self):
-    return None
+    self.push_word(self.HL.get())
+    return 11
 
 
 # Opcode: 0xF1
@@ -94,7 +100,10 @@ def _push_hl(self):
 
 
 def _pop_af(self):
-    return None
+    value = self.pop_word()
+    self.A.set((value >> 8) & 0xFF)
+    self.F.set(value & 0xFF)
+    return 10
 
 
 # Opcode: 0xF5
@@ -103,7 +112,8 @@ def _pop_af(self):
 
 
 def _push_af(self):
-    return None
+    self.push_word((self.A.get() << 8) | self.F.get())
+    return 11
 
 
 def execute(self, opcode):

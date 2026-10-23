@@ -16,7 +16,7 @@ Absolutely not. In fact, it was getting messy enough that I ripped out the entir
 ### Is it vibe-coded?
 No, this is a learning project so vibe-coding the whole thing would be pointless. I did use AI to help teach me things; my only emulator before this is a CHIP-8 interpreter and a the infinitely patient "experienced teacher" model works for me.
 
-When I switched to the OO paradigm, I had MAI stub out (but not implement) all ~700 opcodes according to the rules I set it.
+When I switched to the OO paradigm, I had MAI stub out all ~700 opcodes according to the rules I set it. Once I'd set out the first hundred or so with the uOps, I had it fill in the other million almost identical opcodes. Could have orthoganalised, but wanted to keep it separate for each opcode.
 
 ### What does it look like?
 At the moment, its output is simply logging what the Z80 and VDP are doing. In short, unless you can read the Matrix, you're not playing Sonic on this yet.

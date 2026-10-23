@@ -133,7 +133,8 @@ def _ld_bc_nn(self):
 
 
 def _ld_bc_a(self):
-    return None
+    self.memory.write8(self.BC.get(), self.A.get())
+    return 7
 
 
 # Opcode: 0x06
@@ -153,7 +154,8 @@ def _ld_b_n(self):
 
 
 def _ld_a_bc(self):
-    return None
+    self.A.set(self.memory.read8(self.BC.get()))
+    return 7
 
 
 # Opcode: 0x0E
@@ -205,7 +207,8 @@ def _ld_d_n(self):
 
 
 def _ld_a_de(self):
-    return None
+    self.A.set(self.memory.read8(self.DE.get()))
+    return 7
 
 
 # Opcode: 0x1E
@@ -258,7 +261,9 @@ def _ld_h_n(self):
 
 
 def _ld_hl_a(self):
-    return None
+    address = self.ingest_next_word()
+    self.HL.set(self.memory.read16(address))
+    return 16
 
 
 # Opcode: 0x2E
@@ -267,7 +272,8 @@ def _ld_hl_a(self):
 
 
 def _ld_l_n(self):
-    return None
+    self.L.set(self.ingest_next_byte())
+    return 7
 
 
 # Opcode: 0x31
@@ -299,7 +305,8 @@ def _ld_nn_a(self):
 
 
 def _ld_hl_n(self):
-    return None
+    self.memory.write8(self.HL.get(), self.ingest_next_byte())
+    return 10
 
 
 # Opcode: 0x3A
@@ -308,7 +315,9 @@ def _ld_hl_n(self):
 
 
 def _ld_a_nn(self):
-    return None
+    address = self.ingest_next_word()
+    self.A.set(self.memory.read8(address))
+    return 13
 
 
 # Opcode: 0x3E
