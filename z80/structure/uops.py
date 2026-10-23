@@ -93,6 +93,33 @@ class UOps:
         self.set_subtraction_flags(lhs, rhs, result)
         return result
 
+    def alu_inc(self, value):
+        self.byte_validity_check(value, "alu_inc")
+        before = value & 0xFF
+        after = (before + 1) & 0xFF
+        self.set_inc_dec_flags(before, after, is_dec=False)
+        return after
+
+    def alu_dec(self, value):
+        self.byte_validity_check(value, "alu_dec")
+        before = value & 0xFF
+        after = (before - 1) & 0xFF
+        self.set_inc_dec_flags(before, after, is_dec=True)
+        return after
+
+    # endregion
+    # region 16-bit Arithmetic
+
+    def add16(self, a, b):
+        result = (a + b) & 0xFFFF
+        self.set_add16_flags(a, b)
+        return result
+
+    def sub16(self, a, b):
+        result = (a - b) & 0xFFFF
+        self.set_sub16_flags(a, b)
+        return result
+
     # endregion
     # region ALU Logic uOps
 

@@ -57,6 +57,18 @@ class FlagSetters:
         else:
             self.F.parity_overflow = (before == 0x7F)
 
+    def set_add16_flags(self, lhs, rhs):
+        total = lhs + rhs
+        self.F.add_sub = False
+        self.F.half_carry = (((lhs & 0x0FFF) + (rhs & 0x0FFF)) & 0x1000) != 0
+        self.F.carry = total > 0xFFFF
+
+    def set_sub16_flags(self, lhs, rhs):
+        total = lhs - rhs
+        self.F.add_sub = True
+        self.F.half_carry = ((lhs & 0x0FFF) < (rhs & 0x0FFF))
+        self.F.carry = lhs < rhs
+
     def set_bit_test_flags(self, value, bit):
         # BIT b,r checks whether the selected bit is zero; Z becomes the inverse of that
         # bit, H is set, N is reset, and the other flags keep their test semantics.
@@ -65,3 +77,13 @@ class FlagSetters:
         self.F.add_sub = False
         self.F.half_carry = True
         self.F.parity_overflow = self.F.zero
+
+    def set_add16_flags(self, a, b):
+        self.F.N = 0
+        self.F.H = ((a & 0x0FFF) + (b & 0x0FFF)) > 0x0FFF
+        self.F.C = (a + b) > 0xFFFF
+
+    def set_sub16_flags(self, a, b):
+        self.F.N = 1
+        self.F.H = (a & 0x0FFF) < (b & 0x0FFF)
+        self.F.C = a < b

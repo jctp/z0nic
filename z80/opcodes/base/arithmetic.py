@@ -248,7 +248,10 @@ def _inc_sp(self):
 
 
 def _inc_hl_mem(self):
-    return None
+    addr = self.HL.get()
+    result = self.alu_inc(self.memory.read8(addr))
+    self.memory.write8(addr, result)
+    return 11
 
 
 # Opcode: 0x35
@@ -257,7 +260,10 @@ def _inc_hl_mem(self):
 
 
 def _dec_hl_mem(self):
-    return None
+    addr = self.HL.get()
+    result = self.alu_dec(self.memory.read8(addr))
+    self.memory.write8(addr, result)
+    return 11
 
 
 # Opcode: 0x39
@@ -266,8 +272,11 @@ def _dec_hl_mem(self):
 
 
 def _add_hl_sp(self):
-    return None
-
+    HL = self.HL.get()
+    SP = self.SP.get()
+    result = self.add16(HL, SP)
+    self.HL.set(result)
+    return 11
 
 # Opcode: 0x3B
 # Mnemonic: DEC SP
@@ -312,11 +321,11 @@ def _adc_a_r(self):
 
 
 def _sub_r(self, opcode):
-    lhs = self.A.get()
-    rhs = self.read_from_opcode_r(opcode)
-    result = self.alu_sub(lhs, rhs)
-
+    A = self.A.get()
+    r = self.read_from_opcode_r(opcode)
+    result = self.alu_sub(A, r)
     self.A.set(result)
+    self.set_subtraction_flags(A, r, result)
     return 4
 
 
