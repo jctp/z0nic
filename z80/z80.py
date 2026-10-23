@@ -27,10 +27,6 @@ class Z80:
         self.reset()
 
     # endregion
-    # region Components
-
-
-    # endregion
     # region Z80 Setup
 
     def reset(self):
@@ -122,14 +118,42 @@ class Z80:
             "HL_alt": self.HL_alt,
         }
 
+        # Reads and writes for registers referred to by 3-bit numbers
+        # For example, SRA r
+
+        self.read_3bit = [
+            lambda: self.B.get(),
+            lambda: self.C.get(),
+            lambda: self.D.get(),
+            lambda: self.E.get(),
+            lambda: self.H.get(),
+            lambda: self.L.get(),
+            lambda: self.memory.read(self.HL.get()),
+            lambda: self.A.get(),
+        ]
+
+        self.write_3bit = [
+            lambda v: self.B.set(v),
+            lambda v: self.C.set(v),
+            lambda v: self.D.set(v),
+            lambda v: self.E.set(v),
+            lambda v: self.H.set(v),
+            lambda v: self.L.set(v),
+            lambda v: self.memory.write(self.HL.get(), v),
+            lambda v: self.A.set(v),
+        ]
+
         # Interrupt flip-flops
+
         self.IFF1 = False
         self.IFF2 = False
 
         # Interrupt mode
+
         self.IM = 0
 
         # EI delay; it runs the cycle AFTER
+
         self.EI_delay = 0
 
         logger.info("Z80 setup complete!")
@@ -248,12 +272,66 @@ class Z80:
     # endregion
     # region Byte Handling
 
-    def signed_byte(self, value):
+    def byte_validity_check(self, byte, error_message):
+        if 0 <= byte <= 255:
+            return
+        else:
+            raise ValueError(f"{byte:02X} is not a valid byte (octet): {error_message}")
 
+    def word_validity_check(self, word, error_message):
+        if 0 <= word <= 65535:
+            return
+        else:
+            raise ValueError(f"{word:04X} is not a valid word: {error_message}")
+
+    def signed_byte(self, value):
         if value & 0x80:
             return value - 0x100
-
         return value
+
+    def ingest_next_byte(self):
+        next_byte = self.memory.read8(self.PC.get())
+        self.PC.inc()
+        return next_byte
+
+    def construct_word(self, lo_byte, hi_byte):
+        self.byte_validity_check(lo_byte, "Word constructor lo byte")
+        self.byte_validity_check(hi_byte, "Word constructor hi byte")
+        word = ((hi_byte << 8) | lo_byte) & 0xFFFF
+        return word
+
+    def split_word(self, word):
+        hi_byte = (word >> 8) & 0xFF
+        lo_byte  = word & 0xFF
+        self.byte_validity_check(hi_byte, "Word splitter hi byte")
+        self.byte_validity_check(lo_byte, "Word splitter lo byte")
+        return hi_byte, lo_byte
+
+    def ingest_next_word(self):
+        lo_byte = self.ingest_next_byte()
+        hi_byte = self.ingest_next_byte()
+        return self.construct_word(lo_byte, hi_byte)
+
+    # endregion
+    # Fields
+    
+    # Get the last three bits from an opcode , r, to feed into the lookup table
+    def get_r(self, opcode):
+        return opcode & 0b111
+
+    def read_from_r(self, r):
+        return self.read_3bit(r)
+
+    def write_to_r(self, r, value):
+        self.write_3bit(r, value)
+
+    def read_from_opcode_r(self, opcode):
+        r = self.get_r(opcode)
+        return self.read_from_r(r)
+
+    def write_to_opcode_r(self, opcode, value):
+        r = self.get_r(opcode)
+        self.write_3bit(r, value)
 
     # endregion
     # region Interrupt Handling
@@ -271,6 +349,8 @@ class Z80:
 
         try:
             t_states = dispatcher.execute(self, opcode)
+
+            self.io.vdp.tick(t_states)
 
             # Handle delayed EI
             if self.EI_delay > 0:

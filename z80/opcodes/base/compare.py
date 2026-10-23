@@ -26,9 +26,7 @@ def _cp_r(self):
 
 def _cp_n(self):
 
-    value = self.memory.read8(self.PC.get())
-    self.PC.inc()
-
+    value = self.ingest_next_byte()
     a = self.A.get()
 
     result = (a - value) & 0xFF

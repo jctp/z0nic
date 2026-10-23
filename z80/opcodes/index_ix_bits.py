@@ -47,8 +47,7 @@ def _set_b_ix_d(self):
 
 
 def execute(self):
-    opcode = self.memory.read8(self.PC.get())
-    self.PC.inc(by=1)
+    opcode = self.ingest_next_byte()
 
     for entry in OPCODES:
         if _matches_opcode(opcode, entry):

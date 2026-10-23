@@ -26,13 +26,9 @@ def _out_n_a(self):
 
 def _in_a_n(self):
 
-    port_low = self.memory.read8(self.PC.get())
-    self.PC.inc()
-
-    port = (self.A.get() << 8) | port_low
-
+    port_lo = self.ingest_next_byte()
+    port = self.construct_word(port_lo, self.A.get())
     value = self.io.read(port)
-
     self.A.set(value)
 
     return 11

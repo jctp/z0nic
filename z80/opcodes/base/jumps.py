@@ -48,8 +48,7 @@ def _jr_e(self):
 
 def _jr_nz_e(self):
 
-    displacement_e = self.memory.read8(self.PC.get())
-    self.PC.inc(by=1)
+    displacement_e = self.ingest_next_byte()
 
     if not self.F.zero:
         self.jump_relative(displacement_e)
@@ -63,7 +62,14 @@ def _jr_nz_e(self):
 # Description: Jump relative if Z is set
 
 def _jr_z_e(self):
-    return None
+    displacement_e = self.ingest_next_byte()
+
+    if self.F.zero:
+        self.jump_relative(displacement_e)
+        return 12
+    else:
+        return 7
+
 
 
 # Opcode: 0x30
@@ -95,7 +101,9 @@ def _jp_nz_nn(self):
 # Description: Jump directly to nn
 
 def _jp_nn(self):
-    return None
+    nn = self.ingest_next_word()
+    self.jump_absolute(nn)
+    return 10
 
 
 # Opcode: 0xCA

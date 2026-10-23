@@ -17,7 +17,7 @@ def _matches_opcode(opcode, entry):
 # Description: No operation
 
 def _nop(self):
-    return None
+    return 4
 
 
 # Opcode: 0x76
