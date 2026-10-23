@@ -78,6 +78,13 @@ class Memory:
         elif address <= 0xFFFF:
             return self.ram[address & 0x1FFF]
 
+    def read16(self, address):
+        lo_byte = self.read8(address)
+        hi_byte = self.read8(address + 1)
+
+        return self.construct_word(lo_byte, hi_byte)
+
+
     def cart_ram_offset(self, address):
         address = self._normalize_address(address)
         bank = (self.ram_control >> 2) & 0x01
@@ -113,3 +120,10 @@ class Memory:
 
         # Work RAM and its mirror
         self.ram[address & 0x1FFF] = value
+
+    def write16(self, address, value):
+
+        hi_byte, lo_byte = self.split_word(value)
+
+        self.write8(address, lo_byte)
+        self.write8(address + 1, hi_byte)

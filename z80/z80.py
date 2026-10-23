@@ -258,8 +258,8 @@ class Z80(FlagSetters, UOps):
             BLINK   = "\033[5m"
 
             print(f"{RED}={RESET}" * 80)
-            print(f"{BOLD}{BLINK}{RED}Hi, there! I'm a bug!{RESET}")
-            print(f"My name is: {RED}STOP{RESET} at PC={self.PC.get():04X} on unimplemented Z80 opcode: {GREEN}{description}{RESET}")
+            print(f"{BOLD}{BLINK}{GREEN}O-{CYAN}^v^v^{GREEN}-{RED} WELCOME TO BUG LAND {GREEN}-{CYAN}^v^v^{GREEN}-O{RESET}")
+            print(f"My name is: {RED}{BOLD}STOP{RESET} at PC={self.PC.get():04X} on unimplemented Z80 opcode: {GREEN}{description}{RESET}")
             print(f"{RED}={RESET}" * 80)
             raise SystemExit(1)
 

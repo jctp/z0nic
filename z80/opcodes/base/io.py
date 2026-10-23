@@ -26,7 +26,9 @@ def _matches_opcode(opcode, entry):
 
 
 def _out_n_a(self):
-    return None
+    n = self.ingest_next_byte()
+    self.io.write(n, self.A.get())
+    return 11
 
 
 # Opcode: 0xDB
@@ -35,8 +37,7 @@ def _out_n_a(self):
 
 
 def _in_a_n(self):
-    port_lo = self.ingest_next_byte()
-    port = self.construct_word(port_lo, self.A.get())
+    port = self.construct_word(self.ingest_next_byte(), self.A.get())
     value = self.io.read(port)
     self.A.set(value)
 

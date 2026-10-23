@@ -97,7 +97,8 @@ def _matches_opcode(opcode, entry):
 
 
 def _inc_bc(self):
-    return None
+    self.BC.inc()
+    return 4
 
 
 # Opcode: 0x04-0x07
@@ -124,7 +125,8 @@ def _add_hl_bc(self):
 
 
 def _dec_bc(self):
-    return None
+    self.BC.dec()
+    return 4
 
 
 # Opcode: 0x0C-0x0F
@@ -142,7 +144,8 @@ def _inc_dec_r(self):
 
 
 def _inc_de(self):
-    return None
+    self.DE.inc(1)
+    return 4
 
 
 # Opcode: 0x14-0x17
@@ -169,7 +172,8 @@ def _add_hl_de(self):
 
 
 def _dec_de(self):
-    return None
+    self.DE.dec()
+    return 4
 
 
 # Opcode: 0x1C-0x1F
@@ -187,7 +191,8 @@ def _inc_dec_r_alt(self):
 
 
 def _inc_hl(self):
-    return None
+    self.HL.inc(1)
+    return 4
 
 
 # Opcode: 0x24-0x27
@@ -214,7 +219,8 @@ def _add_hl_hl(self):
 
 
 def _dec_hl(self):
-    return None
+    self.HL.dec(1)
+    return 4
 
 
 # Opcode: 0x2C-0x2F
@@ -232,7 +238,8 @@ def _inc_dec_r_alt_2(self):
 
 
 def _inc_sp(self):
-    return None
+    self.SP.inc()
+    return 4
 
 
 # Opcode: 0x34
@@ -268,7 +275,8 @@ def _add_hl_sp(self):
 
 
 def _dec_sp(self):
-    return None
+    self.SP.dec(1)
+    return 4
 
 
 # Opcode: 0x3C-0x3F
@@ -355,14 +363,26 @@ def _sbc_a_n(self):
 def execute(self, opcode):
     for entry in OPCODES:
         if _matches_opcode(opcode, entry):
-            if opcode in (0x03, 0x13, 0x23, 0x33):
+            if opcode == 0x03:
                 return _inc_bc(self)
+            if opcode == 0x13:
+                return _inc_de(self)
+            if opcode == 0x23:
+                return _inc_hl(self)
+            if opcode == 0x33:
+                return _inc_sp(self)
             if opcode in (0x04, 0x0C, 0x14, 0x1C, 0x24, 0x2C, 0x34, 0x3C):
                 return _inc_r(self)
             if opcode == 0x09:
                 return _add_hl_bc(self)
-            if opcode in (0x0B, 0x1B, 0x2B, 0x3B):
+            if opcode == 0x0B:
                 return _dec_bc(self)
+            if opcode == 0x1B:
+                return _dec_de(self)
+            if opcode == 0x2B:
+                return _dec_hl(self)
+            if opcode == 0x3B:
+                return _dec_sp(self)
             if opcode == 0x19:
                 return _add_hl_de(self)
             if opcode == 0x29:

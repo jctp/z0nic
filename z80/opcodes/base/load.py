@@ -142,7 +142,9 @@ def _ld_bc_a(self):
 
 
 def _ld_b_n(self):
-    return None
+    n = self.ingest_next_byte()
+    self.B.set(n)
+    return 7
 
 
 # Opcode: 0x0A
@@ -160,8 +162,9 @@ def _ld_a_bc(self):
 
 
 def _ld_c_n(self):
-    return None
-
+    n = self.ingest_next_byte()
+    self.C.set(n)
+    return 7
 
 # Opcode: 0x11
 # Mnemonic: LD DE,nn
@@ -180,7 +183,8 @@ def _ld_de_nn(self):
 
 
 def _ld_de_a(self):
-    return None
+    self.memory.write8(self.DE.get(), self.A.get())
+    return 7
 
 
 # Opcode: 0x16
@@ -189,8 +193,9 @@ def _ld_de_a(self):
 
 
 def _ld_d_n(self):
-    return None
-
+    n = self.ingest_next_byte()
+    self.D.set(n)
+    return 7
 
 # Opcode: 0x1A
 # Mnemonic: LD A,(DE)
@@ -207,7 +212,9 @@ def _ld_a_de(self):
 
 
 def _ld_e_n(self):
-    return None
+    n = self.ingest_next_byte()
+    self.E.set(n)
+    return 7
 
 
 # Opcode: 0x21
@@ -216,8 +223,7 @@ def _ld_e_n(self):
 
 
 def _ld_hl_nn(self):
-    nn = self.ingest_next_word()
-    self.HL.set(nn)
+    self.HL.set(self.ingest_next_word())
     return 10
 
 
@@ -227,8 +233,13 @@ def _ld_hl_nn(self):
 
 
 def _ld_hl_addr(self):
-    return None
 
+    self.memory.write16(
+        self.ingest_next_word(),
+        self.HL.get()
+    )
+
+    return 16
 
 # Opcode: 0x26
 # Mnemonic: LD H,n
@@ -236,8 +247,9 @@ def _ld_hl_addr(self):
 
 
 def _ld_h_n(self):
-    return None
-
+    n = self.ingest_next_byte()
+    self.H.set(n)
+    return 7
 
 # Opcode: 0x2A
 # Mnemonic: LD HL,(nn)
@@ -324,7 +336,8 @@ def _ld_r_r(self, opcode):
 
 
 def _ld_sp_hl(self):
-    return None
+    self.SP.set(self.HL.get())
+    return 6
 
 
 def execute(self, opcode):

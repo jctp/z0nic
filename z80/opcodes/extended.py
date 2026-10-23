@@ -834,8 +834,26 @@ def _outd(self):
 
 
 def _ldir(self):
-    return None
 
+    self.memory.write8(
+        self.DE.get(),
+        self.memory.read8(self.HL.get())
+    )
+
+    self.HL.inc()
+    self.DE.inc()
+    self.BC.dec()
+
+    # LDIR does not affect S/Z, but it does clear H/N and exposes repeat status via PV.
+    self.F.half_carry = False
+    self.F.add_sub = False
+    self.F.parity_overflow = self.BC.get() != 0
+
+    if self.BC.get() != 0:
+        self.PC.dec(2)
+        return 21
+
+    return 16
 
 # Opcode: 0xB1
 # Mnemonic: CPIR
