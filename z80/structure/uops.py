@@ -151,7 +151,7 @@ class UOps:
         self.byte_validity_check(value, "set_")
         if not 0 <= bit <= 7:
             raise ValueError(f"bit {bit} is not valid: set_")
-        value |= (1 << bit)
+        value |= 1 << bit
         return value & 0xFF
 
     def res(self, bit, value):

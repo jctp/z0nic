@@ -106,8 +106,12 @@ def _inc_bc(self):
 # Description: Increment register r
 
 
-def _inc_r(self):
-    return None
+def _inc_r(self, opcode):
+    target = (opcode >> 3) & 0b111
+    value = self.read_from_r(target)
+    result = self.alu_inc(value)
+    self.write_to_r(target, result)
+    return 4
 
 
 # Opcode: 0x09
@@ -116,7 +120,9 @@ def _inc_r(self):
 
 
 def _add_hl_bc(self):
-    return None
+    result = self.add16(self.HL.get(), self.BC.get())
+    self.HL.set(result)
+    return 11
 
 
 # Opcode: 0x0B
@@ -163,7 +169,9 @@ def _inc_r_alt(self):
 
 
 def _add_hl_de(self):
-    return None
+    result = self.add16(self.HL.get(), self.DE.get())
+    self.HL.set(result)
+    return 11
 
 
 # Opcode: 0x1B
@@ -210,7 +218,9 @@ def _inc_r_alt_2(self):
 
 
 def _add_hl_hl(self):
-    return None
+    result = self.add16(self.HL.get(), self.HL.get())
+    self.HL.set(result)
+    return 11
 
 
 # Opcode: 0x2B
@@ -228,8 +238,12 @@ def _dec_hl(self):
 # Description: Increment or decrement the selected register
 
 
-def _inc_dec_r_alt_2(self):
-    return None
+def _dec_r(self, opcode):
+    target = (opcode >> 3) & 0b111
+    value = self.read_from_r(target)
+    result = self.alu_dec(value)
+    self.write_to_r(target, result)
+    return 4
 
 
 # Opcode: 0x33
@@ -278,6 +292,7 @@ def _add_hl_sp(self):
     self.HL.set(result)
     return 11
 
+
 # Opcode: 0x3B
 # Mnemonic: DEC SP
 # Description: Decrement SP
@@ -302,8 +317,12 @@ def _inc_dec_r_alt_3(self):
 # Description: Add the selected register to A
 
 
-def _add_a_r(self):
-    return None
+def _add_a_r(self, opcode):
+    lhs = self.A.get()
+    rhs = self.read_from_opcode_r(opcode)
+    result = self.alu_add(lhs, rhs)
+    self.A.set(result)
+    return 4
 
 
 # Opcode: 0x88-0x8F
@@ -311,8 +330,12 @@ def _add_a_r(self):
 # Description: Add the selected register and carry to A
 
 
-def _adc_a_r(self):
-    return None
+def _adc_a_r(self, opcode):
+    lhs = self.A.get()
+    rhs = self.read_from_opcode_r(opcode)
+    result = self.alu_adc(lhs, rhs)
+    self.A.set(result)
+    return 4
 
 
 # Opcode: 0x90-0x97
@@ -334,8 +357,12 @@ def _sub_r(self, opcode):
 # Description: Subtract the selected register and carry from A
 
 
-def _sbc_a_r(self):
-    return None
+def _sbc_a_r(self, opcode):
+    lhs = self.A.get()
+    rhs = self.read_from_opcode_r(opcode)
+    result = self.alu_sbc(lhs, rhs)
+    self.A.set(result)
+    return 4
 
 
 # Opcode: 0xC6
@@ -344,7 +371,11 @@ def _sbc_a_r(self):
 
 
 def _add_a_n(self):
-    return None
+    lhs = self.A.get()
+    rhs = self.ingest_next_byte()
+    result = self.alu_add(lhs, rhs)
+    self.A.set(result)
+    return 7
 
 
 # Opcode: 0xCE
@@ -353,7 +384,11 @@ def _add_a_n(self):
 
 
 def _adc_a_n(self):
-    return None
+    lhs = self.A.get()
+    rhs = self.ingest_next_byte()
+    result = self.alu_adc(lhs, rhs)
+    self.A.set(result)
+    return 7
 
 
 # Opcode: 0xD6
@@ -362,7 +397,11 @@ def _adc_a_n(self):
 
 
 def _sub_n(self):
-    return None
+    lhs = self.A.get()
+    rhs = self.ingest_next_byte()
+    result = self.alu_sub(lhs, rhs)
+    self.A.set(result)
+    return 7
 
 
 # Opcode: 0xDE
@@ -371,7 +410,11 @@ def _sub_n(self):
 
 
 def _sbc_a_n(self):
-    return None
+    lhs = self.A.get()
+    rhs = self.ingest_next_byte()
+    result = self.alu_sbc(lhs, rhs)
+    self.A.set(result)
+    return 7
 
 
 def execute(self, opcode):
@@ -385,8 +428,10 @@ def execute(self, opcode):
                 return _inc_hl(self)
             if opcode == 0x33:
                 return _inc_sp(self)
-            if opcode in (0x04, 0x0C, 0x14, 0x1C, 0x24, 0x2C, 0x34, 0x3C):
-                return _inc_r(self)
+            if opcode in (0x04, 0x0C, 0x14, 0x1C, 0x24, 0x2C, 0x3C):
+                return _inc_r(self, opcode)
+            if opcode in (0x05, 0x0D, 0x15, 0x1D, 0x25, 0x2D, 0x3D):
+                return _dec_r(self, opcode)
             if opcode == 0x09:
                 return _add_hl_bc(self)
             if opcode == 0x0B:
@@ -408,13 +453,13 @@ def execute(self, opcode):
             if opcode == 0x35:
                 return _dec_hl_mem(self)
             if opcode in range(0x80, 0x88):
-                return _add_a_r(self)
+                return _add_a_r(self, opcode)
             if opcode in range(0x88, 0x90):
-                return _adc_a_r(self)
+                return _adc_a_r(self, opcode)
             if opcode in range(0x90, 0x98):
                 return _sub_r(self, opcode)
             if opcode in range(0x98, 0xA0):
-                return _sbc_a_r(self)
+                return _sbc_a_r(self, opcode)
             if opcode == 0xC6:
                 return _add_a_n(self)
             if opcode == 0xCE:

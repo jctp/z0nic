@@ -84,7 +84,6 @@ class Memory:
 
         return self.construct_word(lo_byte, hi_byte)
 
-
     def cart_ram_offset(self, address):
         address = self._normalize_address(address)
         bank = (self.ram_control >> 2) & 0x01

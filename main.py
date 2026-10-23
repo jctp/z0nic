@@ -16,7 +16,7 @@ z80 = Z80(
     memory=sms_memory,
     io=sms_io,
     clock_hz=3.56 * 100000,  # Real CPU is 3.58 Mhz
-    log_opcodes=False
+    log_opcodes=False,
 )
 
 console = SegaMasterSystem(

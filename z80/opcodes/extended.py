@@ -835,10 +835,7 @@ def _outd(self):
 
 def _ldir(self):
 
-    self.memory.write8(
-        self.DE.get(),
-        self.memory.read8(self.HL.get())
-    )
+    self.memory.write8(self.DE.get(), self.memory.read8(self.HL.get()))
 
     self.HL.inc()
     self.DE.inc()
@@ -854,6 +851,7 @@ def _ldir(self):
         return 21
 
     return 16
+
 
 # Opcode: 0xB1
 # Mnemonic: CPIR

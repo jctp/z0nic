@@ -27,29 +27,31 @@ class SegaMasterSystem:
 
         clear_screen()
 
-        RED     = "\033[31m"
-        ORANGE  = "\033[38;5;208m"
-        YELLOW  = "\033[33m"
-        GREEN   = "\033[32m"
-        CYAN    = "\033[36m"
-        BLUE    = "\033[34m"
+        RED = "\033[31m"
+        ORANGE = "\033[38;5;208m"
+        YELLOW = "\033[33m"
+        GREEN = "\033[32m"
+        CYAN = "\033[36m"
+        BLUE = "\033[34m"
         MAGENTA = "\033[35m"
-        WHITE   = "\033[37m"
-        RESET   = "\033[0m"
+        WHITE = "\033[37m"
+        RESET = "\033[0m"
 
         print(f"{BLUE}-{RESET}" * 80)
 
-        print(f"{RED    } _______  _______  __    _  ___   _______  {RESET}")
-        print(f"{ORANGE }|       ||  _    ||  |  | ||   | |       | {RESET}")
-        print(f"{YELLOW }|____   || | |   ||   |_| ||   | |       | {RESET}")
-        print(f"{GREEN  } ____|  || | |   ||       ||   | |       | {RESET}")
-        print(f"{CYAN   }| ______|| |_|   ||  _    ||   | |      _| {RESET}")
-        print(f"{BLUE   }| |_____ |       || | |   ||   | |     |_  {RESET}")
-        print(f"{MAGENTA}|_______||_______||_|  |__||___| |_______| {WHITE}v0.0.1{RESET}")
-        
+        print(f"{RED} _______  _______  __    _  ___   _______  {RESET}")
+        print(f"{ORANGE}|       ||  _    ||  |  | ||   | |       | {RESET}")
+        print(f"{YELLOW}|____   || | |   ||   |_| ||   | |       | {RESET}")
+        print(f"{GREEN} ____|  || | |   ||       ||   | |       | {RESET}")
+        print(f"{CYAN}| ______|| |_|   ||  _    ||   | |      _| {RESET}")
+        print(f"{BLUE}| |_____ |       || | |   ||   | |     |_  {RESET}")
+        print(
+            f"{MAGENTA}|_______||_______||_|  |__||___| |_______| {WHITE}v0.0.1{RESET}"
+        )
+
         print("")
         print(f"{BLUE}-{RESET}" * 80)
-        print("\"Doesn't crash immediately!\"")
+        print('"Doesn\'t crash immediately!"')
         print(f"{BLUE}-{RESET}" * 80)
         print(f"{MAGENTA}(C) {GREEN}James Plant 2026{WHITE} - {RED}MIT Licence{RESET}")
         print(f"{BLUE}-{RESET}" * 80)

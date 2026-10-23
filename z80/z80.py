@@ -213,7 +213,7 @@ class Z80(FlagSetters, UOps):
 
         if self.log_opcodes:
             print(f"PC={self.PC.get():04X} opcode=0x{opcode:02X}")
-        
+
         self.PC.inc()
 
         try:
@@ -240,26 +240,29 @@ class Z80(FlagSetters, UOps):
             if "opcode " in description:
                 description = description.split("opcode ", 1)[1]
                 description = description.replace(" is not implemented", "")
-                description = description.replace("0x", "")
             else:
                 description = f"0x{opcode:02X}"
 
-            RED     = "\033[31m"
-            ORANGE  = "\033[38;5;208m"
-            YELLOW  = "\033[33m"
-            GREEN   = "\033[32m"
-            CYAN    = "\033[36m"
-            BLUE    = "\033[34m"
+            RED = "\033[31m"
+            ORANGE = "\033[38;5;208m"
+            YELLOW = "\033[33m"
+            GREEN = "\033[32m"
+            CYAN = "\033[36m"
+            BLUE = "\033[34m"
             MAGENTA = "\033[35m"
-            WHITE   = "\033[37m"
-            RESET   = "\033[0m"
+            WHITE = "\033[37m"
+            RESET = "\033[0m"
 
-            BOLD    = "\033[1m"
-            BLINK   = "\033[5m"
+            BOLD = "\033[1m"
+            BLINK = "\033[5m"
 
             print(f"{RED}={RESET}" * 80)
-            print(f"{BOLD}{BLINK}{GREEN}O-{CYAN}^v^v^{GREEN}-{RED} WELCOME TO BUG LAND {GREEN}-{CYAN}^v^v^{GREEN}-O{RESET}")
-            print(f"Hello, my name is: {RED}{BOLD}STOP{RESET} at PC={self.PC.get():04X} on unimplemented Z80 opcode: {GREEN}{description}{RESET}")
+            print(
+                f"{BOLD}{BLINK}{GREEN}O-{CYAN}^v^v^{GREEN}-{RED} WELCOME TO BUG LAND {GREEN}-{CYAN}^v^v^{GREEN}-O{RESET}"
+            )
+            print(
+                f"Hello, my name is: {RED}{BOLD}STOP{RESET} at PC={self.PC.get():04X} on unimplemented Z80 opcode: {GREEN}{description}{RESET}"
+            )
             print(f"{RED}={RESET}" * 80)
             raise SystemExit(1)
 

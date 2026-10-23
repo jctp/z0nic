@@ -166,6 +166,7 @@ def _ld_c_n(self):
     self.C.set(n)
     return 7
 
+
 # Opcode: 0x11
 # Mnemonic: LD DE,nn
 # Description: Load immediate 16-bit value into DE
@@ -196,6 +197,7 @@ def _ld_d_n(self):
     n = self.ingest_next_byte()
     self.D.set(n)
     return 7
+
 
 # Opcode: 0x1A
 # Mnemonic: LD A,(DE)
@@ -234,12 +236,10 @@ def _ld_hl_nn(self):
 
 def _ld_hl_addr(self):
 
-    self.memory.write16(
-        self.ingest_next_word(),
-        self.HL.get()
-    )
+    self.memory.write16(self.ingest_next_word(), self.HL.get())
 
     return 16
+
 
 # Opcode: 0x26
 # Mnemonic: LD H,n
@@ -250,6 +250,7 @@ def _ld_h_n(self):
     n = self.ingest_next_byte()
     self.H.set(n)
     return 7
+
 
 # Opcode: 0x2A
 # Mnemonic: LD HL,(nn)
