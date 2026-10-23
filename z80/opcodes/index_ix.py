@@ -33,6 +33,11 @@ OPCODES = [
     },
     {"opcode": "0x2B", "mnemonic": "DEC IX", "description": "Decrement IX"},
     {
+        "opcode": "0x36",
+        "mnemonic": "LD (IX+d),n",
+        "description": "Store immediate byte to indexed memory",
+    },
+    {
         "opcode": "0x31",
         "mnemonic": "LD SP,nn",
         "description": "Load immediate 16-bit value into SP",
@@ -141,7 +146,8 @@ def _matches_opcode(opcode, entry):
 
 
 def _ld_bc_nn_ix(self):
-    return None
+    self.BC.set(self.ingest_next_word())
+    return 10
 
 
 # Opcode: 0x11
@@ -150,7 +156,8 @@ def _ld_bc_nn_ix(self):
 
 
 def _ld_de_nn_ix(self):
-    return None
+    self.DE.set(self.ingest_next_word())
+    return 10
 
 
 # Opcode: 0x18
@@ -159,7 +166,8 @@ def _ld_de_nn_ix(self):
 
 
 def _jr_e_ix(self):
-    return None
+    self.jump_relative(self.ingest_next_byte())
+    return 12
 
 
 # Opcode: 0x21
@@ -168,7 +176,8 @@ def _jr_e_ix(self):
 
 
 def _ld_ix_nn(self):
-    return None
+    self.IX.set(self.ingest_next_word())
+    return 14
 
 
 # Opcode: 0x22
@@ -177,7 +186,8 @@ def _ld_ix_nn(self):
 
 
 def _ld_nn_ix(self):
-    return None
+    self.memory.write16(self.ingest_next_word(), self.IX.get())
+    return 20
 
 
 # Opcode: 0x23
@@ -186,7 +196,8 @@ def _ld_nn_ix(self):
 
 
 def _inc_ix(self):
-    return None
+    self.IX.inc()
+    return 10
 
 
 # Opcode: 0x29
@@ -195,7 +206,8 @@ def _inc_ix(self):
 
 
 def _add_ix_bc(self):
-    return None
+    self.IX.set(self.add16(self.IX.get(), self.BC.get()))
+    return 15
 
 
 # Opcode: 0x2A
@@ -204,7 +216,8 @@ def _add_ix_bc(self):
 
 
 def _ld_ix_nn_mem(self):
-    return None
+    self.IX.set(self.memory.read16(self.ingest_next_word()))
+    return 20
 
 
 # Opcode: 0x2B
@@ -213,7 +226,20 @@ def _ld_ix_nn_mem(self):
 
 
 def _dec_ix(self):
-    return None
+    self.IX.dec()
+    return 10
+
+
+# Opcode: 0x36
+# Mnemonic: LD (IX+d),n
+# Description: Store immediate byte to indexed memory
+
+
+def _ld_ix_d_n(self):
+    displacement = self.signed_byte(self.ingest_next_byte())
+    address = (self.IX.get() + displacement) & 0xFFFF
+    self.memory.write8(address, self.ingest_next_byte())
+    return 19
 
 
 # Opcode: 0x31
@@ -222,7 +248,8 @@ def _dec_ix(self):
 
 
 def _ld_sp_nn_ix(self):
-    return None
+    self.SP.set(self.ingest_next_word())
+    return 10
 
 
 # Opcode: 0x39
@@ -231,7 +258,8 @@ def _ld_sp_nn_ix(self):
 
 
 def _add_ix_sp(self):
-    return None
+    self.IX.set(self.add16(self.IX.get(), self.SP.get()))
+    return 15
 
 
 # Opcode: 0x3A
@@ -240,7 +268,8 @@ def _add_ix_sp(self):
 
 
 def _ld_a_nn_ix(self):
-    return None
+    self.A.set(self.memory.read8(self.ingest_next_word()))
+    return 13
 
 
 # Opcode: 0x46
@@ -249,7 +278,9 @@ def _ld_a_nn_ix(self):
 
 
 def _ld_b_ix_d(self):
-    return None
+    displacement = self.signed_byte(self.ingest_next_byte())
+    self.B.set(self.memory.read8((self.IX.get() + displacement) & 0xFFFF))
+    return 19
 
 
 # Opcode: 0x4E
@@ -258,7 +289,9 @@ def _ld_b_ix_d(self):
 
 
 def _ld_c_ix_d(self):
-    return None
+    displacement = self.signed_byte(self.ingest_next_byte())
+    self.C.set(self.memory.read8((self.IX.get() + displacement) & 0xFFFF))
+    return 19
 
 
 # Opcode: 0x56
@@ -267,7 +300,9 @@ def _ld_c_ix_d(self):
 
 
 def _ld_d_ix_d(self):
-    return None
+    displacement = self.signed_byte(self.ingest_next_byte())
+    self.D.set(self.memory.read8((self.IX.get() + displacement) & 0xFFFF))
+    return 19
 
 
 # Opcode: 0x5E
@@ -276,7 +311,9 @@ def _ld_d_ix_d(self):
 
 
 def _ld_e_ix_d(self):
-    return None
+    displacement = self.signed_byte(self.ingest_next_byte())
+    self.E.set(self.memory.read8((self.IX.get() + displacement) & 0xFFFF))
+    return 19
 
 
 # Opcode: 0x66
@@ -285,7 +322,9 @@ def _ld_e_ix_d(self):
 
 
 def _ld_h_ix_d(self):
-    return None
+    displacement = self.signed_byte(self.ingest_next_byte())
+    self.H.set(self.memory.read8((self.IX.get() + displacement) & 0xFFFF))
+    return 19
 
 
 # Opcode: 0x6E
@@ -294,7 +333,9 @@ def _ld_h_ix_d(self):
 
 
 def _ld_l_ix_d(self):
-    return None
+    displacement = self.signed_byte(self.ingest_next_byte())
+    self.L.set(self.memory.read8((self.IX.get() + displacement) & 0xFFFF))
+    return 19
 
 
 # Opcode: 0x70-0x75
@@ -302,8 +343,12 @@ def _ld_l_ix_d(self):
 # Description: Store a register to indexed memory
 
 
-def _ld_ix_d_r(self):
-    return None
+def _ld_ix_d_r(self, opcode):
+    displacement = self.signed_byte(self.ingest_next_byte())
+    address = (self.IX.get() + displacement) & 0xFFFF
+    value = self.read_from_r(opcode & 0b111)
+    self.memory.write8(address, value)
+    return 19
 
 
 # Opcode: 0x77
@@ -312,7 +357,10 @@ def _ld_ix_d_r(self):
 
 
 def _ld_ix_d_a(self):
-    return None
+    displacement = self.signed_byte(self.ingest_next_byte())
+    address = (self.IX.get() + displacement) & 0xFFFF
+    self.memory.write8(address, self.A.get())
+    return 19
 
 
 # Opcode: 0x7E
@@ -321,7 +369,9 @@ def _ld_ix_d_a(self):
 
 
 def _ld_a_ix_d(self):
-    return None
+    displacement = self.signed_byte(self.ingest_next_byte())
+    self.A.set(self.memory.read8((self.IX.get() + displacement) & 0xFFFF))
+    return 19
 
 
 # Opcode: 0xCB
@@ -330,7 +380,26 @@ def _ld_a_ix_d(self):
 
 
 def _dd_cb_prefix(self):
-    return None
+    displacement = self.signed_byte(self.ingest_next_byte())
+    address = (self.IX.get() + displacement) & 0xFFFF
+    opcode = self.ingest_next_byte()
+    value = self.memory.read8(address)
+    bit = (opcode >> 3) & 0b111
+    r = opcode & 0b111
+    if opcode in range(0x00, 0x40):
+        result = self.rlc(value) if opcode & 0b00111000 == 0x00 else self.rrc(value) if opcode & 0b00111000 == 0x08 else self.rl(value) if opcode & 0b00111000 == 0x10 else self.rr(value)
+        self.memory.write8(address, result)
+        return 20
+    if opcode in range(0x40, 0x80):
+        self.bit(bit, value)
+        return 20
+    if opcode in range(0x80, 0xC0):
+        result = self.res(bit, value)
+        self.memory.write8(address, result)
+        return 20
+    result = self.set_(bit, value)
+    self.memory.write8(address, result)
+    return 20
 
 
 # Opcode: 0xE1
@@ -339,7 +408,8 @@ def _dd_cb_prefix(self):
 
 
 def _pop_ix(self):
-    return None
+    self.IX.set(self.pop_word())
+    return 14
 
 
 # Opcode: 0xE5
@@ -348,7 +418,8 @@ def _pop_ix(self):
 
 
 def _push_ix(self):
-    return None
+    self.push_word(self.IX.get())
+    return 15
 
 
 # Opcode: 0xE6
@@ -357,7 +428,8 @@ def _push_ix(self):
 
 
 def _and_n_ix(self):
-    return None
+    self.A.set(self.alu_and(self.A.get(), self.ingest_next_byte()))
+    return 15
 
 
 # Opcode: 0xEE
@@ -366,7 +438,8 @@ def _and_n_ix(self):
 
 
 def _xor_n_ix(self):
-    return None
+    self.A.set(self.alu_xor(self.A.get(), self.ingest_next_byte()))
+    return 15
 
 
 # Opcode: 0xF6
@@ -375,7 +448,8 @@ def _xor_n_ix(self):
 
 
 def _or_n_ix(self):
-    return None
+    self.A.set(self.alu_or(self.A.get(), self.ingest_next_byte()))
+    return 15
 
 
 # Opcode: 0xFE
@@ -384,7 +458,8 @@ def _or_n_ix(self):
 
 
 def _cp_n_ix(self):
-    return None
+    self.alu_cp(self.A.get(), self.ingest_next_byte())
+    return 15
 
 
 def execute(self, opcode):
@@ -411,6 +486,8 @@ def execute(self, opcode):
                 return _ld_ix_nn_mem(self)
             if opcode == 0x2B:
                 return _dec_ix(self)
+            if opcode == 0x36:
+                return _ld_ix_d_n(self)
             if opcode == 0x31:
                 return _ld_sp_nn_ix(self)
             if opcode == 0x39:
@@ -430,7 +507,7 @@ def execute(self, opcode):
             if opcode == 0x6E:
                 return _ld_l_ix_d(self)
             if 0x70 <= opcode <= 0x75:
-                return _ld_ix_d_r(self)
+                return _ld_ix_d_r(self, opcode)
             if opcode == 0x77:
                 return _ld_ix_d_a(self)
             if opcode == 0x7E:
@@ -455,5 +532,5 @@ def execute(self, opcode):
             )
 
     raise NotImplementedError(
-        f"{__name__}: {prefix:02X} {opcode:02X} is not defined in the DD-prefixed instruction table"
+        f"{__name__}: opcode {prefix:02X} {opcode:02X} is not defined in the DD-prefixed instruction table"
     )

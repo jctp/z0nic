@@ -365,7 +365,8 @@ def _matches_opcode(opcode, entry):
 
 
 def _in_b_c(self):
-    return None
+    self.B.set(self.port_in(self.BC.get()))
+    return 12
 
 
 # Opcode: 0x41
@@ -374,7 +375,8 @@ def _in_b_c(self):
 
 
 def _out_c_b(self):
-    return None
+    self.port_out(self.BC.get(), self.B.get())
+    return 12
 
 
 # Opcode: 0x42
@@ -383,7 +385,8 @@ def _out_c_b(self):
 
 
 def _sbc_hl_bc(self):
-    return None
+    self.HL.set(self.sbc_hl_ss(self.BC.get()))
+    return 15
 
 
 # Opcode: 0x43
@@ -392,7 +395,8 @@ def _sbc_hl_bc(self):
 
 
 def _ld_nn_bc(self):
-    return None
+    self.memory.write16(self.ingest_next_word(), self.BC.get())
+    return 20
 
 
 # Opcode: 0x44
@@ -401,7 +405,8 @@ def _ld_nn_bc(self):
 
 
 def _neg(self):
-    return None
+    self.neg_acc()
+    return 8
 
 
 # Opcode: 0x45
@@ -410,7 +415,9 @@ def _neg(self):
 
 
 def _retn(self):
-    return None
+    self.PC.set(self.pop_word())
+    self.IFF1 = self.IFF2
+    return 14
 
 
 # Opcode: 0x46
@@ -419,7 +426,8 @@ def _retn(self):
 
 
 def _im_0(self):
-    return None
+    self.im_mode(0)
+    return 8
 
 
 # Opcode: 0x47
@@ -428,7 +436,8 @@ def _im_0(self):
 
 
 def _ld_i_a(self):
-    return None
+    self.load_reg_from_a("I")
+    return 9
 
 
 # Opcode: 0x48
@@ -437,7 +446,8 @@ def _ld_i_a(self):
 
 
 def _in_c_c(self):
-    return None
+    self.C.set(self.port_in(self.BC.get()))
+    return 12
 
 
 # Opcode: 0x49
@@ -446,7 +456,8 @@ def _in_c_c(self):
 
 
 def _out_c_c(self):
-    return None
+    self.port_out(self.BC.get(), self.C.get())
+    return 12
 
 
 # Opcode: 0x4A
@@ -455,7 +466,8 @@ def _out_c_c(self):
 
 
 def _adc_hl_bc(self):
-    return None
+    self.HL.set(self.adc_hl_ss(self.BC.get()))
+    return 15
 
 
 # Opcode: 0x4B
@@ -464,7 +476,8 @@ def _adc_hl_bc(self):
 
 
 def _ld_bc_nn(self):
-    return None
+    self.BC.set(self.memory.read16(self.ingest_next_word()))
+    return 20
 
 
 # Opcode: 0x4D
@@ -473,7 +486,9 @@ def _ld_bc_nn(self):
 
 
 def _reti(self):
-    return None
+    self.PC.set(self.pop_word())
+    self.IFF1 = self.IFF2
+    return 14
 
 
 # Opcode: 0x4E
@@ -482,7 +497,8 @@ def _reti(self):
 
 
 def _im_1(self):
-    return None
+    self.im_mode(1)
+    return 8
 
 
 # Opcode: 0x4F
@@ -491,7 +507,8 @@ def _im_1(self):
 
 
 def _ld_r_a(self):
-    return None
+    self.R.set(self.A.get())
+    return 9
 
 
 # Opcode: 0x50
@@ -500,7 +517,8 @@ def _ld_r_a(self):
 
 
 def _in_d_c(self):
-    return None
+    self.D.set(self.port_in(self.BC.get()))
+    return 12
 
 
 # Opcode: 0x51
@@ -509,7 +527,8 @@ def _in_d_c(self):
 
 
 def _out_c_d(self):
-    return None
+    self.port_out(self.BC.get(), self.D.get())
+    return 12
 
 
 # Opcode: 0x52
@@ -518,7 +537,8 @@ def _out_c_d(self):
 
 
 def _sbc_hl_de(self):
-    return None
+    self.HL.set(self.sbc_hl_ss(self.DE.get()))
+    return 15
 
 
 # Opcode: 0x53
@@ -527,7 +547,8 @@ def _sbc_hl_de(self):
 
 
 def _ld_nn_de(self):
-    return None
+    self.memory.write16(self.ingest_next_word(), self.DE.get())
+    return 20
 
 
 # Opcode: 0x56
@@ -536,7 +557,7 @@ def _ld_nn_de(self):
 
 
 def _im_2(self):
-    self.IM = 1
+    self.im_mode(2)
     return 8
 
 
@@ -546,7 +567,9 @@ def _im_2(self):
 
 
 def _ld_a_i(self):
-    return None
+    self.A.set(self.I.get())
+    self.set_input_flags(self.A.get())
+    return 9
 
 
 # Opcode: 0x58
@@ -555,7 +578,8 @@ def _ld_a_i(self):
 
 
 def _in_e_c(self):
-    return None
+    self.E.set(self.port_in(self.BC.get()))
+    return 12
 
 
 # Opcode: 0x59
@@ -564,7 +588,8 @@ def _in_e_c(self):
 
 
 def _out_c_e(self):
-    return None
+    self.port_out(self.BC.get(), self.E.get())
+    return 12
 
 
 # Opcode: 0x5A
@@ -573,7 +598,8 @@ def _out_c_e(self):
 
 
 def _adc_hl_de(self):
-    return None
+    self.HL.set(self.adc_hl_ss(self.DE.get()))
+    return 15
 
 
 # Opcode: 0x5B
@@ -582,7 +608,8 @@ def _adc_hl_de(self):
 
 
 def _ld_de_nn(self):
-    return None
+    self.DE.set(self.memory.read16(self.ingest_next_word()))
+    return 20
 
 
 # Opcode: 0x5F
@@ -591,7 +618,9 @@ def _ld_de_nn(self):
 
 
 def _ld_a_r(self):
-    return None
+    self.A.set(self.R.get())
+    self.set_input_flags(self.A.get())
+    return 9
 
 
 # Opcode: 0x60
@@ -600,7 +629,8 @@ def _ld_a_r(self):
 
 
 def _in_h_c(self):
-    return None
+    self.H.set(self.port_in(self.BC.get()))
+    return 12
 
 
 # Opcode: 0x61
@@ -609,7 +639,8 @@ def _in_h_c(self):
 
 
 def _out_c_h(self):
-    return None
+    self.port_out(self.BC.get(), self.H.get())
+    return 12
 
 
 # Opcode: 0x62
@@ -618,7 +649,8 @@ def _out_c_h(self):
 
 
 def _sbc_hl_hl(self):
-    return None
+    self.HL.set(self.sbc_hl_ss(self.HL.get()))
+    return 15
 
 
 # Opcode: 0x63
@@ -627,7 +659,8 @@ def _sbc_hl_hl(self):
 
 
 def _ld_nn_hl(self):
-    return None
+    self.memory.write16(self.ingest_next_word(), self.HL.get())
+    return 20
 
 
 # Opcode: 0x67
@@ -636,7 +669,8 @@ def _ld_nn_hl(self):
 
 
 def _rrd(self):
-    return None
+    self.rrd()
+    return 18
 
 
 # Opcode: 0x68
@@ -645,7 +679,8 @@ def _rrd(self):
 
 
 def _in_l_c(self):
-    return None
+    self.L.set(self.port_in(self.BC.get()))
+    return 12
 
 
 # Opcode: 0x69
@@ -654,7 +689,8 @@ def _in_l_c(self):
 
 
 def _out_c_l(self):
-    return None
+    self.port_out(self.BC.get(), self.L.get())
+    return 12
 
 
 # Opcode: 0x6A
@@ -663,7 +699,8 @@ def _out_c_l(self):
 
 
 def _adc_hl_hl(self):
-    return None
+    self.HL.set(self.adc_hl_ss(self.HL.get()))
+    return 15
 
 
 # Opcode: 0x6B
@@ -672,7 +709,8 @@ def _adc_hl_hl(self):
 
 
 def _ld_hl_nn(self):
-    return None
+    self.HL.set(self.memory.read16(self.ingest_next_word()))
+    return 20
 
 
 # Opcode: 0x6F
@@ -681,7 +719,8 @@ def _ld_hl_nn(self):
 
 
 def _rld(self):
-    return None
+    self.rld()
+    return 18
 
 
 # Opcode: 0x70
@@ -690,7 +729,8 @@ def _rld(self):
 
 
 def _in_f_c(self):
-    return None
+    self.port_in(self.BC.get())
+    return 12
 
 
 # Opcode: 0x71
@@ -699,7 +739,8 @@ def _in_f_c(self):
 
 
 def _out_c_zero(self):
-    return None
+    self.port_out(self.BC.get(), 0)
+    return 12
 
 
 # Opcode: 0x72
@@ -708,7 +749,8 @@ def _out_c_zero(self):
 
 
 def _sbc_hl_sp(self):
-    return None
+    self.HL.set(self.sbc_hl_ss(self.SP.get()))
+    return 15
 
 
 # Opcode: 0x73
@@ -717,7 +759,8 @@ def _sbc_hl_sp(self):
 
 
 def _ld_nn_sp(self):
-    return None
+    self.memory.write16(self.ingest_next_word(), self.SP.get())
+    return 20
 
 
 # Opcode: 0x78
@@ -726,7 +769,8 @@ def _ld_nn_sp(self):
 
 
 def _in_a_c(self):
-    return None
+    self.A.set(self.port_in(self.BC.get()))
+    return 12
 
 
 # Opcode: 0x79
@@ -735,7 +779,8 @@ def _in_a_c(self):
 
 
 def _out_c_a(self):
-    return None
+    self.port_out(self.BC.get(), self.A.get())
+    return 12
 
 
 # Opcode: 0x7A
@@ -744,7 +789,8 @@ def _out_c_a(self):
 
 
 def _adc_hl_sp(self):
-    return None
+    self.HL.set(self.adc_hl_ss(self.SP.get()))
+    return 15
 
 
 # Opcode: 0x7B
@@ -753,7 +799,8 @@ def _adc_hl_sp(self):
 
 
 def _ld_sp_nn(self):
-    return None
+    self.SP.set(self.memory.read16(self.ingest_next_word()))
+    return 20
 
 
 # Opcode: 0xA0
@@ -762,7 +809,11 @@ def _ld_sp_nn(self):
 
 
 def _ldi(self):
-    return None
+    self.block_load(1)
+    self.F.add_sub = False
+    self.F.half_carry = False
+    self.F.parity_overflow = False
+    return 16
 
 
 # Opcode: 0xA1
@@ -771,7 +822,11 @@ def _ldi(self):
 
 
 def _cpi(self):
-    return None
+    self.block_compare(1)
+    self.F.half_carry = False
+    self.F.add_sub = True
+    self.F.parity_overflow = self.BC.get() != 0
+    return 16
 
 
 # Opcode: 0xA2
@@ -780,7 +835,8 @@ def _cpi(self):
 
 
 def _ini(self):
-    return None
+    self.block_input(1)
+    return 16
 
 
 # Opcode: 0xA3
@@ -789,7 +845,8 @@ def _ini(self):
 
 
 def _outi(self):
-    return None
+    self.block_output(1)
+    return 16
 
 
 # Opcode: 0xA8
@@ -798,7 +855,11 @@ def _outi(self):
 
 
 def _ldd(self):
-    return None
+    self.block_load(-1)
+    self.F.add_sub = False
+    self.F.half_carry = False
+    self.F.parity_overflow = False
+    return 16
 
 
 # Opcode: 0xA9
@@ -807,7 +868,11 @@ def _ldd(self):
 
 
 def _cpd(self):
-    return None
+    self.block_compare(-1)
+    self.F.half_carry = False
+    self.F.add_sub = True
+    self.F.parity_overflow = self.BC.get() != 0
+    return 16
 
 
 # Opcode: 0xAA
@@ -816,7 +881,8 @@ def _cpd(self):
 
 
 def _ind(self):
-    return None
+    self.block_input(-1)
+    return 16
 
 
 # Opcode: 0xAB
@@ -825,7 +891,8 @@ def _ind(self):
 
 
 def _outd(self):
-    return None
+    self.block_output(-1)
+    return 16
 
 
 # Opcode: 0xB0
@@ -834,22 +901,12 @@ def _outd(self):
 
 
 def _ldir(self):
-
-    self.memory.write8(self.DE.get(), self.memory.read8(self.HL.get()))
-
-    self.HL.inc()
-    self.DE.inc()
-    self.BC.dec()
-
-    # LDIR does not affect S/Z, but it does clear H/N and exposes repeat status via PV.
-    self.F.half_carry = False
-    self.F.add_sub = False
-    self.F.parity_overflow = self.BC.get() != 0
-
+    self.block_load(1)
     if self.BC.get() != 0:
         self.PC.dec(2)
+        self.F.parity_overflow = True
         return 21
-
+    self.F.parity_overflow = False
     return 16
 
 
@@ -859,7 +916,13 @@ def _ldir(self):
 
 
 def _cpir(self):
-    return None
+    self.block_compare(1)
+    if self.BC.get() != 0:
+        self.PC.dec(2)
+        self.F.parity_overflow = True
+        return 21
+    self.F.parity_overflow = False
+    return 16
 
 
 # Opcode: 0xB2
@@ -868,7 +931,11 @@ def _cpir(self):
 
 
 def _inir(self):
-    return None
+    self.block_input(1)
+    if self.B.get() != 0:
+        self.PC.dec(2)
+        return 21
+    return 16
 
 
 # Opcode: 0xB3
@@ -877,7 +944,11 @@ def _inir(self):
 
 
 def _otir(self):
-    return None
+    self.block_output(1)
+    if self.B.get() != 0:
+        self.PC.dec(2)
+        return 21
+    return 16
 
 
 # Opcode: 0xB8
@@ -886,7 +957,13 @@ def _otir(self):
 
 
 def _lddr(self):
-    return None
+    self.block_load(-1)
+    if self.BC.get() != 0:
+        self.PC.dec(2)
+        self.F.parity_overflow = True
+        return 21
+    self.F.parity_overflow = False
+    return 16
 
 
 # Opcode: 0xB9
@@ -895,7 +972,13 @@ def _lddr(self):
 
 
 def _cpdr(self):
-    return None
+    self.block_compare(-1)
+    if self.BC.get() != 0:
+        self.PC.dec(2)
+        self.F.parity_overflow = True
+        return 21
+    self.F.parity_overflow = False
+    return 16
 
 
 # Opcode: 0xBA
@@ -904,7 +987,11 @@ def _cpdr(self):
 
 
 def _indr(self):
-    return None
+    self.block_input(-1)
+    if self.B.get() != 0:
+        self.PC.dec(2)
+        return 21
+    return 16
 
 
 # Opcode: 0xBB
@@ -913,7 +1000,11 @@ def _indr(self):
 
 
 def _otdr(self):
-    return None
+    self.block_output(-1)
+    if self.B.get() != 0:
+        self.PC.dec(2)
+        return 21
+    return 16
 
 
 def execute(self, opcode):
@@ -1048,5 +1139,5 @@ def execute(self, opcode):
             )
 
     raise NotImplementedError(
-        f"{__name__}: {prefix:02X} {opcode:02X} is not defined in the ED-prefixed instruction table"
+        f"{__name__}: opcode {prefix:02X} {opcode:02X} is not defined in the ED-prefixed instruction table"
     )

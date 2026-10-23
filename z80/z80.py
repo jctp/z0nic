@@ -1,5 +1,7 @@
 # region Imports
 
+import re
+
 from logger import logger
 
 from z80.opcodes import dispatcher
@@ -237,9 +239,19 @@ class Z80(FlagSetters, UOps):
 
         except NotImplementedError as exc:
             description = str(exc)
-            if "opcode " in description:
-                description = description.split("opcode ", 1)[1]
-                description = description.replace(" is not implemented", "")
+            if "opcode" in description.lower():
+                match = re.search(
+                    r"opcode\s*(?:0x)?([0-9A-Fa-f]{2})(?:\s*(?:0x)?([0-9A-Fa-f]{2}))?",
+                    description,
+                    flags=re.IGNORECASE,
+                )
+            else:
+                match = None
+            if match:
+                parts = [match.group(1)]
+                if match.group(2):
+                    parts.append(match.group(2))
+                description = " ".join(f"{int(part, 16):02X}" for part in parts)
             else:
                 description = f"0x{opcode:02X}"
 
