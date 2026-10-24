@@ -2,6 +2,7 @@
 
 import re
 
+from bug_world import enter_bug_world
 from logger import logger
 
 from z80.opcodes import dispatcher
@@ -229,7 +230,7 @@ class Z80(FlagSetters, UOps):
             self.PC.set(self.construct_word(lo, hi))
             return 19
 
-        self.enter_bug_world(f"Invalid interrupt request (IM = {self.IM})")
+        enter_bug_world(f"Invalid interrupt request (IM = {self.IM})")
 
     # endregion
     # region CPU Stepping
@@ -277,34 +278,11 @@ class Z80(FlagSetters, UOps):
             else:
                 description = f"0x{opcode:02X}"
 
-            self.enter_bug_world(
+            enter_bug_world(
                 f"STOP at PC={self.PC.get():04X} on unimplemented Z80 opcode: {description}"
             )
 
     # endregion
     # region Error Messaging
-
-    def enter_bug_world(self, message):
-
-        RED = "\033[31m"
-        ORANGE = "\033[38;5;208m"
-        YELLOW = "\033[33m"
-        GREEN = "\033[32m"
-        CYAN = "\033[36m"
-        BLUE = "\033[34m"
-        MAGENTA = "\033[35m"
-        WHITE = "\033[37m"
-        RESET = "\033[0m"
-
-        BOLD = "\033[1m"
-        BLINK = "\033[5m"
-
-        print(f"{RED}={RESET}" * 80)
-        print(
-            f"{BOLD}{BLINK}{GREEN}O-{CYAN}^v^v^{GREEN}-{RED} WELCOME TO BUG WORLD {GREEN}-{CYAN}^v^v^{GREEN}-O{RESET}"
-        )
-        print(f"Hello, my name is: {message}\nExecution halted :-(")
-        print(f"{RED}={RESET}" * 80)
-        raise SystemExit(1)
 
     # endregion

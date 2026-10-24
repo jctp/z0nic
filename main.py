@@ -1,3 +1,7 @@
+from bug_world import install_excepthook
+
+install_excepthook()
+
 from system import SegaMasterSystem
 
 from memory import Memory
