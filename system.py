@@ -1,7 +1,7 @@
 import os
 
 from frame_dump import write_png
-
+from logger import logger
 
 class SegaMasterSystem:
     def __init__(
@@ -12,7 +12,7 @@ class SegaMasterSystem:
         memory,
         logger,
         frame_dump_dir=None,
-        frame_dump_interval=60,
+        frame_dump_interval=30,
     ):
 
         self.splash_screen()
@@ -44,6 +44,7 @@ class SegaMasterSystem:
                 if last_frame % self.frame_dump_interval == 0:
                     path = os.path.join(self.frame_dump_dir, f"frame_{last_frame:05d}.png")
                     write_png(path, self.io.vdp.render_frame())
+                    logger.debug(f"Dumped frame {last_frame:05d}.")
 
     def splash_screen(self):
         def clear_screen():

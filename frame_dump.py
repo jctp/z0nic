@@ -1,3 +1,5 @@
+# Temp AI-generated shim for testing
+
 import struct
 import zlib
 

@@ -23,9 +23,6 @@ class Input_Output:
         # VDP
         if port in (0xBE, 0xBF):
             value = self.vdp.read(port)
-
-            logger.debug(f"VDP READ  port={port:02X} value={value:02X}")
-
             return value
 
         value = self.ports[port]
