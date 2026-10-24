@@ -58,11 +58,6 @@ class Memory:
             offset = self.bank1 * 0x4000 + (address - 0x4000)
             offset %= len(self.cartridge.rom)
             value = self.cartridge.rom[offset]
-
-            logger.debug(
-                f"BANK1: addr={address:04X} bank={self.bank1:02X} offset={offset:05X}"
-            )
-
             return value
 
         # Slot 2

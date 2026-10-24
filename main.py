@@ -20,7 +20,13 @@ z80 = Z80(
 )
 
 console = SegaMasterSystem(
-    cpu=z80, cartridge=sms_cartridge, io=sms_io, memory=sms_memory, logger=logger
+    cpu=z80,
+    cartridge=sms_cartridge,
+    io=sms_io,
+    memory=sms_memory,
+    logger=logger,
+    frame_dump_dir="frames",
+    frame_dump_interval=60,
 )
 
 console.run()

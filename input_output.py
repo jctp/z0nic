@@ -30,8 +30,6 @@ class Input_Output:
 
         value = self.ports[port]
 
-        logger.debug(f"IO READ   port={port:02X} value={value:02X}")
-
         return value
 
     def write(self, port, value):
@@ -42,7 +40,5 @@ class Input_Output:
         if port in (0xBE, 0xBF):
             self.vdp.write(port, value)
             return
-
-        logger.debug(f"IO WRITE  port={port:02X} value={value:02X}")
 
         self.ports[port] = value

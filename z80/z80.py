@@ -208,6 +208,7 @@ class Z80(FlagSetters, UOps):
 
         self.IFF1 = False
         self.IFF2 = False
+        self.io.vdp.acknowledge_line_interrupt()
 
         self.push_word(self.PC.get())
 
@@ -225,7 +226,7 @@ class Z80(FlagSetters, UOps):
             lo = self.memory.read8(vector)
             hi = self.memory.read8((vector + 1) & 0xFFFF)
 
-            self.PC.set(self.construct_word(hi, lo))
+            self.PC.set(self.construct_word(lo, hi))
             return 19
 
         self.enter_bug_world(f"Invalid interrupt request (IM = {self.IM})")
@@ -253,8 +254,8 @@ class Z80(FlagSetters, UOps):
                     self.IFF2 = True
 
             # Handle frame interrupts
-            if self.IFF1 and self.io.vdp.frame_interrupt_pending:
-                self.interrupt()
+            if self.IFF1 and self.io.vdp.irq_line():
+                t_states += self.interrupt()
 
             return t_states
 

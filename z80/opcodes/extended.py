@@ -47,8 +47,8 @@ OPCODES = [
     {"opcode": "0x4D", "mnemonic": "RETI", "description": "Return from interrupt"},
     {
         "opcode": "0x4E",
-        "mnemonic": "IM 0/1",
-        "description": "Placeholder for interrupt mode selector",
+        "mnemonic": "IM 0 (mirror)",
+        "description": "Set interrupt mode 0 (undocumented mirror of ED 46)",
     },
     {"opcode": "0x4F", "mnemonic": "LD R,A", "description": "Load R with A"},
     {
@@ -1040,7 +1040,7 @@ def execute(self, opcode):
             if opcode == 0x4D:
                 return _reti(self)
             if opcode == 0x4E:
-                return _im_1(self)
+                return _im_0(self)
             if opcode == 0x4F:
                 return _ld_r_a(self)
             if opcode == 0x50:
@@ -1052,6 +1052,8 @@ def execute(self, opcode):
             if opcode == 0x53:
                 return _ld_nn_de(self)
             if opcode == 0x56:
+                return _im_1(self)
+            if opcode == 0x5E:
                 return _im_2(self)
             if opcode == 0x57:
                 return _ld_a_i(self)

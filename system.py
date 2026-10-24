@@ -1,8 +1,19 @@
 import os
 
+from frame_dump import write_png
+
 
 class SegaMasterSystem:
-    def __init__(self, cpu, cartridge, io, memory, logger):
+    def __init__(
+        self,
+        cpu,
+        cartridge,
+        io,
+        memory,
+        logger,
+        frame_dump_dir=None,
+        frame_dump_interval=60,
+    ):
 
         self.splash_screen()
 
@@ -13,13 +24,26 @@ class SegaMasterSystem:
 
         self.logger = logger
 
+        self.frame_dump_dir = frame_dump_dir
+        self.frame_dump_interval = frame_dump_interval
+
         self.logger.info("Sega Master System setup complete!")
 
     def run(self):
         self.logger.info("Starting emulation...")
+        if self.frame_dump_dir:
+            os.makedirs(self.frame_dump_dir, exist_ok=True)
+
+        last_frame = self.io.vdp.frame
         while True:
             t_states = self.cpu.step()
             self.io.vdp.tick(t_states)
+
+            if self.frame_dump_dir and self.io.vdp.frame != last_frame:
+                last_frame = self.io.vdp.frame
+                if last_frame % self.frame_dump_interval == 0:
+                    path = os.path.join(self.frame_dump_dir, f"frame_{last_frame:05d}.png")
+                    write_png(path, self.io.vdp.render_background_frame())
 
     def splash_screen(self):
         def clear_screen():

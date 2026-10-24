@@ -25,7 +25,9 @@ OPCODES = [
         "description": "Store IY to absolute memory address",
     },
     {"opcode": "0x23", "mnemonic": "INC IY", "description": "Increment IY"},
-    {"opcode": "0x29", "mnemonic": "ADD IY,BC", "description": "Add BC to IY"},
+    {"opcode": "0x09", "mnemonic": "ADD IY,BC", "description": "Add BC to IY"},
+    {"opcode": "0x19", "mnemonic": "ADD IY,DE", "description": "Add DE to IY"},
+    {"opcode": "0x29", "mnemonic": "ADD IY,IY", "description": "Add IY to IY"},
     {
         "opcode": "0x2A",
         "mnemonic": "LD IY,(nn)",
@@ -92,6 +94,56 @@ OPCODES = [
         "opcode": "0x7E",
         "mnemonic": "LD A,(IY+d)",
         "description": "Load A from indexed memory",
+    },
+    {
+        "opcode": "0x34",
+        "mnemonic": "INC (IY+d)",
+        "description": "Increment indexed memory",
+    },
+    {
+        "opcode": "0x35",
+        "mnemonic": "DEC (IY+d)",
+        "description": "Decrement indexed memory",
+    },
+    {
+        "opcode": "0x86",
+        "mnemonic": "ADD A,(IY+d)",
+        "description": "Add indexed memory to A",
+    },
+    {
+        "opcode": "0x8E",
+        "mnemonic": "ADC A,(IY+d)",
+        "description": "Add indexed memory and carry to A",
+    },
+    {
+        "opcode": "0x96",
+        "mnemonic": "SUB (IY+d)",
+        "description": "Subtract indexed memory from A",
+    },
+    {
+        "opcode": "0x9E",
+        "mnemonic": "SBC A,(IY+d)",
+        "description": "Subtract indexed memory and carry from A",
+    },
+    {
+        "opcode": "0xA6",
+        "mnemonic": "AND (IY+d)",
+        "description": "Logical AND A with indexed memory",
+    },
+    {
+        "opcode": "0xAE",
+        "mnemonic": "XOR (IY+d)",
+        "description": "Logical XOR A with indexed memory",
+    },
+    {
+        "opcode": "0xB6",
+        "mnemonic": "OR (IY+d)",
+        "description": "Logical OR A with indexed memory",
+    },
+    {
+        "opcode": "0xBE",
+        "mnemonic": "CP (IY+d)",
+        "description": "Compare A with indexed memory",
     },
     {
         "opcode": "0xCB",
@@ -200,13 +252,33 @@ def _inc_iy(self):
     return 10
 
 
-# Opcode: 0x29
+# Opcode: 0x09
 # Mnemonic: ADD IY,BC
 # Description: Add BC to IY
 
 
 def _add_iy_bc(self):
     self.IY.set(self.add16(self.IY.get(), self.BC.get()))
+    return 15
+
+
+# Opcode: 0x19
+# Mnemonic: ADD IY,DE
+# Description: Add DE to IY
+
+
+def _add_iy_de(self):
+    self.IY.set(self.add16(self.IY.get(), self.DE.get()))
+    return 15
+
+
+# Opcode: 0x29
+# Mnemonic: ADD IY,IY
+# Description: Add IY to IY
+
+
+def _add_iy_iy(self):
+    self.IY.set(self.add16(self.IY.get(), self.IY.get()))
     return 15
 
 
@@ -374,6 +446,42 @@ def _ld_a_iy_d(self):
     return 19
 
 
+# Opcode: 0x34 / 0x35
+# Mnemonic: INC (IY+d) / DEC (IY+d)
+# Description: Increment or decrement indexed memory in place
+
+
+def _inc_dec_iy_d(self, operation):
+    displacement = self.signed_byte(self.ingest_next_byte())
+    address = (self.IY.get() + displacement) & 0xFFFF
+    self.memory.write8(address, operation(self.memory.read8(address)))
+    return 23
+
+
+# Opcode: 0x86 / 0x8E / 0x96 / 0x9E / 0xA6 / 0xAE / 0xB6
+# Mnemonic: ALU A,(IY+d)
+# Description: Apply an ALU operation to A using indexed memory
+
+
+def _alu_a_iy_d(self, operation):
+    displacement = self.signed_byte(self.ingest_next_byte())
+    value = self.memory.read8((self.IY.get() + displacement) & 0xFFFF)
+    self.A.set(operation(self.A.get(), value))
+    return 19
+
+
+# Opcode: 0xBE
+# Mnemonic: CP (IY+d)
+# Description: Compare A with indexed memory without storing the result
+
+
+def _cp_iy_d(self):
+    displacement = self.signed_byte(self.ingest_next_byte())
+    value = self.memory.read8((self.IY.get() + displacement) & 0xFFFF)
+    self.alu_cp(self.A.get(), value)
+    return 19
+
+
 # Opcode: 0xCB
 # Mnemonic: FD CB prefix
 # Description: Prefix for the IY bit-manipulation table
@@ -487,8 +595,12 @@ def execute(self, opcode):
                 return _ld_nn_iy(self)
             if opcode == 0x23:
                 return _inc_iy(self)
-            if opcode == 0x29:
+            if opcode == 0x09:
                 return _add_iy_bc(self)
+            if opcode == 0x19:
+                return _add_iy_de(self)
+            if opcode == 0x29:
+                return _add_iy_iy(self)
             if opcode == 0x2A:
                 return _ld_iy_nn_mem(self)
             if opcode == 0x2B:
@@ -519,6 +631,26 @@ def execute(self, opcode):
                 return _ld_iy_d_a(self)
             if opcode == 0x7E:
                 return _ld_a_iy_d(self)
+            if opcode == 0x34:
+                return _inc_dec_iy_d(self, self.alu_inc)
+            if opcode == 0x35:
+                return _inc_dec_iy_d(self, self.alu_dec)
+            if opcode == 0x86:
+                return _alu_a_iy_d(self, self.alu_add)
+            if opcode == 0x8E:
+                return _alu_a_iy_d(self, self.alu_adc)
+            if opcode == 0x96:
+                return _alu_a_iy_d(self, self.alu_sub)
+            if opcode == 0x9E:
+                return _alu_a_iy_d(self, self.alu_sbc)
+            if opcode == 0xA6:
+                return _alu_a_iy_d(self, self.alu_and)
+            if opcode == 0xAE:
+                return _alu_a_iy_d(self, self.alu_xor)
+            if opcode == 0xB6:
+                return _alu_a_iy_d(self, self.alu_or)
+            if opcode == 0xBE:
+                return _cp_iy_d(self)
             if opcode == 0xCB:
                 return _fd_cb_prefix(self)
             if opcode == 0xE1:

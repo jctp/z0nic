@@ -25,7 +25,9 @@ OPCODES = [
         "description": "Store IX to absolute memory address",
     },
     {"opcode": "0x23", "mnemonic": "INC IX", "description": "Increment IX"},
-    {"opcode": "0x29", "mnemonic": "ADD IX,BC", "description": "Add BC to IX"},
+    {"opcode": "0x09", "mnemonic": "ADD IX,BC", "description": "Add BC to IX"},
+    {"opcode": "0x19", "mnemonic": "ADD IX,DE", "description": "Add DE to IX"},
+    {"opcode": "0x29", "mnemonic": "ADD IX,IX", "description": "Add IX to IX"},
     {
         "opcode": "0x2A",
         "mnemonic": "LD IX,(nn)",
@@ -92,6 +94,56 @@ OPCODES = [
         "opcode": "0x7E",
         "mnemonic": "LD A,(IX+d)",
         "description": "Load A from indexed memory",
+    },
+    {
+        "opcode": "0xB6",
+        "mnemonic": "OR (IX+d)",
+        "description": "Logical OR A with indexed memory",
+    },
+    {
+        "opcode": "0x34",
+        "mnemonic": "INC (IX+d)",
+        "description": "Increment indexed memory",
+    },
+    {
+        "opcode": "0x35",
+        "mnemonic": "DEC (IX+d)",
+        "description": "Decrement indexed memory",
+    },
+    {
+        "opcode": "0x86",
+        "mnemonic": "ADD A,(IX+d)",
+        "description": "Add indexed memory to A",
+    },
+    {
+        "opcode": "0x8E",
+        "mnemonic": "ADC A,(IX+d)",
+        "description": "Add indexed memory and carry to A",
+    },
+    {
+        "opcode": "0x96",
+        "mnemonic": "SUB (IX+d)",
+        "description": "Subtract indexed memory from A",
+    },
+    {
+        "opcode": "0x9E",
+        "mnemonic": "SBC A,(IX+d)",
+        "description": "Subtract indexed memory and carry from A",
+    },
+    {
+        "opcode": "0xA6",
+        "mnemonic": "AND (IX+d)",
+        "description": "Logical AND A with indexed memory",
+    },
+    {
+        "opcode": "0xAE",
+        "mnemonic": "XOR (IX+d)",
+        "description": "Logical XOR A with indexed memory",
+    },
+    {
+        "opcode": "0xBE",
+        "mnemonic": "CP (IX+d)",
+        "description": "Compare A with indexed memory",
     },
     {
         "opcode": "0xCB",
@@ -200,13 +252,33 @@ def _inc_ix(self):
     return 10
 
 
-# Opcode: 0x29
+# Opcode: 0x09
 # Mnemonic: ADD IX,BC
 # Description: Add BC to IX
 
 
 def _add_ix_bc(self):
     self.IX.set(self.add16(self.IX.get(), self.BC.get()))
+    return 15
+
+
+# Opcode: 0x19
+# Mnemonic: ADD IX,DE
+# Description: Add DE to IX
+
+
+def _add_ix_de(self):
+    self.IX.set(self.add16(self.IX.get(), self.DE.get()))
+    return 15
+
+
+# Opcode: 0x29
+# Mnemonic: ADD IX,IX
+# Description: Add IX to IX
+
+
+def _add_ix_ix(self):
+    self.IX.set(self.add16(self.IX.get(), self.IX.get()))
     return 15
 
 
@@ -374,6 +446,54 @@ def _ld_a_ix_d(self):
     return 19
 
 
+# Opcode: 0xB6
+# Mnemonic: OR (IX+d)
+# Description: Logical OR A with indexed memory
+
+
+def _or_ix_d(self):
+    displacement = self.signed_byte(self.ingest_next_byte())
+    value = self.memory.read8((self.IX.get() + displacement) & 0xFFFF)
+    self.A.set(self.alu_or(self.A.get(), value))
+    return 19
+
+
+# Opcode: 0x34 / 0x35
+# Mnemonic: INC (IX+d) / DEC (IX+d)
+# Description: Increment or decrement indexed memory in place
+
+
+def _inc_dec_ix_d(self, operation):
+    displacement = self.signed_byte(self.ingest_next_byte())
+    address = (self.IX.get() + displacement) & 0xFFFF
+    self.memory.write8(address, operation(self.memory.read8(address)))
+    return 23
+
+
+# Opcode: 0x86 / 0x8E / 0x96 / 0x9E / 0xA6 / 0xAE
+# Mnemonic: ALU A,(IX+d)
+# Description: Apply an ALU operation to A using indexed memory
+
+
+def _alu_a_ix_d(self, operation):
+    displacement = self.signed_byte(self.ingest_next_byte())
+    value = self.memory.read8((self.IX.get() + displacement) & 0xFFFF)
+    self.A.set(operation(self.A.get(), value))
+    return 19
+
+
+# Opcode: 0xBE
+# Mnemonic: CP (IX+d)
+# Description: Compare A with indexed memory without storing the result
+
+
+def _cp_ix_d(self):
+    displacement = self.signed_byte(self.ingest_next_byte())
+    value = self.memory.read8((self.IX.get() + displacement) & 0xFFFF)
+    self.alu_cp(self.A.get(), value)
+    return 19
+
+
 # Opcode: 0xCB
 # Mnemonic: DD CB prefix
 # Description: Prefix for the IX bit-manipulation table
@@ -488,8 +608,12 @@ def execute(self, opcode):
                 return _ld_nn_ix(self)
             if opcode == 0x23:
                 return _inc_ix(self)
-            if opcode == 0x29:
+            if opcode == 0x09:
                 return _add_ix_bc(self)
+            if opcode == 0x19:
+                return _add_ix_de(self)
+            if opcode == 0x29:
+                return _add_ix_ix(self)
             if opcode == 0x2A:
                 return _ld_ix_nn_mem(self)
             if opcode == 0x2B:
@@ -520,6 +644,26 @@ def execute(self, opcode):
                 return _ld_ix_d_a(self)
             if opcode == 0x7E:
                 return _ld_a_ix_d(self)
+            if opcode == 0xB6:
+                return _or_ix_d(self)
+            if opcode == 0x34:
+                return _inc_dec_ix_d(self, self.alu_inc)
+            if opcode == 0x35:
+                return _inc_dec_ix_d(self, self.alu_dec)
+            if opcode == 0x86:
+                return _alu_a_ix_d(self, self.alu_add)
+            if opcode == 0x8E:
+                return _alu_a_ix_d(self, self.alu_adc)
+            if opcode == 0x96:
+                return _alu_a_ix_d(self, self.alu_sub)
+            if opcode == 0x9E:
+                return _alu_a_ix_d(self, self.alu_sbc)
+            if opcode == 0xA6:
+                return _alu_a_ix_d(self, self.alu_and)
+            if opcode == 0xAE:
+                return _alu_a_ix_d(self, self.alu_xor)
+            if opcode == 0xBE:
+                return _cp_ix_d(self)
             if opcode == 0xCB:
                 return _dd_cb_prefix(self)
             if opcode == 0xE1:
