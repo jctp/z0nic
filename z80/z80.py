@@ -205,7 +205,30 @@ class Z80(FlagSetters, UOps):
     # region Interrupt Handling
 
     def interrupt(self):
-        logger.debug("Interrupt fired! Did nothing yet...")
+
+        self.IFF1 = False
+        self.IFF2 = False
+
+        self.push_word(self.PC.get())
+
+        if self.IM == 0:
+            self.PC.set(0x0038)
+            return 13
+
+        elif self.IM == 1:
+            self.PC.set(0x0038)
+            return 13
+
+        elif self.IM == 2:
+            vector = (self.I.get() << 8) | 0xFF
+
+            lo = self.memory.read8(vector)
+            hi = self.memory.read8((vector + 1) & 0xFFFF)
+
+            self.PC.set(self.construct_word(hi, lo))
+            return 19
+
+        self.enter_bug_world(f"Invalid interrupt request (IM = {self.IM})")
 
     # endregion
     # region CPU Stepping
@@ -220,8 +243,6 @@ class Z80(FlagSetters, UOps):
 
         try:
             t_states = dispatcher.execute(self, opcode)
-
-            self.io.vdp.tick(t_states)
 
             # Handle delayed EI
             if self.EI_delay > 0:
@@ -255,27 +276,34 @@ class Z80(FlagSetters, UOps):
             else:
                 description = f"0x{opcode:02X}"
 
-            RED = "\033[31m"
-            ORANGE = "\033[38;5;208m"
-            YELLOW = "\033[33m"
-            GREEN = "\033[32m"
-            CYAN = "\033[36m"
-            BLUE = "\033[34m"
-            MAGENTA = "\033[35m"
-            WHITE = "\033[37m"
-            RESET = "\033[0m"
-
-            BOLD = "\033[1m"
-            BLINK = "\033[5m"
-
-            print(f"{RED}={RESET}" * 80)
-            print(
-                f"{BOLD}{BLINK}{GREEN}O-{CYAN}^v^v^{GREEN}-{RED} WELCOME TO BUG LAND {GREEN}-{CYAN}^v^v^{GREEN}-O{RESET}"
+            self.enter_bug_world(
+                f"STOP at PC={self.PC.get():04X} on unimplemented Z80 opcode: {description}"
             )
-            print(
-                f"Hello, my name is: {RED}{BOLD}STOP{RESET} at PC={self.PC.get():04X} on unimplemented Z80 opcode: {GREEN}{description}{RESET}"
-            )
-            print(f"{RED}={RESET}" * 80)
-            raise SystemExit(1)
 
-        # endregion
+    # endregion
+    # region Error Messaging
+
+    def enter_bug_world(self, message):
+
+        RED = "\033[31m"
+        ORANGE = "\033[38;5;208m"
+        YELLOW = "\033[33m"
+        GREEN = "\033[32m"
+        CYAN = "\033[36m"
+        BLUE = "\033[34m"
+        MAGENTA = "\033[35m"
+        WHITE = "\033[37m"
+        RESET = "\033[0m"
+
+        BOLD = "\033[1m"
+        BLINK = "\033[5m"
+
+        print(f"{RED}={RESET}" * 80)
+        print(
+            f"{BOLD}{BLINK}{GREEN}O-{CYAN}^v^v^{GREEN}-{RED} WELCOME TO BUG WORLD {GREEN}-{CYAN}^v^v^{GREEN}-O{RESET}"
+        )
+        print(f"Hello, my name is: {message}\nExecution halted :-(")
+        print(f"{RED}={RESET}" * 80)
+        raise SystemExit(1)
+
+    # endregion

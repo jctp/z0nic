@@ -387,7 +387,15 @@ def _dd_cb_prefix(self):
     bit = (opcode >> 3) & 0b111
     r = opcode & 0b111
     if opcode in range(0x00, 0x40):
-        result = self.rlc(value) if opcode & 0b00111000 == 0x00 else self.rrc(value) if opcode & 0b00111000 == 0x08 else self.rl(value) if opcode & 0b00111000 == 0x10 else self.rr(value)
+        result = (
+            self.rlc(value)
+            if opcode & 0b00111000 == 0x00
+            else self.rrc(value)
+            if opcode & 0b00111000 == 0x08
+            else self.rl(value)
+            if opcode & 0b00111000 == 0x10
+            else self.rr(value)
+        )
         self.memory.write8(address, result)
         return 20
     if opcode in range(0x40, 0x80):

@@ -28,7 +28,10 @@ class VDP:
         pass
 
     def _read_status(self):
-        pass
+        value = self.status
+        self.status &= 0x7F
+        self.frame_interrupt_pending = False
+        return value
 
     def _read_data(self):
         pass
