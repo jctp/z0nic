@@ -22,6 +22,8 @@ Some pieces have more LLM assistance than others:
 
 This is an AI disclosure for the sake of an AI disclosure, but if you want my full opinion on using a LLM as a teacher in an educational project like this, [Trixter](https://trixter.oldskool.org/2026/08/23/i-resent-ai-disclosure-policies-but-heres-mine/) has it about right.
 
+Update (15th Oct 2026): I had to cheat in one place. Un-implemented opcodes were causing a CPU desync bug. I have a handler to manage this, but it needs the stub for the missing opcode to be present. I had Claude handle making the stubs for approx. 170 missing opcodes because it's a repetitive, incredibly uninteresting task and my time to work on this is limited. Broke the rules, but they're my rules, and this is a hobby/educational project so I don't consider myself to be having fun wrong or learning wrong.
+
 ### What does it look like?
 At the moment, its output is simply logging what the Z80 and VDP are doing. In short, unless you can read the Matrix, you're not playing Sonic on this yet.
 
