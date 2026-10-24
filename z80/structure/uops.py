@@ -97,9 +97,14 @@ class UOps:
     def alu_sbc(self, lhs, rhs, carry_in=None):
         if carry_in is None:
             carry_in = int(self.F.carry)
-        rhs_total = (rhs + carry_in) & 0xFF
-        result = (lhs - rhs_total) & 0xFF
-        self.set_subtraction_flags(lhs, rhs_total, result)
+        total = lhs - rhs - carry_in
+        result = total & 0xFF
+        self.F.sign = (result & 0x80) != 0
+        self.F.zero = result == 0
+        self.F.add_sub = True
+        self.F.carry = total < 0
+        self.F.half_carry = ((lhs & 0x0F) - (rhs & 0x0F) - carry_in) < 0
+        self.F.parity_overflow = ((lhs ^ rhs) & (lhs ^ result) & 0x80) != 0
         return result
 
     # Compare one byte against another without storing the result in the accumulator.
@@ -146,6 +151,7 @@ class UOps:
     def alu_and(self, lhs, rhs):
         result = lhs & rhs
         self.set_logic_flags(result)
+        self.F.half_carry = True
         return result & 0xFF
 
     # Perform a bitwise OR and set the logic flags based on the result.
@@ -275,18 +281,32 @@ class UOps:
     # Add the selected register pair to HL with carry, mirroring the ED-prefixed ADC HL,ss instruction.
     def adc_hl_ss(self, ss_value):
         self.word_validity_check(ss_value, "adc_hl_ss")
+        hl = self.HL.get()
         carry_in = int(self.F.carry)
-        result = (self.HL.get() + ss_value + carry_in) & 0xFFFF
-        self.set_add16_flags(self.HL.get(), ss_value + carry_in)
+        total = hl + ss_value + carry_in
+        result = total & 0xFFFF
+        self.F.carry = total > 0xFFFF
+        self.F.half_carry = ((hl & 0x0FFF) + (ss_value & 0x0FFF) + carry_in) > 0x0FFF
+        self.F.add_sub = False
+        self.F.zero = result == 0
+        self.F.sign = (result & 0x8000) != 0
+        self.F.parity_overflow = ((hl ^ result) & (ss_value ^ result) & 0x8000) != 0
         self.HL.set(result)
         return result
 
     # Subtract the selected register pair from HL with borrow, mirroring the ED-prefixed SBC HL,ss instruction.
     def sbc_hl_ss(self, ss_value):
         self.word_validity_check(ss_value, "sbc_hl_ss")
+        hl = self.HL.get()
         carry_in = int(self.F.carry)
-        result = (self.HL.get() - ss_value - carry_in) & 0xFFFF
-        self.set_sub16_flags(self.HL.get(), ss_value + carry_in)
+        total = hl - ss_value - carry_in
+        result = total & 0xFFFF
+        self.F.carry = total < 0
+        self.F.half_carry = ((hl & 0x0FFF) - (ss_value & 0x0FFF) - carry_in) < 0
+        self.F.add_sub = True
+        self.F.zero = result == 0
+        self.F.sign = (result & 0x8000) != 0
+        self.F.parity_overflow = ((hl ^ ss_value) & (hl ^ result) & 0x8000) != 0
         self.HL.set(result)
         return result
 

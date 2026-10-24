@@ -34,16 +34,16 @@ class SegaMasterSystem:
         if self.frame_dump_dir:
             os.makedirs(self.frame_dump_dir, exist_ok=True)
 
-        last_frame = self.io.vdp.frame
         while True:
             t_states = self.cpu.step()
             self.io.vdp.tick(t_states)
 
-            if self.frame_dump_dir and self.io.vdp.frame != last_frame:
+            if self.frame_dump_dir and self.io.vdp.frame_complete:
+                self.io.vdp.frame_complete = False
                 last_frame = self.io.vdp.frame
                 if last_frame % self.frame_dump_interval == 0:
                     path = os.path.join(self.frame_dump_dir, f"frame_{last_frame:05d}.png")
-                    write_png(path, self.io.vdp.render_background_frame())
+                    write_png(path, self.io.vdp.render_frame())
 
     def splash_screen(self):
         def clear_screen():

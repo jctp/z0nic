@@ -21,7 +21,7 @@ class FlagSetters:
         self.F.add_sub = False
         self.F.carry = total > 0xFF
         self.F.half_carry = ((lhs ^ rhs ^ final) & 0x10) != 0
-        self.F.parity_overflow = final.bit_count() % 2 == 0
+        self.F.parity_overflow = ((lhs ^ final) & (rhs ^ final) & 0x80) != 0
 
     def set_logic_flags(self, value):
         # For AND/OR/XOR-like instructions, the byte is simply transformed by a logic
@@ -79,12 +79,3 @@ class FlagSetters:
         self.F.half_carry = True
         self.F.parity_overflow = self.F.zero
 
-    def set_add16_flags(self, a, b):
-        self.F.N = 0
-        self.F.H = ((a & 0x0FFF) + (b & 0x0FFF)) > 0x0FFF
-        self.F.C = (a + b) > 0xFFFF
-
-    def set_sub16_flags(self, a, b):
-        self.F.N = 1
-        self.F.H = (a & 0x0FFF) < (b & 0x0FFF)
-        self.F.C = a < b

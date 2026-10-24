@@ -15,7 +15,7 @@ sms_io = Input_Output()
 z80 = Z80(
     memory=sms_memory,
     io=sms_io,
-    clock_hz=3.56 * 100000,  # Real CPU is 3.58 Mhz
+    clock_hz=3.546893e6,
     log_opcodes=False,
 )
 

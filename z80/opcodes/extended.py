@@ -1136,6 +1136,22 @@ def execute(self, opcode):
             if opcode == 0xBB:
                 return _otdr(self)
 
+            # Undocumented ED aliases: NEG, RETN and IM mirrors.
+            if opcode in (0x4C, 0x54, 0x5C, 0x64, 0x6C, 0x74, 0x7C):
+                return _neg(self)
+            if opcode in (0x55, 0x5D, 0x65, 0x6D, 0x75, 0x7D):
+                return _retn(self)
+            if opcode in (0x4E, 0x66, 0x6E):
+                return _im_0(self)
+            if opcode == 0x76:
+                return _im_1(self)
+            if opcode == 0x7E:
+                return _im_2(self)
+
+            # Remaining undefined ED opcodes act as 2-byte NOPs on hardware.
+            if entry["mnemonic"].startswith("stub"):
+                return 8
+
             raise NotImplementedError(
                 f"{__name__}: {prefix:02X} {opcode:02X} {entry['mnemonic']} ({entry['description']}) is not implemented"
             )

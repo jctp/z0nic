@@ -180,7 +180,7 @@ def _sra_r(self, opcode):
 def _sll_r(self, opcode):
     r = opcode & 0b111
     value = self.read_from_r(r)
-    result = (value << 1) & 0xFF
+    result = ((value << 1) | 1) & 0xFF
     self.F.carry = bool((value >> 7) & 1)
     self.set_logic_flags(result)
     self.write_to_r(r, result)
@@ -248,9 +248,10 @@ def _set_b_r(self, opcode):
 
 def _rlca(self):
     value = self.A.get()
-    result = self.rlc(value)
-    self.A.set(result)
-    self.F.zero = False
+    self.F.carry = bool((value >> 7) & 1)
+    self.F.add_sub = False
+    self.F.half_carry = False
+    self.A.set(((value << 1) | (value >> 7)) & 0xFF)
     return 4
 
 
@@ -274,9 +275,10 @@ def _ex_af_af_prime(self):
 
 def _rrca(self):
     value = self.A.get()
-    result = self.rrc(value)
-    self.A.set(result)
-    self.F.zero = False
+    self.F.carry = bool(value & 1)
+    self.F.add_sub = False
+    self.F.half_carry = False
+    self.A.set(((value >> 1) | ((value & 1) << 7)) & 0xFF)
     return 4
 
 
@@ -290,8 +292,6 @@ def _rla(self):
     carry_in = int(self.F.carry)
     result = ((value << 1) | carry_in) & 0xFF
     self.F.carry = bool((value >> 7) & 1)
-    self.set_logic_flags(result)
-    self.F.zero = False
     self.F.add_sub = False
     self.F.half_carry = False
     self.A.set(result)
@@ -308,8 +308,6 @@ def _rra(self):
     carry_in = int(self.F.carry)
     result = ((value >> 1) | (carry_in << 7)) & 0xFF
     self.F.carry = bool(value & 1)
-    self.set_logic_flags(result)
-    self.F.zero = False
     self.F.add_sub = False
     self.F.half_carry = False
     self.A.set(result)
@@ -418,6 +416,30 @@ def _ex_de_hl(self):
     return 4
 
 
+def _cb_op(self, opcode):
+    if 0x00 <= opcode <= 0x07:
+        return _rlc_r(self, opcode)
+    if 0x08 <= opcode <= 0x0F:
+        return _rrc_r(self, opcode)
+    if 0x10 <= opcode <= 0x17:
+        return _rl_r(self, opcode)
+    if 0x18 <= opcode <= 0x1F:
+        return _rr_r(self, opcode)
+    if 0x20 <= opcode <= 0x27:
+        return _sla_r(self, opcode)
+    if 0x28 <= opcode <= 0x2F:
+        return _sra_r(self, opcode)
+    if 0x30 <= opcode <= 0x37:
+        return _sll_r(self, opcode)
+    if 0x38 <= opcode <= 0x3F:
+        return _srl_r(self, opcode)
+    if 0x40 <= opcode <= 0x7F:
+        return _bit_b_r(self, opcode)
+    if 0x80 <= opcode <= 0xBF:
+        return _res_b_r(self, opcode)
+    return _set_b_r(self, opcode)
+
+
 def execute(self, opcode):
     prefix = opcode
     if opcode == 0xCB:
@@ -427,6 +449,8 @@ def execute(self, opcode):
         if _matches_opcode(opcode, entry):
             if opcode == 0xCB:
                 return _cb_prefix(self)
+            if prefix == 0xCB:
+                return _cb_op(self, opcode)
             if opcode == 0xD9:
                 return _exx(self)
             if opcode == 0xE3:
@@ -451,28 +475,7 @@ def execute(self, opcode):
                 return _scf(self)
             if opcode == 0x3F:
                 return _ccf(self)
-            if 0x00 <= opcode <= 0x07:
-                return _rlc_r(self, opcode)
-            if 0x08 <= opcode <= 0x0F:
-                return _rrc_r(self, opcode)
-            if 0x10 <= opcode <= 0x17:
-                return _rl_r(self, opcode)
-            if 0x18 <= opcode <= 0x1F:
-                return _rr_r(self, opcode)
-            if 0x20 <= opcode <= 0x27:
-                return _sla_r(self, opcode)
-            if 0x28 <= opcode <= 0x2F:
-                return _sra_r(self, opcode)
-            if 0x30 <= opcode <= 0x37:
-                return _sll_r(self, opcode)
-            if 0x38 <= opcode <= 0x3F:
-                return _srl_r(self, opcode)
-            if 0x40 <= opcode <= 0x7F:
-                return _bit_b_r(self, opcode)
-            if 0x80 <= opcode <= 0xBF:
-                return _res_b_r(self, opcode)
-            if 0xC0 <= opcode <= 0xFF:
-                return _set_b_r(self, opcode)
+            return _cb_op(self, opcode)
 
             raise NotImplementedError(
                 f"{__name__}: {prefix:02X} {opcode:02X} {entry['mnemonic']} ({entry['description']}) is not implemented"
