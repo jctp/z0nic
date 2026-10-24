@@ -1,5 +1,6 @@
 import sys
 import traceback
+import os
 
 RED = "\033[31m"
 ORANGE = "\033[38;5;208m"
@@ -16,19 +17,23 @@ BLINK = "\033[5m"
 
 
 def _print_banner(message, exc_traceback=None):
+    os.system("clear")
+
     out = sys.stderr
     print(f"{RED}={RESET}" * 80, file=out)
     print(
         f"{BOLD}{BLINK}{GREEN}O-{CYAN}^v^v^{GREEN}-{RED} WELCOME TO BUG WORLD {GREEN}-{CYAN}^v^v^{GREEN}-O{RESET}",
         file=out,
     )
-    print(f"Hello, my name is: {message}\nExecution halted :-(", file=out)
-    print(f"{RED}={RESET}" * 80, file=out)
-    print("Traceback", file=out)
+    print(f"{BLUE}Z0NIC{RESET} couldn't hack it anymore, and died.")
+    print(f"{RED}-{RESET}" * 80, file=out)
+    print(f"{BOLD}{RED}BLAME THIS:{RESET} {message}.", file=out)
+    print(f"{BLUE}={RESET}" * 80, file=out)
     if exc_traceback is not None:
         traceback.print_tb(exc_traceback)
     else:
         traceback.print_stack(sys._getframe(2))
+    print(f"{BLUE}-{RESET}" * 80, file=out)
 
 
 def enter_bug_world(message):
