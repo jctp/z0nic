@@ -16,6 +16,7 @@
 # 6. system.py passes finished frames to the PNG writer in frame_dump.py. This emulator
 #    has no live window; the PNG files are the screen.
 
+
 class VDP:
     def __init__(self):
 

@@ -3,6 +3,7 @@ import os
 from frame_dump import write_png
 from logger import logger
 
+
 class SegaMasterSystem:
     def __init__(
         self,
@@ -41,7 +42,9 @@ class SegaMasterSystem:
                 self.io.vdp.frame_complete = False
                 last_frame = self.io.vdp.frame
                 if last_frame % self.frame_dump_interval == 0:
-                    path = os.path.join(self.frame_dump_dir, f"frame_{last_frame:05d}.png")
+                    path = os.path.join(
+                        self.frame_dump_dir, f"frame_{last_frame:05d}.png"
+                    )
                     write_png(path, self.io.vdp.render_frame())
                     logger.debug(f"Dumped frame {last_frame:05d}.")
 

@@ -78,4 +78,3 @@ class FlagSetters:
         self.F.add_sub = False
         self.F.half_carry = True
         self.F.parity_overflow = self.F.zero
-
