@@ -15,7 +15,7 @@ sms_cartridge = Cartridge()
 sms_cartridge.load("sonic1sms.sms")
 
 sms_memory = Memory(cartridge=sms_cartridge)
-sms_io = Input_Output()
+sms_io = Input_Output(video_standard="PAL")
 z80 = Z80(
     memory=sms_memory,
     io=sms_io,

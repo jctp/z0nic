@@ -18,6 +18,7 @@ class SegaMasterSystem:
 
         self.splash_screen()
 
+        self.cpu = cpu
         self.cartridge = cartridge
         self.io = io
         self.memory = memory

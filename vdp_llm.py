@@ -18,7 +18,7 @@
 
 
 class VDP:
-    def __init__(self):
+    def __init__(self, video_standard):
 
         # VRAM and CRAM setup
         self.vram = bytearray(0x4000)

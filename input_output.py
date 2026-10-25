@@ -3,8 +3,8 @@ from vdp import VDP
 
 
 class Input_Output:
-    def __init__(self):
-        self.vdp = VDP()
+    def __init__(self, video_standard="PAL"):
+        self.vdp = VDP(video_standard=video_standard)
 
         # Generic port storage for unimplemented devices
         self.ports = [0xFF] * 256
