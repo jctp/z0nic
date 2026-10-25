@@ -130,6 +130,12 @@ class VDP:
         second_write_byte = value
         self.control_port_latch = None
         code = second_write_byte >> 6
+
+        # Register write: only the register changes, the address and code are left alone
+        if code == 0b10:
+            self._register_write(first_write_byte, second_write_byte)
+            return
+
         self.control_port_code = code
         self.ram_address = ((second_write_byte & 0x3F) << 8 | first_write_byte) & 0x3FFF
 
@@ -137,10 +143,6 @@ class VDP:
             # VRAM read
             case 0b00:
                 self._vram_read()
-
-            # Register write
-            case 0b10:
-                self._register_write(first_write_byte, second_write_byte)
 
     def _vram_read(self):
         self.vram_read_buffer = self.vram[self.ram_address]
