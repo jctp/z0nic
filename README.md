@@ -14,9 +14,9 @@ I have no idea, it's nowhere close to being able to run a commercial game.
 Absolutely not. In fact, it was getting messy enough that I ripped out the entire Z80 implementation to replace it with an object-oriented version with "micro-operation" helpers for building up opcode behaviour. This set back progress, but made life easier.
 
 ### Is it vibe-coded?
-No, this is a learning project so vibe-coding the whole thing would be pointless. I did use AI to help teach me things; my only emulator before this is a CHIP-8 interpreter and a the infinitely patient "experienced teacher" model works for me.
+No and yes. Some parts (CPU, memory, cartridge) are handmade. Some parts have more AI assistance. Some parts (VDP) are completely AI-generated. This is the first emulator I’ve made more complex than the CHIP-8 and it’s been incredibly helpful as a teaching tool for what the right answers should look like. My next emulator, which will also be SMS, will be far more handcrafted using what I’ve learned here (and through documentation, other code etc). 
 
-When I switched to the OO paradigm, I had MAI stub out (but not implement) all ~700 opcodes according to the rules I set it.
+This isn’t an emulator really meant for public use. There are already a million far better SMS emulators out there. The only reason this repo is public is because there’s no real reason for it not to be. If you’re here to get all salty that I used AI to help me learn a new skill, please know in your heart that I don’t care.
 
 ### What does it look like?
 At the moment, its output is simply logging what the Z80 and VDP are doing. In short, unless you can read the Matrix, you're not playing Sonic on this yet.
