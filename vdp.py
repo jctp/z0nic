@@ -12,8 +12,7 @@
 #    and irq_line() reports the interrupt for the Z80 to take.
 # 5. tick() draws each line into the frame as its scanline starts, combining background
 #    and sprites into RGB; render_frame() returns the last completed frame.
-# 6. system.py passes finished frames to the PNG writer in frame_dump.py. This emulator
-#    has no live window; the PNG files are the screen.
+# 6. system.py passes each finished frame to the pygame window in display.py.
 
 from logger import logger
 
@@ -52,6 +51,12 @@ class VDP:
         self.frame_lines = [None] * 192
         self.completed_frame = None
 
+        # Cache the most expensive per-pixel work: decoded tile pixels and palette RGB values.
+        # These are reused across the same tile/palette entries throughout the frame.
+        self._tile_cache = {}
+        self._colour_cache = {}
+        self._row_cache = {}
+
     # Control port: first byte is latched, second byte selects a register write or address set.
     def _write_control(self, value):
         if self.control_latch is None:
@@ -66,6 +71,8 @@ class VDP:
         # Register write: 10rrrr with the data in the first byte
         if code == 0b10:
             self.registers[value & 0x0F] = first
+            if (value & 0x0F) == 7:
+                self._row_cache.clear()
             return
 
         # Address set: the second byte supplies address bits 13-8
@@ -82,8 +89,12 @@ class VDP:
 
         if self.code == 0b11:
             self.cram[self.address & 0x1F] = value
+            self._colour_cache.clear()
+            self._row_cache.clear()
         else:
             self.vram[self.address] = value
+            self._tile_cache.pop(self.address >> 5, None)
+            self._row_cache.pop(self.address >> 5, None)
 
         self.address = (self.address + 1) & 0x3FFF
 
@@ -145,21 +156,37 @@ class VDP:
 
     # Reads one pixel of a 4bpp planar 8x8 tile (32 bytes, four bitplanes per row).
     def decode_tile_pixel(self, tile_index, x, y):
-        row = tile_index * 32 + y * 4
-        bit = 7 - x
-        value = 0
-        for plane in range(4):
-            value |= ((self.vram[row + plane] >> bit) & 1) << plane
-        return value
+        tile = self._tile_cache.get(tile_index)
+        if tile is None:
+            tile = []
+            row_base = tile_index * 32
+            for row in range(8):
+                base = row_base + row * 4
+                for col in range(8):
+                    bit = 7 - col
+                    value = 0
+                    for plane in range(4):
+                        value |= ((self.vram[base + plane] >> bit) & 1) << plane
+                    tile.append(value)
+            self._tile_cache[tile_index] = tuple(tile)
+            tile = self._tile_cache[tile_index]
+        return tile[y * 8 + x]
 
-    # Converts a CRAM entry (2 bits per channel) to 0-255 RGB; palette 0 is BG, 1 is sprites.
+    # Converts a CRAM entry to 3 RGB bytes; palette 0 is BG, 1 is sprites.
     def colour_rgb(self, palette, index):
+        key = (palette, index)
+        cached = self._colour_cache.get(key)
+        if cached is not None:
+            return cached
+
         byte = self.cram[palette * 16 + index]
-        return (
+        rgb = bytes((
             (byte & 0x03) * 85,
             ((byte >> 2) & 0x03) * 85,
             ((byte >> 4) & 0x03) * 85,
-        )
+        ))
+        self._colour_cache[key] = rgb
+        return rgb
 
     # Name table address from R2 bits 1-3; each row is 32 entries of 2 bytes.
     def _name_entry_address(self, column, row):
@@ -171,49 +198,6 @@ class VDP:
         address = self._name_entry_address(column % 32, row % 28)
         return self.vram[address] | (self.vram[address + 1] << 8)
 
-    # Converts a pixel row to a tile row.
-    def _tile_row(self, y):
-        return y // 8
-
-    # Name entry bits: 0-8 tile, 9 flip X, 10 flip Y, 11 palette, 12 priority.
-    def _tile_index(self, entry):
-        return entry & 0x1FF
-
-    def _tile_flip_x(self, entry):
-        return bool(entry & 0x0200)
-
-    def _tile_flip_y(self, entry):
-        return bool(entry & 0x0400)
-
-    def _tile_palette(self, entry):
-        return (entry >> 11) & 0x01
-
-    # Priority bit: background tile covers sprites where its pixel is non-zero.
-    def _tile_priority(self, entry):
-        return bool(entry & 0x1000)
-
-    # Returns (rgb, opaque, priority) for one background pixel after scrolling.
-    def _background_sample(self, x, y):
-        bg_x = (x - self.registers[8]) % 256
-        bg_y = (y + self.registers[9]) % 224
-
-        entry = self._name_entry(bg_x // 8, self._tile_row(bg_y))
-
-        fine_x = bg_x % 8
-        fine_y = bg_y % 8
-        if self._tile_flip_x(entry):
-            fine_x = 7 - fine_x
-        if self._tile_flip_y(entry):
-            fine_y = 7 - fine_y
-
-        index = self.decode_tile_pixel(self._tile_index(entry), fine_x, fine_y)
-        if index == 0:
-            return self.colour_rgb(1, self.registers[7] & 0x0F), False, False
-        return (
-            self.colour_rgb(self._tile_palette(entry), index),
-            True,
-            self._tile_priority(entry),
-        )
 
     # Sprite attribute table base from R5 bits 1-6; Y bytes first, then X/tile pairs.
     def _sprite_table(self):
@@ -240,11 +224,12 @@ class VDP:
                     break
         return found
 
-    # Renders sprite pixels for line y; colour index 0 is transparent, earlier sprites win.
+    # Returns (x, rgb) for each visible sprite pixel on line y; earlier sprites win.
     def _sprite_line(self, y):
         table = self._sprite_table()
         height = self._sprite_height()
-        pixels = [None] * 256
+        occupied = set()
+        found = []
         for i, row in self._sprites_on_line(y):
             x = self.vram[table + 0x80 + i * 2]
             tile = self.vram[table + 0x81 + i * 2]
@@ -259,28 +244,74 @@ class VDP:
                 tile += 256
             for col in range(8):
                 sx = x + col
-                if not 0 <= sx < 256 or pixels[sx] is not None:
+                if not 0 <= sx < 256 or sx in occupied:
                     continue
                 index = self.decode_tile_pixel(tile, col, row)
                 if index:
-                    pixels[sx] = self.colour_rgb(1, index)
-        return pixels
+                    occupied.add(sx)
+                    found.append((sx, self.colour_rgb(1, index)))
+        return found
 
-    # Composites background, sprites, and column-0 blanking for one line.
+    # Returns (rgb bytes for 8 pixels, per-pixel background-priority flags) for one tile row.
+    def _bg_row(self, entry, fine_y):
+        tile = entry & 0x1FF
+        key = (entry & 0x1E00, fine_y)
+        per_tile = self._row_cache.get(tile)
+        if per_tile is None:
+            per_tile = self._row_cache[tile] = {}
+        cached = per_tile.get(key)
+        if cached is not None:
+            return cached
+
+        flip_x = entry & 0x0200
+        flip_y = entry & 0x0400
+        palette = (entry >> 11) & 1
+        priority = bool(entry & 0x1000)
+        pixel_y = 7 - fine_y if flip_y else fine_y
+        backdrop = self.colour_rgb(1, self.registers[7] & 0x0F)
+
+        parts = []
+        covers = []
+        for px in range(8):
+            pixel_x = 7 - px if flip_x else px
+            index = self.decode_tile_pixel(tile, pixel_x, pixel_y)
+            if index:
+                parts.append(self.colour_rgb(palette, index))
+                covers.append(priority)
+            else:
+                parts.append(backdrop)
+                covers.append(False)
+
+        result = (b"".join(parts), tuple(covers))
+        per_tile[key] = result
+        return result
+
+    # Builds one 256-pixel RGB row from cached tile rows, patches sprites, then blanks column 0 if set.
     def render_line(self, y):
-        background = [self._background_sample(x, y) for x in range(256)]
-        sprites = self._sprite_line(y)
-        line = []
-        for x in range(256):
-            colour, opaque, priority = background[x]
-            if sprites[x] is not None and not (priority and opaque):
-                colour = sprites[x]
-            if self.registers[0] & 0x20 and x < 8:
-                colour = self.colour_rgb(1, self.registers[7] & 0x0F)
-            line.append(colour)
-        return line
+        regs = self.registers
+        bg_y = (y + regs[9]) % 224
+        tile_row = bg_y >> 3
+        fine_y = bg_y & 7
+        start_x = (-regs[8]) & 0xFF
+        first_col = start_x >> 3
+        phase = start_x & 7
 
-    # Returns the last completed frame as 192 rows; system.py passes it to the PNG writer.
+        parts = []
+        covers = []
+        for k in range(33):
+            rgb, cov = self._bg_row(self._name_entry((first_col + k) & 31, tile_row), fine_y)
+            parts.append(rgb)
+            covers.extend(cov)
+
+        out = bytearray(b"".join(parts)[phase * 3:phase * 3 + 768])
+        for x, colour in self._sprite_line(y):
+            if not covers[phase + x]:
+                out[x * 3:x * 3 + 3] = colour
+        if regs[0] & 0x20:
+            out[0:24] = self.colour_rgb(1, regs[7] & 0x0F) * 8
+        return bytes(out)
+
+    # Returns the last completed frame as 192 rows; system.py passes it to the display.
     def render_frame(self):
         return self.completed_frame
 

@@ -25,8 +25,6 @@ console = SegaMasterSystem(
     io=sms_io,
     memory=sms_memory,
     logger=logger,
-    frame_dump_dir="frames",
-    frame_dump_interval=60,
 )
 
 console.run()

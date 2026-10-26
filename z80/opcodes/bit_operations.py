@@ -320,7 +320,24 @@ def _rra(self):
 
 
 def _daa(self):
-    return None
+    a = self.A.get()
+    carry = self.F.carry
+    subtract = self.F.add_sub
+
+    adjust = 0
+    if self.F.half_carry or (a & 0x0F) > 0x09:
+        adjust |= 0x06
+    if carry or a > 0x99:
+        adjust |= 0x60
+        carry = True
+
+    result = ((a - adjust) if subtract else (a + adjust)) & 0xFF
+    self.A.set(result)
+    self.set_logic_flags(result)
+    self.F.add_sub = subtract
+    self.F.half_carry = ((a ^ result) & 0x10) != 0
+    self.F.carry = carry
+    return 4
 
 
 # Opcode: 0x2F

@@ -405,6 +405,7 @@ class UOps:
         self.memory.write8(self.HL.get(), value)
         self.HL.set((self.HL.get() + direction) & 0xFFFF)
         self.B.set((self.B.get() - 1) & 0xFF)
+        self.set_block_io_flags()
         return self.B.get() != 0
 
     # Output a byte from memory at HL to the port in BC and continue while the block count remains non-zero.
@@ -413,7 +414,14 @@ class UOps:
         self.port_out(self.BC.get() & 0xFFFF, value)
         self.HL.set((self.HL.get() + direction) & 0xFFFF)
         self.B.set((self.B.get() - 1) & 0xFF)
+        self.set_block_io_flags()
         return self.B.get() != 0
+
+    # INI/OUTI and their decrementing forms set N and set Z from the decremented B.
+    # JP NZ after a single OUTI/INI relies on this.
+    def set_block_io_flags(self):
+        self.F.add_sub = True
+        self.F.zero = self.B.get() == 0
 
     # endregion
     # region Byte Handling

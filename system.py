@@ -1,7 +1,7 @@
 import os
 
-from frame_dump import write_png
-from logger import logger
+from display import Display
+
 
 class SegaMasterSystem:
     def __init__(
@@ -11,8 +11,6 @@ class SegaMasterSystem:
         io,
         memory,
         logger,
-        frame_dump_dir=None,
-        frame_dump_interval=30,
     ):
 
         self.splash_screen()
@@ -23,28 +21,26 @@ class SegaMasterSystem:
         self.memory = memory
 
         self.logger = logger
-
-        self.frame_dump_dir = frame_dump_dir
-        self.frame_dump_interval = frame_dump_interval
+        self.display = Display()
 
         self.logger.info("Sega Master System setup complete!")
 
     def run(self):
         self.logger.info("Starting emulation...")
-        if self.frame_dump_dir:
-            os.makedirs(self.frame_dump_dir, exist_ok=True)
 
-        while True:
-            t_states = self.cpu.step()
-            self.io.vdp.tick(t_states)
+        try:
+            while True:
+                t_states = self.cpu.step()
+                self.io.vdp.tick(t_states)
 
-            if self.frame_dump_dir and self.io.vdp.frame_complete:
-                self.io.vdp.frame_complete = False
-                last_frame = self.io.vdp.frame
-                if last_frame % self.frame_dump_interval == 0:
-                    path = os.path.join(self.frame_dump_dir, f"frame_{last_frame:05d}.png")
-                    write_png(path, self.io.vdp.render_frame())
-                    logger.debug(f"Dumped frame {last_frame:05d}.")
+                if self.io.vdp.frame_complete:
+                    self.io.vdp.frame_complete = False
+                    self.display.present(self.io.vdp.render_frame())
+                    if not self.io.controls.handle_events(self.display.poll_events()):
+                        break
+                    self.display.wait_for_next_frame()
+        finally:
+            self.display.close()
 
     def splash_screen(self):
         def clear_screen():
